@@ -28,11 +28,15 @@ private:
 
     bool m_connected = false;
 
+    Model m_model;
+
 public:
 
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
 
     GameClient() {
+        m_model = LoadModel("assets/model.glb");
+
         m_client = std::make_shared<EasyNetClient>();
         m_client->CreateClient();
         m_client->SetOnReceive([this](ENetEvent event){OnReceive(event);});
@@ -41,13 +45,34 @@ public:
     }
 
     void Update() {
+
+            if (IsKeyPressed(KEY_L)){
+                if (IsCursorHidden()){
+                    EnableCursor();
+                }
+                else {
+                    DisableCursor();
+                }
+            }
+
             PlayerInput input;
             
+            if (!IsCursorHidden()){
+                input.mouse_x = 0;
+                input.mouse_y = 0;    
+            }
+            else {
+                input.mouse_x = GetMouseDelta().x / 450;
+                input.mouse_y = -GetMouseDelta().y / 450;
+            }
             input.right = IsKeyDown(KEY_D);
             input.left = IsKeyDown(KEY_A);
-            input.up = IsKeyPressed(KEY_W);
+            input.forw = IsKeyDown(KEY_W);
+            input.back = IsKeyDown(KEY_S);
+            input.up = IsKeyDown(KEY_SPACE);
+            input.down = IsKeyDown(KEY_LEFT_CONTROL);
 
-            if (input.GetX() != 0 || input.up) {
+            if (!input.IsEmpty()) {
                 GameEvent event;
                 event.event_id = EV_PLAYER_INPUT;
                 event.data = input;
@@ -81,15 +106,16 @@ public:
 
     void DrawGame() {
         BeginDrawing();
+        ClearBackground(DARKGRAY);
         DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
         DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
         
-        DrawingData drawing_data = {m_id, true, GREEN};
-        Draw(m_self_game_state, &drawing_data);
-        drawing_data = {m_id, false, RED};
-        Draw(m_others_game_state, &drawing_data);
+        if (m_self_game_state.players.find(m_id) != m_self_game_state.players.end()) {
+            DrawingData drawing_data = {m_self_game_state.players.at(m_id), m_id, m_model};
+            Draw(m_others_game_state, &drawing_data);
+        }
 
-        ClearBackground(DARKGRAY);
+        
         EndDrawing();
     }
 

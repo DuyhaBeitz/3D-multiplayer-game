@@ -35,11 +35,26 @@ enum EventId {
 struct PlayerJoin {};
 struct PlayerLeave {};
 struct PlayerInput {
+    float mouse_x;
+    float mouse_y;
     bool right;
     bool left;
+    bool forw;
+    bool back;
     bool up;
+    bool down;
+    
+    Vector2 Normalized() {
+        float f = forw - back;
+        float r = right - left;
+        return Vector2Normalize({f, r});
+    }
 
-    float GetX() { return right - left; }
+    int UpDown() { return up - down; }
+
+    bool IsEmpty() {
+        return mouse_x == 0.f && mouse_y == 0.f && Normalized().x == 0 && Normalized().y == 0 && UpDown() == 0;
+    }
 };
 
 struct GameEvent {
@@ -48,8 +63,27 @@ struct GameEvent {
 };
 
 struct PlayerState {
-    Vector2 position;
-    Vector2 velocity;
+    Vector3 position;
+    Vector3 velocity;
+    float yaw;
+    float pitch;
+
+    Vector3 VForward() const {
+        return Vector3{cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)};
+    }
+
+    Vector3 VRight() const {
+        return Vector3{cos(yaw+PI/2) * cos(pitch), 0, sin(yaw+PI/2) * cos(pitch)};
+    }
+
+    void ApplyInput(PlayerInput input) {
+        yaw += input.mouse_x;
+        pitch += input.mouse_y;
+
+        velocity += VForward()*input.Normalized().x;
+        velocity += VRight()*input.Normalized().y;
+        velocity.y += input.UpDown()*1.f;
+    }
 };
 
 struct GameState {
@@ -68,16 +102,20 @@ struct SerializedGameState {
 };
 
 struct DrawingData {
-    uint32_t special_id;
-    bool inc_exc_sp_id; // to include only the special id, or the other way around: leave only everybody else
-    Color color;
-    bool uses_special_id = true;
+    PlayerState self;
+    uint32_t self_id;
+    Model& model;
 };
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 public:
     PlayerState InitNewPlayer(const GameState& state, uint32_t id) {
-        return PlayerState{Vector2{0, 0}};
+        PlayerState player;
+        player.pitch = 0;
+        player.yaw = 0;
+        player.position = Vector3{0, 0, 0};
+        player.velocity = Vector3{0, 0, 0};
+        return player;
     }
 
     virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id) {
@@ -94,8 +132,7 @@ public:
             if (std::holds_alternative<PlayerInput>(event.data)) {
                 auto input = std::get<PlayerInput>(event.data);
                 if (state.players.find(id) != state.players.end()) {
-                    state.players[id].velocity.x += input.GetX() * dt * hor_speed;
-                    if (input.up && state.players[id].position.y == floor_lvl) state.players[id].velocity.y -= jump_impulse;
+                    state.players[id].ApplyInput(input);
                 }
             }
             break; 
@@ -106,22 +143,37 @@ public:
     }
 
     virtual void Draw(const GameState& state, const void* data) {
+        const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
+        Camera3D camera = { 0 };
+        camera.position = drawing_data->self.position;
+        camera.target = drawing_data->self.position + drawing_data->self.VForward();
+        camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+        camera.fovy = 90.0f;
+        camera.projection = CAMERA_PERSPECTIVE;
+
+        BeginMode3D(camera);
+        DrawGrid(10, 100);
+        
         for (const auto& [id, player] : state.players) {
-            const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
-            if ((!drawing_data->uses_special_id) || (drawing_data->inc_exc_sp_id == (id == drawing_data->special_id))) {
-                DrawCircleV(player.position, 10, drawing_data->color);
-            }            
+            if (id != drawing_data->self_id) {     
+                DrawModelEx(drawing_data->model, player.position, Vector3{0, 1, 0}, -player.yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
+                //DrawSphere(player.position, 3.0, RED);
+                DrawLine3D(player.position, player.position + player.VForward()*6, GREEN);                
+                DrawLine3D(player.position, player.position + player.VRight()*6, BLUE);                
+            }
         }
+
+        EndMode3D();
     }
 
     virtual void UpdateGameLogic(GameState& state) {
         for (auto& [id, player] : state.players) {
-            player.velocity.y += gravity*dt;
+            //player.velocity.y += gravity*dt;
             player.position += player.velocity;
-            if (player.position.y > floor_lvl) {
-                player.position.y = floor_lvl;
-            }
-            player.velocity *= 0.9;
+            // if (player.position.y > floor_lvl) {
+            //     player.position.y = floor_lvl;
+            // }
+            player.velocity *= 0.7;
         }
     }
 
@@ -137,7 +189,7 @@ public:
                 case EV_PLAYER_INPUT:
                     {
                     auto input = std::get<PlayerInput>(event.data);
-                    *out << "\tINPUT\t" << "X: " << input.GetX() << " up: " << input.up << std::endl;
+                    //*out << "\tINPUT\t" << "X: " << input.GetX() << " up: " << input.up << std::endl;
                     }
                     break;
                 case EV_PLAYER_JOIN:
@@ -161,7 +213,7 @@ public:
         for (auto& [id, player] : state2.players) {
             if (id != *except_id) {
                 if (state1.players.find(id) != state1.players.end()) {
-                    lerped.players[id].position = Vector2Lerp(state1.players.at(id).position, state2.players.at(id).position, alpha);
+                    lerped.players[id].position = Vector3Lerp(state1.players.at(id).position, state2.players.at(id).position, alpha);
                 }
             }
         }
@@ -172,10 +224,14 @@ public:
         nlohmann::json j;
         for (const auto& [id, player] : state.players) {
             j["players"][std::to_string(id)] = {
+                {"yw", player.yaw},
+                {"pt", player.pitch},
                 {"px", player.position.x},
                 {"py", player.position.y},
+                {"pz", player.position.z},
                 {"vx", player.velocity.x},
-                {"vy", player.velocity.y}
+                {"vy", player.velocity.y},
+                {"vz", player.velocity.z},
             };
         }
         return SerializedGameState(j.dump().c_str());
@@ -187,10 +243,14 @@ public:
         for (auto& [id_str, player_json] : j["players"].items()) {
             uint32_t id = static_cast<uint32_t>(std::stoul(id_str));
             PlayerState ps;
+            ps.yaw = player_json["yw"].get<float>();
+            ps.pitch = player_json["pt"].get<float>();
             ps.position.x = player_json["px"].get<float>();
             ps.position.y = player_json["py"].get<float>();
+            ps.position.z = player_json["pz"].get<float>();
             ps.velocity.x = player_json["vx"].get<float>();
             ps.velocity.y = player_json["vy"].get<float>();
+            ps.velocity.z = player_json["vz"].get<float>();
             state.players[id] = ps;
         }
         return state;
