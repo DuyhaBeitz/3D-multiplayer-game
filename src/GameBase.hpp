@@ -8,7 +8,7 @@ template<typename GameStateType, typename GameEventType, typename SerializedGame
 class GameBase {
 protected:
     // usage: m_event_history[tick][event_index].first() = player id, not all events use this
-    // usage: m_event_history[tick][event_index].first() = event
+    // usage: m_event_history[tick][event_index].second() = event
     std::map<uint32_t, std::vector<std::pair<uint32_t, GameEventType>>> m_event_history;
     std::map<uint32_t, GameStateType> m_state_history;
 
@@ -48,9 +48,11 @@ public:
     }
 
     void DropEventHistory(uint32_t last_dropped_tick) {
-        for (auto& [tick, events] : m_event_history) {
-            if (tick <= last_dropped_tick) {
-                m_event_history.erase(tick);
+        for (auto it = m_event_history.begin(); it != m_event_history.end(); ) {
+            if (it->first <= last_dropped_tick) {
+                it = m_event_history.erase(it);
+            } else {
+                ++it;
             }
         }
     }

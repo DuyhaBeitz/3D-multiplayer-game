@@ -24,7 +24,10 @@ public:
     void Update() {
         m_server->Update();
 
-        if (m_tick % tick_period == 0) {
+        // ensuring that we're not substructing bigger uint32_t from the smaller one
+        uint32_t max_lateness = server_lateness+tick_period+receive_tick_period+receive_tick_period;
+        
+        if (m_tick % tick_period == 0 && m_tick > max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
 
             uint32_t previous_tick = current_tick - tick_period;
@@ -39,9 +42,9 @@ public:
             data.tick = current_tick;
 
             ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data);
-            m_server->Broadcast(packet);     
+            m_server->Broadcast(packet); 
+            DropEventHistory(previous_old_tick);
         }
-
         m_tick++;
     }
 

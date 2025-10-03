@@ -78,6 +78,3 @@ void Init() {
     //     client->RequestConnectToServer("45.159.79.84", 7777);
     // }    
 }
-
-
-

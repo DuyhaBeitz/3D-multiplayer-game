@@ -139,6 +139,7 @@ public:
             SerializedGameState data = ExtractData<SerializedGameState>(event.packet);
             auto rec_state = Deserialize(data);
             m_self_game_state = ApplyEvents(rec_state, data.tick, m_tick-1);
+            DropEventHistory(data.tick);
             
             m_last_received_game = rec_state;
             m_last_received_game_tick = data.tick;       
