@@ -88,18 +88,6 @@ public:
             float alpha = float(m_ticks_since_last_recieved_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
             m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &m_id);
 
-            // if (GetTime() > 4) {
-            //     game_manager.OutputHistory();
-
-            //     GameState state = {};
-            //     char buffer[max_string_len];
-            //     SerializeGameState(game_manager.ApplyEvents(first_received_game, first_received_game_tick, last_received_tick), buffer, max_string_len);
-            //     std::cout << last_received_tick << std::endl;
-            //     std::cout << std::endl << buffer << std::endl;
-            //     CloseWindow();
-            // }
-
-
             m_tick++;
             m_ticks_since_last_recieved_game++;
     }
@@ -120,7 +108,7 @@ public:
     }
 
     void OnReceive(ENetEvent event) {
-        MessageType msgType = static_cast<MessageType>(event.packet->data[0]);
+        MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
         case MSG_GAME_TICK:
             m_tick = CalculateTickWinthPing(ExtractData<uint32_t>(event.packet));
