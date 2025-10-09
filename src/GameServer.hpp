@@ -25,9 +25,9 @@ public:
         m_server->Update();
 
         // ensuring that we're not substructing bigger uint32_t from the smaller one
-        uint32_t max_lateness = server_lateness+tick_period+receive_tick_period+receive_tick_period;
+        uint32_t max_lateness = server_lateness+tick_period+receive_tick_period;
         
-        if (m_tick % tick_period == 0 && m_tick > max_lateness) {
+        if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
 
             uint32_t previous_tick = current_tick - tick_period;
