@@ -14,9 +14,9 @@ constexpr int max_string_len = 1024;
 constexpr int iters_per_sec = 60;
 constexpr double dt = 1.f/iters_per_sec;
 constexpr double gravity = 40;
-constexpr double floor_lvl = 500;
+constexpr double floor_lvl = 0;
 constexpr double hor_speed = 60;
-constexpr double jump_impulse = 30;
+constexpr double jump_impulse = 20;
 
 
 // client also uses that
@@ -82,7 +82,9 @@ struct PlayerState {
 
         velocity += VForward()*input.Normalized().x;
         velocity += VRight()*input.Normalized().y;
-        velocity.y += input.UpDown()*1.f;
+        if (position.y == floor_lvl && input.up) {
+            velocity.y = jump_impulse;
+        }        
     }
 };
 
@@ -145,8 +147,9 @@ public:
     virtual void Draw(const GameState& state, const void* data) {
         const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
         Camera3D camera = { 0 };
-        camera.position = drawing_data->self.position;
-        camera.target = drawing_data->self.position + drawing_data->self.VForward();
+        Vector3 cam_offset = {0, 5, 0};
+        camera.position = drawing_data->self.position + cam_offset;
+        camera.target = camera.position + drawing_data->self.VForward();
         camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
         camera.fovy = 90.0f;
         camera.projection = CAMERA_PERSPECTIVE;
@@ -168,11 +171,9 @@ public:
 
     virtual void UpdateGameLogic(GameState& state) {
         for (auto& [id, player] : state.players) {
-            //player.velocity.y += gravity*dt;
+            player.velocity.y -= gravity*dt;
             player.position += player.velocity;
-            // if (player.position.y > floor_lvl) {
-            //     player.position.y = floor_lvl;
-            // }
+            player.position.y = fmax(floor_lvl, player.position.y);
             player.velocity *= 0.7;
         }
     }
