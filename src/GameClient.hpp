@@ -85,13 +85,7 @@ public:
             
         if (m_self_game_state.players.find(m_id) != m_self_game_state.players.end()) {
             DrawingData drawing_data = {m_self_game_state.players.at(m_id), m_id, Resources::Get().ModelFromKey(R_MODEL_PLAYER)};
-            Camera3D camera = { 0 };
-            Vector3 cam_offset = {0, 5, 0};
-            camera.position = drawing_data.self.position + cam_offset;
-            camera.target = camera.position + drawing_data.self.VForward();
-            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-            camera.fovy = 90.0f;
-            camera.projection = CAMERA_PERSPECTIVE;
+            Camera3D camera = GetCameraFromPlayer(drawing_data.self);
 
             BeginMode3D(camera);
                 DrawWorld(m_others_game_state);

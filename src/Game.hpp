@@ -268,3 +268,13 @@ public:
     }
 };
 
+inline Camera GetCameraFromPlayer(const PlayerState& player) {
+    Camera3D camera = { 0 };
+    Vector3 cam_offset = {0, 5, 0};
+    camera.position = player.position + cam_offset;
+    camera.target = camera.position + player.VForward();
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.fovy = 90.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
+    return camera;
+}
