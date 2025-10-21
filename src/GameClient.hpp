@@ -2,6 +2,7 @@
 
 #include <EasyNet/EasyNetClient.hpp>
 #include "shared.hpp"
+#include "Resources.hpp"
 
 class GameClient : public Game {
 private:
@@ -28,20 +29,18 @@ private:
 
     bool m_connected = false;
 
-    Model m_model;
-
 public:
 
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
 
     GameClient() {
-        m_model = LoadModel("assets/model.glb");
-
         m_client = std::make_shared<EasyNetClient>();
         m_client->CreateClient();
         m_client->SetOnReceive([this](ENetEvent event){OnReceive(event);});
         m_client->SetOnConnect([this](ENetEvent){m_connected = true;});
         m_client->SetOnDisconnect([this](ENetEvent){m_connected = false;});
+
+        Resources::Init();
     }
 
     void Update() {
@@ -57,20 +56,7 @@ public:
 
             PlayerInput input;
             
-            if (!IsCursorHidden()){
-                input.mouse_x = 0;
-                input.mouse_y = 0;    
-            }
-            else {
-                input.mouse_x = GetMouseDelta().x / 450;
-                input.mouse_y = -GetMouseDelta().y / 450;
-            }
-            input.right = IsKeyDown(KEY_D);
-            input.left = IsKeyDown(KEY_A);
-            input.forw = IsKeyDown(KEY_W);
-            input.back = IsKeyDown(KEY_S);
-            input.up = IsKeyDown(KEY_SPACE);
-            input.down = IsKeyDown(KEY_LEFT_CONTROL);
+            input.Detect();
 
             if (!input.IsEmpty()) {
                 GameEvent event;
@@ -97,12 +83,22 @@ public:
         ClearBackground(DARKGRAY);
         DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
         DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
-        
+            
         if (m_self_game_state.players.find(m_id) != m_self_game_state.players.end()) {
-            DrawingData drawing_data = {m_self_game_state.players.at(m_id), m_id, m_model};
-            Draw(m_others_game_state, &drawing_data);
-        }
+            DrawingData drawing_data = {m_self_game_state.players.at(m_id), m_id, Resources::Get().ModelFromKey(R_MODEL_PLAYER)};
+            Camera3D camera = { 0 };
+            Vector3 cam_offset = {0, 5, 0};
+            camera.position = drawing_data.self.position + cam_offset;
+            camera.target = camera.position + drawing_data.self.VForward();
+            camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+            camera.fovy = 90.0f;
+            camera.projection = CAMERA_PERSPECTIVE;
 
+            BeginMode3D(camera);
+                DrawGrid(100, 10);
+               Draw(m_others_game_state, &drawing_data);
+            EndMode3D();
+        }        
         
         EndDrawing();
     }

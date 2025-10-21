@@ -43,7 +43,24 @@ struct PlayerInput {
     bool back;
     bool up;
     bool down;
-    
+  
+    void Detect() {
+        if (!IsCursorHidden()){
+            mouse_x = 0;
+            mouse_y = 0;    
+        }
+        else {
+            mouse_x = GetMouseDelta().x / 450;
+            mouse_y = -GetMouseDelta().y / 450;
+        }
+        right = IsKeyDown(KEY_D);
+        left = IsKeyDown(KEY_A);
+        forw = IsKeyDown(KEY_W);
+        back = IsKeyDown(KEY_S);
+        up = IsKeyDown(KEY_SPACE);
+        down = IsKeyDown(KEY_LEFT_CONTROL);
+    }
+  
     Vector2 Normalized() {
         float f = forw - back;
         float r = right - left;
@@ -146,17 +163,7 @@ public:
 
     virtual void Draw(const GameState& state, const void* data) {
         const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
-        Camera3D camera = { 0 };
-        Vector3 cam_offset = {0, 5, 0};
-        camera.position = drawing_data->self.position + cam_offset;
-        camera.target = camera.position + drawing_data->self.VForward();
-        camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-        camera.fovy = 90.0f;
-        camera.projection = CAMERA_PERSPECTIVE;
 
-        BeginMode3D(camera);
-        DrawGrid(10, 100);
-        
         for (const auto& [id, player] : state.players) {
             if (id != drawing_data->self_id) {     
                 DrawModelEx(drawing_data->model, player.position, Vector3{0, 1, 0}, -player.yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
@@ -165,8 +172,6 @@ public:
                 DrawLine3D(player.position, player.position + player.VRight()*6, BLUE);                
             }
         }
-
-        EndMode3D();
     }
 
     virtual void UpdateGameLogic(GameState& state) {

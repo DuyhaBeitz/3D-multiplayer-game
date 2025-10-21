@@ -26,3 +26,10 @@ target_link_libraries(client PRIVATE
     RaylibRetainedGUI
     nlohmann_json::nlohmann_json
 )
+
+add_executable(standalone src/standalone.cpp)
+target_link_libraries(standalone PRIVATE
+    raylib
+    RaylibRetainedGUI
+    nlohmann_json::nlohmann_json
+)
