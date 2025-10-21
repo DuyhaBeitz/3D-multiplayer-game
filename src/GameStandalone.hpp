@@ -59,7 +59,7 @@ public:
         camera.projection = CAMERA_PERSPECTIVE;
 
         BeginMode3D(camera);
-        DrawGrid(100, 10);
+        DrawWorld(m_game_state);
         EndMode3D();
         
         EndDrawing();       

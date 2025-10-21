@@ -44,38 +44,37 @@ public:
     }
 
     void Update() {
-
-            if (IsKeyPressed(KEY_L)){
-                if (IsCursorHidden()){
-                    EnableCursor();
-                }
-                else {
-                    DisableCursor();
-                }
+        if (IsKeyPressed(KEY_L)){
+            if (IsCursorHidden()){
+                EnableCursor();
             }
-
-            PlayerInput input;
-            
-            input.Detect();
-
-            if (!input.IsEmpty()) {
-                GameEvent event;
-                event.event_id = EV_PLAYER_INPUT;
-                event.data = input;
-                AddEvent(event, m_id, m_tick);
-
-                PlayerInputPacketData data;
-                data.input = input;
-                data.tick = m_tick;
-                m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT));
+            else {
+                DisableCursor();
             }
-            
-            m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
-            float alpha = float(m_ticks_since_last_recieved_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
-            m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &m_id);
+        }
 
-            m_tick++;
-            m_ticks_since_last_recieved_game++;
+        PlayerInput input;
+        
+        input.Detect();
+
+        if (!input.IsEmpty()) {
+            GameEvent event;
+            event.event_id = EV_PLAYER_INPUT;
+            event.data = input;
+            AddEvent(event, m_id, m_tick);
+
+            PlayerInputPacketData data;
+            data.input = input;
+            data.tick = m_tick;
+            m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT));
+        }
+        
+        m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
+        float alpha = float(m_ticks_since_last_recieved_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
+        m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &m_id);
+
+        m_tick++;
+        m_ticks_since_last_recieved_game++;
     }
 
     void DrawGame() {
@@ -95,8 +94,8 @@ public:
             camera.projection = CAMERA_PERSPECTIVE;
 
             BeginMode3D(camera);
-                DrawGrid(100, 10);
-               Draw(m_others_game_state, &drawing_data);
+                DrawWorld(m_others_game_state);
+                DrawPlayers(m_others_game_state, &drawing_data);
             EndMode3D();
         }        
         

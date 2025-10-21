@@ -161,13 +161,18 @@ public:
         }
     }
 
-    virtual void Draw(const GameState& state, const void* data) {
+    virtual void Draw(const GameState& state, const void* data) {}
+
+    void DrawWorld(const GameState& state) {
+        DrawGrid(100, 10);
+    }
+
+    void DrawPlayers(const GameState& state, const void* data) {
         const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
 
         for (const auto& [id, player] : state.players) {
             if (id != drawing_data->self_id) {     
                 DrawModelEx(drawing_data->model, player.position, Vector3{0, 1, 0}, -player.yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
-                //DrawSphere(player.position, 3.0, RED);
                 DrawLine3D(player.position, player.position + player.VForward()*6, GREEN);                
                 DrawLine3D(player.position, player.position + player.VRight()*6, BLUE);                
             }
