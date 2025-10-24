@@ -47,7 +47,8 @@ inline nlohmann::json SerializeData(const ActorData& a) {
     return {
         {"body", SerializeData(a.body)},
         {"yaw", a.yaw},
-        {"pitch", a.pitch}
+        {"pitch", a.pitch},
+        {"model_key", a.model_key}
     };
 }
 

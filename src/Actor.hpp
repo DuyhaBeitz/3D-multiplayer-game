@@ -8,8 +8,9 @@ struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
+    uint16_t model_key;
     
-    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f)
+    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(R_MODEL_DEFAULT)
     {
     }
 
@@ -21,7 +22,7 @@ struct ActorData {
     }
 
     void Draw() const {
-        DrawModelEx(Resources::Get().ModelFromKey(R_MODEL_PLAYER), body.position, Vector3{0, 1, 0}, -yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
+        DrawModelEx(Resources::Get().ModelFromKey(model_key), body.position, Vector3{0, 1, 0}, -yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
     }
 
     Vector3 VForward() const {

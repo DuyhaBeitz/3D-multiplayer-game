@@ -120,6 +120,7 @@ public:
 
         actor_data.pitch = 0;
         actor_data.yaw = 0;
+        actor_data.model_key = R_MODEL_PLAYER;
 
         actor_data.body.position = Vector3{0, 0, 0};
         actor_data.body.velocity = Vector3{0, 0, 0};
