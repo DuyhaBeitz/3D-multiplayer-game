@@ -49,11 +49,11 @@ public:
         BeginDrawing();
         ClearBackground(DARKGRAY);
         
-        DrawingData drawing_data = {m_game_state.players.at(player_id), player_id, Resources::Get().ModelFromKey(R_MODEL_PLAYER)};
-        Camera3D camera = GetCameraFromPlayer(m_game_state.players.at(player_id));
+        DrawingData drawing_data = {player_id, Resources::Get().ModelFromKey(R_MODEL_PLAYER)};
+        Camera3D camera = GetCameraFromActor(m_game_state.world_data.actors.at(player_id));
 
         BeginMode3D(camera);
-        DrawWorld(m_game_state);
+        Draw(m_game_state, &drawing_data);
         EndMode3D();
         
         EndDrawing();       

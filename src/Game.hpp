@@ -5,19 +5,17 @@
 #include <raylib.h>
 #include <raymath.h>
 
-#include <nlohmann/json.hpp>
 #include <fstream>
 #include <memory>
+
+#include "World.hpp"
+#include "Serialization.hpp"
+#include "Deserialization.hpp"
 
 constexpr int max_string_len = 1024;
 
 constexpr int iters_per_sec = 60;
 constexpr double dt = 1.f/iters_per_sec;
-constexpr double gravity = 40;
-constexpr double floor_lvl = 0;
-constexpr double hor_speed = 60;
-constexpr double jump_impulse = 20;
-
 
 // client also uses that
 constexpr uint32_t tick_period = iters_per_sec/10; // broadcast game state every 100 ms
@@ -79,34 +77,23 @@ struct GameEvent {
     std::variant<std::monostate, PlayerJoin, PlayerLeave, PlayerInput> data;
 };
 
-struct PlayerState {
-    Vector3 position;
-    Vector3 velocity;
-    float yaw;
-    float pitch;
-
-    Vector3 VForward() const {
-        return Vector3{cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)};
-    }
-
-    Vector3 VRight() const {
-        return Vector3{cos(yaw+PI/2) * cos(pitch), 0, sin(yaw+PI/2) * cos(pitch)};
-    }
-
-    void ApplyInput(PlayerInput input) {
-        yaw += input.mouse_x;
-        pitch += input.mouse_y;
-
-        velocity += VForward()*input.Normalized().x;
-        velocity += VRight()*input.Normalized().y;
-        if (position.y == floor_lvl && input.up) {
-            velocity.y = jump_impulse;
-        }        
-    }
-};
-
 struct GameState {
-    std::map<uint32_t, PlayerState> players;
+    WorldData world_data;
+
+    void ApplyInput(PlayerInput input, uint32_t id) {
+        ActorData& actor_data = world_data.actors.at(id);
+        auto fw = actor_data.VForward()*input.Normalized().x;
+        auto rt = actor_data.VRight()*input.Normalized().y;
+        
+        actor_data.body.velocity += fw + rt;
+
+        actor_data.yaw += input.mouse_x;
+        actor_data.pitch += input.mouse_y;
+        
+        if (actor_data.body.position.y <= floor_lvl && input.up) {
+            actor_data.body.velocity.y = jump_impulse;
+        }
+    }
 };
 
 struct SerializedGameState {
@@ -121,37 +108,39 @@ struct SerializedGameState {
 };
 
 struct DrawingData {
-    PlayerState self;
     uint32_t self_id;
     Model& model;
 };
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 public:
-    PlayerState InitNewPlayer(const GameState& state, uint32_t id) {
-        PlayerState player;
-        player.pitch = 0;
-        player.yaw = 0;
-        player.position = Vector3{0, 0, 0};
-        player.velocity = Vector3{0, 0, 0};
-        return player;
+    ActorData InitNewPlayerActor(const GameState& state, uint32_t id) {
+        BodyData body_data;
+        ActorData actor_data(body_data);
+
+        actor_data.pitch = 0;
+        actor_data.yaw = 0;
+
+        actor_data.body.position = Vector3{0, 0, 0};
+        actor_data.body.velocity = Vector3{0, 0, 0};
+        return actor_data;
     }
 
     virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id) {
         switch (event.event_id) {
         case EV_PLAYER_JOIN:
-            state.players[id] = InitNewPlayer(state, id);
+            state.world_data.actors.insert({id, InitNewPlayerActor(state, id)});
             break;
 
         case EV_PLAYER_LEAVE:
-            state.players.erase(id);
+            state.world_data.actors.erase(id);
             break;
 
         case EV_PLAYER_INPUT:
             if (std::holds_alternative<PlayerInput>(event.data)) {
                 auto input = std::get<PlayerInput>(event.data);
-                if (state.players.find(id) != state.players.end()) {
-                    state.players[id].ApplyInput(input);
+                if (state.world_data.actors.find(id) != state.world_data.actors.end()) {
+                    state.ApplyInput(input, id);
                 }
             }
             break; 
@@ -161,31 +150,13 @@ public:
         }
     }
 
-    virtual void Draw(const GameState& state, const void* data) {}
-
-    void DrawWorld(const GameState& state) {
-        DrawGrid(100, 10);
-    }
-
-    void DrawPlayers(const GameState& state, const void* data) {
-        const DrawingData* drawing_data = static_cast<const DrawingData*>(data);
-
-        for (const auto& [id, player] : state.players) {
-            if (id != drawing_data->self_id) {     
-                DrawModelEx(drawing_data->model, player.position, Vector3{0, 1, 0}, -player.yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
-                DrawLine3D(player.position, player.position + player.VForward()*6, GREEN);                
-                DrawLine3D(player.position, player.position + player.VRight()*6, BLUE);                
-            }
-        }
+    virtual void Draw(const GameState& state, const void* data) {
+        const uint32_t* except_id = static_cast<const uint32_t*>(data);
+        state.world_data.Draw(*except_id);
     }
 
     virtual void UpdateGameLogic(GameState& state) {
-        for (auto& [id, player] : state.players) {
-            player.velocity.y -= gravity*dt;
-            player.position += player.velocity;
-            player.position.y = fmax(floor_lvl, player.position.y);
-            player.velocity *= 0.7;
-        }
+        state.world_data.Update(dt);
     }
 
     void OutputHistory() {
@@ -221,10 +192,11 @@ public:
 
         const uint32_t* except_id = static_cast<const uint32_t*>(data);
 
-        for (auto& [id, player] : state2.players) {
+        for (auto& [id, player] : state2.world_data.actors) {
             if (id != *except_id) {
-                if (state1.players.find(id) != state1.players.end()) {
-                    lerped.players[id].position = Vector3Lerp(state1.players.at(id).position, state2.players.at(id).position, alpha);
+                if (state1.world_data.actors.find(id) != state1.world_data.actors.end()) {
+                    ActorData& data = lerped.world_data.actors.at(id);
+                    data.body.position = Vector3Lerp(state1.world_data.actors.at(id).body.position, state2.world_data.actors.at(id).body.position, alpha);
                 }
             }
         }
@@ -233,46 +205,23 @@ public:
 
     virtual SerializedGameState Serialize(const GameState& state) {
         nlohmann::json j;
-        for (const auto& [id, player] : state.players) {
-            j["players"][std::to_string(id)] = {
-                {"yw", player.yaw},
-                {"pt", player.pitch},
-                {"px", player.position.x},
-                {"py", player.position.y},
-                {"pz", player.position.z},
-                {"vx", player.velocity.x},
-                {"vy", player.velocity.y},
-                {"vz", player.velocity.z},
-            };
-        }
+        j["world"] = SerializeData(state.world_data);
         return SerializedGameState(j.dump().c_str());
     }
 
     GameState Deserialize(SerializedGameState data) {
         GameState state{};
         nlohmann::json j = nlohmann::json::parse(std::string(data.text, max_string_len));
-        for (auto& [id_str, player_json] : j["players"].items()) {
-            uint32_t id = static_cast<uint32_t>(std::stoul(id_str));
-            PlayerState ps;
-            ps.yaw = player_json["yw"].get<float>();
-            ps.pitch = player_json["pt"].get<float>();
-            ps.position.x = player_json["px"].get<float>();
-            ps.position.y = player_json["py"].get<float>();
-            ps.position.z = player_json["pz"].get<float>();
-            ps.velocity.x = player_json["vx"].get<float>();
-            ps.velocity.y = player_json["vy"].get<float>();
-            ps.velocity.z = player_json["vz"].get<float>();
-            state.players[id] = ps;
-        }
+        state.world_data = DeserializeWorld(j["world"]);
         return state;
     }
 };
 
-inline Camera GetCameraFromPlayer(const PlayerState& player) {
+inline Camera GetCameraFromActor(const ActorData& actor_data) {
     Camera3D camera = { 0 };
     Vector3 cam_offset = {0, 5, 0};
-    camera.position = player.position + cam_offset;
-    camera.target = camera.position + player.VForward();
+    camera.position = actor_data.body.position + cam_offset;
+    camera.target = camera.position + actor_data.VForward();
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     camera.fovy = 90.0f;
     camera.projection = CAMERA_PERSPECTIVE;
