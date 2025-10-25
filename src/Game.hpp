@@ -206,7 +206,7 @@ public:
 
     virtual SerializedGameState Serialize(const GameState& state) {
         nlohmann::json j;
-        j["world"] = SerializeData(state.world_data);
+        j["world"] = SerializeWorld(state.world_data);
         return SerializedGameState(j.dump().c_str());
     }
 

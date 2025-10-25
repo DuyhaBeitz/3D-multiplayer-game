@@ -15,11 +15,6 @@ struct CollisionResult {
     float penetration = -1;
 };
 
-enum class CollisionType : uint8_t {
-    Sphere,
-    Box
-};
-
 /*****************************************/
 struct SphereData {
     Vector3 rel_center{};
@@ -31,21 +26,21 @@ struct BoxData {
     Vector3 half_extents{};
 };
 /*****************************************/
-
 struct CollisionShape {
-    CollisionType collision_type;
+    std::variant<SphereData, BoxData> shape;
 
-    union {
-        SphereData sphere;
-        BoxData box;
-    };
+    CollisionShape(const SphereData& s) : shape(s) {}
+    CollisionShape(const BoxData& b) : shape(b) {}
 
-    CollisionShape(const SphereData& s) : collision_type(CollisionType::Sphere), sphere(s) {}
-    CollisionShape(const BoxData& b) : collision_type(CollisionType::Box), box(b) {}
+    bool IsSphere() const { return std::holds_alternative<SphereData>(shape); }
+    bool IsBox() const { return std::holds_alternative<BoxData>(shape); }
+
+    const SphereData* AsSphere() const { return std::get_if<SphereData>(&shape); }
+    const BoxData* AsBox() const { return std::get_if<BoxData>(&shape); }
 };
 
 struct BodyData {
     Vector3 position = {};
     Vector3 velocity = {};
-    std::vector<CollisionShape> collisions;
+    std::vector<CollisionShape> collisions; 
 };

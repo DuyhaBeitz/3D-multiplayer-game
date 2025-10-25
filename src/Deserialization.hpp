@@ -28,12 +28,14 @@ inline BoxData DeserializeBox(const nlohmann::json& j) {
     return b;
 }
 
-inline CollisionShape DeserializeCollisionShape(const nlohmann::json& j) {
-    CollisionType type = static_cast<CollisionType>(j["type"].get<int>());
-    switch (type) {
-        case CollisionType::Sphere: return CollisionShape(DeserializeSphere(j["sphere"]));
-        case CollisionType::Box:    return CollisionShape(DeserializeBox(j["box"]));
-        default: throw std::runtime_error("Unknown collision type in JSON");
+inline CollisionShape DeserializeShape(const nlohmann::json& j) {
+    std::string type = j["type"].get<std::string>();
+    if (type == "sphere") {
+        return CollisionShape(DeserializeSphere(j["sphere"]));
+    } else if (type == "box") {
+        return CollisionShape(DeserializeBox(j["box"]));
+    } else {
+        throw std::runtime_error("Unknown collision shape type: " + type);
     }
 }
 
@@ -46,7 +48,7 @@ inline BodyData DeserializeBody(const nlohmann::json& j) {
     b.position = DeserializeVector3(j["pos"]);
     b.velocity = DeserializeVector3(j["vel"]);
 
-    for (const auto& cj : j["collisions"]) b.collisions.push_back(DeserializeCollisionShape(cj));
+    for (const auto& cj : j["shapes"]) b.collisions.push_back(DeserializeShape(cj));
     return b;
 }
 
