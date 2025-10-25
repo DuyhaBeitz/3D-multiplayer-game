@@ -7,10 +7,10 @@
 #include <variant>
 #include <iostream>
 
-constexpr double gravity = 40;
-constexpr double floor_lvl = 0;
-constexpr double hor_speed = 60;
-constexpr double jump_impulse = 20;
+constexpr float gravity = 220;
+//constexpr float floor_lvl = 0;
+constexpr float hor_speed = 160;
+constexpr float jump_impulse = 120;
 /*****************************************/
 struct SphereData {
     float radius = 1.0f;
@@ -31,12 +31,6 @@ struct BoxData {
     }
     void Draw() const {
         DrawCubeV(center, half_extents*2.f, BLUE);
-        // Vector3 p = center;
-        // std::cout
-        // << "Drawing cube at: "
-        // << p.x << " "
-        // << p.y << " "
-        // << p.z << "\n";
     }
 };
 /*****************************************/
@@ -94,10 +88,12 @@ inline CollisionResult Collide(const CollisionShape& a, const CollisionShape& b)
 struct BodyData {
     Vector3 position = {};
     Vector3 velocity = {};
+    Vector3 acceleration = {};
+    bool on_ground = true;
 
     // inverse so that we can have infinite mass, and connot have zero mass
     float inverse_mass = 1;
-    float restitution = 1;
+    float restitution = 0;
     std::vector<CollisionShape> shapes; 
 
     void UpdateShapePositions() {
@@ -105,6 +101,26 @@ struct BodyData {
             if (shape.IsSphere()) shape.AsSphere()->center = position;
             else if (shape.IsBox()) shape.AsBox()->center = position;
         }
+    }
+
+    void ApplyForce(Vector3 force){
+        acceleration += force * inverse_mass;
+    }
+
+    void ApplyImulse(Vector3 impulse){
+        velocity += impulse * inverse_mass;
+        if (Vector3DotProduct(impulse, {0, 1, 0})/Vector3Length(impulse) > 0.5) {
+            on_ground = true;
+        }        
+    }
+
+    void Update(float delta_time) {
+        Vector3 originalVelocity = velocity;
+        velocity += acceleration * delta_time;
+        Vector3 averageVelocity = (originalVelocity + velocity) * 0.5f;
+        position += averageVelocity * delta_time;
+        acceleration = {};
+        UpdateShapePositions();
     }
 
     CollisionResult CollideWith(const BodyData& other) {

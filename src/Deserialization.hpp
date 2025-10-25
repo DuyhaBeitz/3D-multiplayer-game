@@ -86,10 +86,5 @@ inline WorldData DeserializeWorld(const nlohmann::json& j) {
         uint32_t key = std::stoul(it.key());
         w.AddActor(key, DeserializeActor(it.value()));
     }
-
-    // std::cout << "json: " << j["actors"] << std::endl << std::endl;
-
-    // std::cout << "actual: " << SerializeWorld(w)["actors"] << std::endl << std::endl;
-
     return w;
 }

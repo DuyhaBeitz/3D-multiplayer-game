@@ -105,10 +105,5 @@ public:
         
         
         EndDrawing();
-        // Vector3 p = m_others_game_state.world_data.GetActor(0).body.position;
-        // std::cout
-        // << p.x << " "
-        // << p.y << " "
-        // << p.z << "\n";
     }
 };

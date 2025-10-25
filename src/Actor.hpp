@@ -18,27 +18,26 @@ struct ActorData {
     {
     }
 
-    void Update(float dt) {
-        body.velocity.y -= gravity*dt;
-        body.velocity *= 0.7;
-
-        body.position += body.velocity;
+    void Update(float delta_time) {
+        if (body.inverse_mass != 0.0) {
+            body.ApplyForce({0, -gravity/body.inverse_mass, 0});
+            body.ApplyForce(body.velocity * -2);
+        }        
         
-        body.position.y = fmax(floor_lvl, body.position.y);
-        
-        body.UpdateShapePositions();
+        body.Update(delta_time);
+        //body.position.y = fmax(floor_lvl, body.position.y);
     }
 
     void Draw() const {
-        if (model_key != R_MODEL_DEFAULT) {
-            DrawModelEx(
-                Resources::Get().ModelFromKey(model_key),
-                body.position, Vector3{0, 1, 0},
-                -yaw*180/PI + 90,
-                Vector3{10, 10, 10},
-                WHITE
-            );
-        }
+        // if (model_key != R_MODEL_DEFAULT) {
+        //     DrawModelEx(
+        //         Resources::Get().ModelFromKey(model_key),
+        //         body.position, Vector3{0, 1, 0},
+        //         -yaw*180/PI + 90,
+        //         Vector3{10, 10, 10},
+        //         WHITE
+        //     );
+        // }
         
         body.DrawShapes();
     }

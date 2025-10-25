@@ -14,11 +14,12 @@ private:
 public:
 
     GameStandalone() {
+        InitGame(m_game_state);
+        
         GameEvent game_event;
         game_event.event_id = EV_PLAYER_JOIN;
-        AddEvent(game_event, player_id, m_tick);
+        AddEvent(game_event, player_id, m_tick+19);
 
-        InitGame(m_game_state);
         Resources::Init();
     }
 
@@ -50,13 +51,15 @@ public:
         BeginDrawing();
         ClearBackground(DARKGRAY);
         
-        Camera3D camera = GetCameraFromActor(m_game_state.GetActor(player_id));
+        if (m_game_state.PlayerExists(player_id)) {
+            Camera3D camera = GetCameraFromActor(m_game_state.GetActor(player_id));
 
-        BeginMode3D(camera);
-        ActorKey except_key = m_game_state.GetPlayer(player_id).actor_key;
-        Draw(m_game_state, &except_key);
-        EndMode3D();
-        
-        EndDrawing();       
+            BeginMode3D(camera);
+            ActorKey except_key = m_game_state.GetPlayer(player_id).actor_key;
+            Draw(m_game_state, &except_key);
+            EndMode3D();
+            
+            EndDrawing();  
+        }     
     }
 };

@@ -25,7 +25,7 @@ struct WorldData {
     }
 
     void Draw(ActorKey except_key) const {
-        DrawGrid(100, 10);
+        DrawGrid(10, 10);
 
         for (const auto& [key, actor_data] : actors) {
             if (key != except_key) actor_data.Draw();
@@ -37,7 +37,6 @@ void Update(float dt) {
     float sub_dt = dt / phys_iters;
     
     for (int i = 0; i < phys_iters; i++) {
-        // First, detect all collisions
         std::vector<std::pair<BodyData*, BodyData*>> collisions;
         
         auto actor_it1 = actors.begin();
@@ -58,12 +57,10 @@ void Update(float dt) {
             ++actor_it1;
         }
         
-        // Then, resolve all collisions
         for (auto& [body1, body2] : collisions) {
             SolveCollision(*body1, *body2, body1->CollideWith(*body2));
         }
         
-        // Finally, update all actors
         for (auto& [key, actor_data] : actors) {
             actor_data.Update(sub_dt);
         }

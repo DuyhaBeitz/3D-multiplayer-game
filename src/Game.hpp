@@ -107,8 +107,8 @@ struct GameState {
 
     void ApplyInput(PlayerInput input, uint32_t id) {
         ActorData& actor_data = GetActor(id);
-        auto fw = actor_data.VForward()*input.Normalized().x;
-        auto rt = actor_data.VRight()*input.Normalized().y;
+        auto fw = actor_data.VForward() * Vector3{1, 0, 1} * input.Normalized().x;
+        auto rt = actor_data.VRight() * input.Normalized().y;
         
         actor_data.body.velocity += (fw + rt)*dt*hor_speed;
 
@@ -116,9 +116,10 @@ struct GameState {
         actor_data.pitch += input.mouse_y;
         actor_data.pitch = Clamp(actor_data.pitch, -PI/2*0.9, PI/2*0.9);
         
-        if (actor_data.body.position.y <= floor_lvl && input.up) {
+        if (actor_data.body.on_ground && input.up) {
             actor_data.body.velocity.y = jump_impulse;
-        }
+            actor_data.body.on_ground = false;
+        }        
     }
 };
 
@@ -169,9 +170,8 @@ struct DrawingData {
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 public:
     void InitNewPlayer(GameState& state, uint32_t id) {
-
         BodyData body_data;
-        CollisionShape sphere(SphereData{13.0});
+        CollisionShape sphere(SphereData{13});
         body_data.shapes.push_back(sphere);
         ActorData actor_data(body_data);
 
@@ -179,7 +179,7 @@ public:
         actor_data.yaw = 0;
         actor_data.model_key = R_MODEL_PLAYER;
 
-        actor_data.body.position = Vector3{0, 0, 0};
+        actor_data.body.position = Vector3{0, 10, 0};
         actor_data.body.velocity = Vector3{0, 0, 0};
 
         PlayerData player_data;
@@ -280,14 +280,29 @@ public:
     }
 
     void InitGame(GameState& state) {
+        { // floor
         BoxData box_data;
-        box_data.half_extents = Vector3{30, 10, 30};
+        box_data.half_extents = Vector3{100, 100, 100};
 
         BodyData body_data;
-        body_data.position = Vector3{40, 10, 0};
+        body_data.position = Vector3{0, -100, 0};
+        body_data.velocity = Vector3{0, 0, 0};
+        body_data.inverse_mass = 0;
         body_data.shapes.push_back(CollisionShape(box_data));
 
         state.world_data.AddActor(ActorData(body_data));
+        }
+
+        // {
+        // BoxData box_data;
+        // box_data.half_extents = Vector3{30, 10, 30};
+
+        // BodyData body_data;
+        // body_data.position = Vector3{40, 20, 0};
+        // body_data.shapes.push_back(CollisionShape(box_data));
+
+        // state.world_data.AddActor(ActorData(body_data));
+        // }
     }
 };
 

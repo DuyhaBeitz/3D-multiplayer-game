@@ -55,21 +55,25 @@ CollisionResult CollideBoxBox(const BoxData &a, const BoxData &b) {
 }
 
 void SolveCollision(BodyData &bA, BodyData &bB, const CollisionResult &collision_result) {
-    // Vector3 relative_velocity = bA.velocity - bB.velocity;
-    // float dot = Vector3DotProduct(relative_velocity, collision_result.normal);
-    // float impulse_velocity = dot * (-1.f) * (1.f+bA.restitution);
-
-    // float impulse_magnitude = impulse_velocity / (bA.inverse_mass + bB.inverse_mass);
-    // Vector3 impulse = collision_result.normal * impulse_magnitude;
-
-    // bA.velocity += impulse * bA.inverse_mass;
-    // bB.velocity -= impulse * bB.inverse_mass;
-    
     const Vector3& normal = collision_result.normal;
 
-    bA.position += normal*collision_result.penetration;
-    bB.position -= normal*collision_result.penetration;
+    const float m1 = bA.inverse_mass;
+    const float m2 = bB.inverse_mass;
 
-    bA.velocity -= normal*Vector3DotProduct(bA.velocity, normal);
-    bB.velocity -= normal*Vector3DotProduct(bB.velocity, normal);
+    bA.position += normal*collision_result.penetration * (m1)/(m1+m2);
+    bB.position -= normal*collision_result.penetration * (m2)/(m1+m2);
+
+    Vector3 relative_velocity = bA.velocity - bB.velocity;
+    float dot = Vector3DotProduct(relative_velocity, normal);
+    if (dot > 0) return;
+
+    float e = fmin(bA.restitution, bB.restitution);
+
+    float j = -(1.f + e) * dot;
+    j /= m2 + m1;
+    
+    Vector3 impulse = normal*j;
+    
+    bA.ApplyImulse(impulse);
+    bB.ApplyImulse(impulse * -1);
 }
