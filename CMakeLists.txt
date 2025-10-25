@@ -42,3 +42,13 @@ target_link_libraries(standalone PRIVATE
     RaylibRetainedGUI
     nlohmann_json::nlohmann_json
 )
+
+add_executable(test
+    src/test.cpp
+    src/Physics.cpp
+)
+target_link_libraries(test PRIVATE
+    raylib
+    RaylibRetainedGUI
+    nlohmann_json::nlohmann_json
+)

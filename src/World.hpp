@@ -18,14 +18,10 @@ struct WorldData {
     std::map<ActorKey, ActorData> actors;
 
     WorldData() {
-        BoxData box_data;
-        box_data.half_extents = Vector3{10, 10, 10};
-
-        BodyData body_data;
-        body_data.position = Vector3{30, 10, 0};
-        body_data.shapes.push_back(CollisionShape(box_data));
-
-        AddActor(ActorData(body_data));
+        /*
+        If you add actor here it won't be updated so mismatch will happen
+        So do not add actors here or do anything stupid, because then mismatch will happen
+        */        
     }
 
     void Draw(ActorKey except_key) const {

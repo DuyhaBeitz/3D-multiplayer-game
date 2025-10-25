@@ -67,9 +67,9 @@ inline nlohmann::json SerializePlayer(const PlayerData& p) {
 
 inline nlohmann::json SerializeWorld(const WorldData& w) {
     nlohmann::json j;
-    j["actors"] = nlohmann::json::array();
+    j["actors"] = nlohmann::json::object();
     for (const auto& [key, a] : w.actors) {
-        j["actors"].push_back({key, SerializeActor(a)});
+        j["actors"][std::to_string(key)] = SerializeActor(a);
     }
     return j;
 }

@@ -14,6 +14,10 @@ struct ActorData {
     {
     }
 
+    ActorData(const BodyData& body_, uint16_t model_key_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(model_key_)
+    {
+    }
+
     void Update(float dt) {
         body.velocity.y -= gravity*dt;
         body.velocity *= 0.7;

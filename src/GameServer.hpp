@@ -19,14 +19,13 @@ public:
         m_server->SetOnConnect([this](ENetEvent event){this->OnConnect(event);});
         m_server->SetOnDisconnect([this](ENetEvent event){this->OnDisconnect(event);});
         m_server->SetOnReceive([this](ENetEvent event){this->OnRecieve(event);});
+
+        InitGame(m_late_game_state);
     }
 
     void Update() {
         m_server->Update();
 
-        // ensuring that we're not substructing bigger uint32_t from the smaller one
-        uint32_t max_lateness = server_lateness+tick_period+receive_tick_period;
-        
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
 
@@ -40,13 +39,6 @@ public:
             char buffer[max_string_len];
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
-
-            //std::cout << data.text << "\n\n";
-            Vector3 p = m_game_state.world_data.GetActor(0).body.position;
-            std::cout
-            << p.x << " "
-            << p.y << " "
-            << p.z << "\n";
 
             ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data);
             m_server->Broadcast(packet); 
@@ -91,5 +83,32 @@ public:
         default:
             break;
         }
+    }
+
+    void DrawGame() {
+        BeginDrawing();
+        ClearBackground(DARKGRAY);
+            
+        Camera3D camera = { 0 };
+        Vector3 cam_offset = {0, 5, 0};
+        float r = 100;
+        camera.position = Vector3{r, r, r};
+        camera.target = Vector3{0, 0, 0};
+        camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+        camera.fovy = 180.0f;
+        camera.projection = CAMERA_ORTHOGRAPHIC;
+
+        const ActorKey except_key = 100;
+        BeginMode3D(camera);
+            Draw(m_game_state, &except_key);
+        EndMode3D();
+        
+        
+        EndDrawing();
+        // Vector3 p = m_others_game_state.world_data.GetActor(0).body.position;
+        // std::cout
+        // << p.x << " "
+        // << p.y << " "
+        // << p.z << "\n";
     }
 };

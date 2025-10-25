@@ -12,7 +12,7 @@
 #include "Serialization.hpp"
 #include "Deserialization.hpp"
 
-constexpr int max_string_len = 1024;
+constexpr int max_string_len = 2048;
 
 constexpr int iters_per_sec = 60;
 constexpr double dt = 1.f/iters_per_sec;
@@ -22,6 +22,8 @@ constexpr uint32_t tick_period = iters_per_sec/10; // broadcast game state every
 constexpr uint32_t receive_tick_period = iters_per_sec; // allow late received events
 constexpr uint32_t send_tick_period = iters_per_sec*2; // sync client's tick with server's tick
 constexpr uint32_t server_lateness = receive_tick_period;
+// ensuring that we're not substructing bigger uint32_t from the smaller one
+constexpr uint32_t max_lateness = server_lateness+tick_period+receive_tick_period;
 
 enum EventId {
     EV_PLAYER_JOIN = 0,
@@ -112,12 +114,41 @@ struct GameState {
 
         actor_data.yaw += input.mouse_x;
         actor_data.pitch += input.mouse_y;
+        actor_data.pitch = Clamp(actor_data.pitch, -PI/2*0.9, PI/2*0.9);
         
         if (actor_data.body.position.y <= floor_lvl && input.up) {
             actor_data.body.velocity.y = jump_impulse;
         }
     }
 };
+
+inline nlohmann::json SerializeGame(const GameState& state) {
+    nlohmann::json j;
+
+    j["players"] = nlohmann::json::array();
+    for (const auto& [id, p] : state.players) {
+        j["players"].push_back({id, SerializePlayer(p)});
+    }
+
+    j["world"] = SerializeWorld(state.world_data);
+    return j;
+}
+
+inline GameState DeserializeGame(nlohmann::json j) {
+    GameState state{};
+
+    for (const auto& item : j["players"]) {
+        if (!item.is_array() || item.size() != 2) continue;
+
+        uint32_t id = item[0].get<uint32_t>();
+        const nlohmann::json& player_json = item[1];
+        
+        state.players.insert({id, DeserializePlayer(player_json)});
+    }
+
+    state.world_data = DeserializeWorld(j["world"]);
+    return state;
+}
 
 struct SerializedGameState {
     char text[max_string_len];
@@ -241,32 +272,22 @@ public:
     };
 
     virtual SerializedGameState Serialize(const GameState& state) {
-        nlohmann::json j;
-
-        j["players"] = nlohmann::json::array();
-        for (const auto& [id, p] : state.players) {
-            j["players"].push_back({id, SerializePlayer(p)});
-        }
-
-        j["world"] = SerializeWorld(state.world_data);
-        return SerializedGameState(j.dump(1).c_str());
+        return SerializedGameState(SerializeGame(state).dump().c_str());
     }
 
     GameState Deserialize(SerializedGameState data) {
-        GameState state{};
-        nlohmann::json j = nlohmann::json::parse(std::string(data.text, max_string_len));
+        return DeserializeGame(nlohmann::json::parse(std::string(data.text, max_string_len)));
+    }
 
-        for (const auto& item : j["players"]) {
-            if (!item.is_array() || item.size() != 2) continue;
+    void InitGame(GameState& state) {
+        BoxData box_data;
+        box_data.half_extents = Vector3{30, 10, 30};
 
-            uint32_t id = item[0].get<uint32_t>();
-            const nlohmann::json& player_json = item[1];
-            
-            state.players.insert({id, DeserializePlayer(player_json)});
-        }
+        BodyData body_data;
+        body_data.position = Vector3{40, 10, 0};
+        body_data.shapes.push_back(CollisionShape(box_data));
 
-        state.world_data = DeserializeWorld(j["world"]);
-        return state;
+        state.world_data.AddActor(ActorData(body_data));
     }
 };
 

@@ -18,6 +18,7 @@ public:
         game_event.event_id = EV_PLAYER_JOIN;
         AddEvent(game_event, player_id, m_tick);
 
+        InitGame(m_game_state);
         Resources::Init();
     }
 
