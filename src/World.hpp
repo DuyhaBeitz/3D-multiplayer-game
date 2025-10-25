@@ -25,7 +25,7 @@ struct WorldData {
     }
 
     void Draw(ActorKey except_key) const {
-        DrawGrid(10, 10);
+        DrawGrid(100, 10);
 
         for (const auto& [key, actor_data] : actors) {
             if (key != except_key) actor_data.Draw();

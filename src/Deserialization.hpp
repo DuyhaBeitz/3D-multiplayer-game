@@ -40,15 +40,19 @@ inline CollisionShape DeserializeShape(const nlohmann::json& j) {
 }
 
 inline BodyData DeserializeBody(const nlohmann::json& j) {
-    if (!j.contains("pos") || !j.contains("vel") || !j.contains("inv_m") || !j.contains("restitution") || !j.contains("shapes")) {
+    if (!j.contains("pos") || !j.contains("vel") || !j.contains("inv_m") || !j.contains("restitution") || !j.contains("shapes")
+        || !j.contains("acc") || !j.contains("on_gr")
+    ) {
         throw std::runtime_error(
-        "BodyData requires 'pos', 'vel', 'inv_m', 'restitution' and 'shapes' fields"
+        "BodyData requires 'pos', 'vel', 'inv_m', 'restitution', 'shapes', 'acc', 'on_gr' fields"
         );
     }
 
     BodyData b;
     b.position = DeserializeVector3(j["pos"]);
     b.velocity = DeserializeVector3(j["vel"]);
+    b.acceleration = DeserializeVector3(j["acc"]);
+    b.on_ground = j["on_gr"].get<bool>();
     b.inverse_mass = j["inv_m"].get<float>();
     b.restitution = j["restitution"].get<float>();    
 

@@ -40,8 +40,10 @@ inline nlohmann::json SerializeBody(const BodyData& b) {
     nlohmann::json j;
     j["pos"] = SerializeVector3(b.position);
     j["vel"] = SerializeVector3(b.velocity);
+    j["acc"] = SerializeVector3(b.acceleration);
+    j["on_gr"] = b.on_ground;
     j["inv_m"] = b.inverse_mass;
-    j["restitution"] = b.restitution;
+    j["restitution"] = b.restitution;    
 
     j["shapes"] = nlohmann::json::array();
     for (const auto& c : b.shapes) {
