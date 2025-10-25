@@ -40,13 +40,17 @@ inline CollisionShape DeserializeShape(const nlohmann::json& j) {
 }
 
 inline BodyData DeserializeBody(const nlohmann::json& j) {
-    if (!j.contains("pos") || !j.contains("vel")) {
-        throw std::runtime_error("BodyData requires 'position' and 'velocity' fields");
+    if (!j.contains("pos") || !j.contains("vel") || !j.contains("inv_m") || !j.contains("restitution") || !j.contains("shapes")) {
+        throw std::runtime_error(
+        "BodyData requires 'position', 'velocity', 'inv_m' and 'shapes' fields"
+        );
     }
 
     BodyData b;
     b.position = DeserializeVector3(j["pos"]);
     b.velocity = DeserializeVector3(j["vel"]);
+    b.inverse_mass = j["inv_m"].get<float>();
+    b.restitution = j["restitution"].get<float>();    
 
     for (const auto& cj : j["shapes"]) b.shapes.push_back(DeserializeShape(cj));
     return b;
@@ -83,8 +87,17 @@ inline WorldData DeserializeWorld(const nlohmann::json& j) {
         uint32_t key = item[0].get<uint32_t>();
         const nlohmann::json& actor_json = item[1];
 
-        w.actors.insert({key, DeserializeActor(actor_json)});
+        w.AddActor(key, DeserializeActor(actor_json));
     }
+
+    std::cout << "json: " << j["actors"][0] << std::endl;
+
+    Vector3 p = w.GetActor(0).body.shapes[0].AsBox()->center;
+    std::cout
+    << "Serialized : "
+    << p.x << " "
+    << p.y << " "
+    << p.z << "\n";
 
     return w;
 }

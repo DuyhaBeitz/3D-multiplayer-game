@@ -4,6 +4,8 @@
 #include <raymath.h>
 #include <vector>
 #include <stdint.h>
+#include <variant>
+#include <iostream>
 
 constexpr double gravity = 40;
 constexpr double floor_lvl = 0;
@@ -29,6 +31,12 @@ struct BoxData {
     }
     void Draw() const {
         DrawCubeV(center, half_extents*2.f, BLUE);
+        // Vector3 p = center;
+        // std::cout
+        // << "Drawing cube at: "
+        // << p.x << " "
+        // << p.y << " "
+        // << p.z << "\n";
     }
 };
 /*****************************************/
@@ -86,6 +94,10 @@ inline CollisionResult Collide(const CollisionShape& a, const CollisionShape& b)
 struct BodyData {
     Vector3 position = {};
     Vector3 velocity = {};
+
+    // inverse so that we can have infinite mass, and connot have zero mass
+    float inverse_mass = 1;
+    float restitution = 1;
     std::vector<CollisionShape> shapes; 
 
     void UpdateShapePositions() {
@@ -118,3 +130,5 @@ struct BodyData {
         }
     }
 };
+
+void SolveCollision(BodyData& bA, BodyData& bB, const CollisionResult& collision_result);

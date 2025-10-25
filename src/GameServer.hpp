@@ -41,6 +41,13 @@ public:
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
 
+            //std::cout << data.text << "\n\n";
+            Vector3 p = m_game_state.world_data.GetActor(0).body.position;
+            std::cout
+            << p.x << " "
+            << p.y << " "
+            << p.z << "\n";
+
             ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data);
             m_server->Broadcast(packet); 
             DropEventHistory(previous_old_tick);

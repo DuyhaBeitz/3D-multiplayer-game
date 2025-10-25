@@ -108,7 +108,7 @@ struct GameState {
         auto fw = actor_data.VForward()*input.Normalized().x;
         auto rt = actor_data.VRight()*input.Normalized().y;
         
-        actor_data.body.velocity += fw + rt;
+        actor_data.body.velocity += (fw + rt)*dt*hor_speed;
 
         actor_data.yaw += input.mouse_x;
         actor_data.pitch += input.mouse_y;
@@ -140,7 +140,7 @@ public:
     void InitNewPlayer(GameState& state, uint32_t id) {
 
         BodyData body_data;
-        CollisionShape sphere(SphereData{3.0});
+        CollisionShape sphere(SphereData{13.0});
         body_data.shapes.push_back(sphere);
         ActorData actor_data(body_data);
 
@@ -249,7 +249,7 @@ public:
         }
 
         j["world"] = SerializeWorld(state.world_data);
-        return SerializedGameState(j.dump().c_str());
+        return SerializedGameState(j.dump(1).c_str());
     }
 
     GameState Deserialize(SerializedGameState data) {

@@ -95,6 +95,11 @@ public:
         }
         
         EndDrawing();
+        // Vector3 p = m_others_game_state.world_data.GetActor(0).body.position;
+        // std::cout
+        // << p.x << " "
+        // << p.y << " "
+        // << p.z << "\n";
     }
 
     void OnReceive(ENetEvent event) {
@@ -118,6 +123,8 @@ public:
             auto rec_state = Deserialize(data);
             m_self_game_state = ApplyEvents(rec_state, data.tick, m_tick-1);
             DropEventHistory(data.tick);
+            
+            //std::cout << data.text << "\n\n";
             
             m_last_received_game = rec_state;
             m_last_received_game_tick = data.tick;       
