@@ -1,7 +1,7 @@
 #include "GameServer.hpp"
 #include <thread>
 
-#define VIS 1
+//#define VIS 1
 
 std::unique_ptr<GameServer> game_server;
 bool running = true;
