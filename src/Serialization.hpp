@@ -57,6 +57,12 @@ inline nlohmann::json SerializeActor(const ActorData& a) {
     };
 }
 
+inline nlohmann::json SerializePlayer(const PlayerData& p) {
+    return {
+        {"actor_key", p.actor_key}
+    };
+}
+
 inline nlohmann::json SerializeWorld(const WorldData& w) {
     nlohmann::json j;
     j["actors"] = nlohmann::json::array();

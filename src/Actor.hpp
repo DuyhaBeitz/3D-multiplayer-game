@@ -26,7 +26,16 @@ struct ActorData {
     }
 
     void Draw() const {
-        DrawModelEx(Resources::Get().ModelFromKey(model_key), body.position, Vector3{0, 1, 0}, -yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
+        if (model_key != R_MODEL_DEFAULT) {
+            DrawModelEx(
+                Resources::Get().ModelFromKey(model_key),
+                body.position, Vector3{0, 1, 0},
+                -yaw*180/PI + 90,
+                Vector3{10, 10, 10},
+                WHITE
+            );
+        }
+        
         body.DrawShapes();
     }
 

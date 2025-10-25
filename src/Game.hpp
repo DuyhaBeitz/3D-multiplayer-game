@@ -78,10 +78,33 @@ struct GameEvent {
 };
 
 struct GameState {
+    std::map<uint32_t, PlayerData> players;
     WorldData world_data;
 
+    bool PlayerExists(uint32_t id) const {
+        return players.find(id) != players.end();
+    }
+
+    const PlayerData& GetPlayer(uint32_t id) const {
+        if (PlayerExists(id)) return players.at(id);
+        else throw std::runtime_error("Player doesn't exist");
+    }
+
+    const ActorData& GetActor(uint32_t id) const {
+        return world_data.GetActor(GetPlayer(id).actor_key);
+    }
+
+    PlayerData& GetPlayer(uint32_t id) {
+        if (PlayerExists(id)) return players.at(id);
+        else throw std::runtime_error("Player doesn't exist");
+    }
+
+    ActorData& GetActor(uint32_t id) {
+        return world_data.GetActor(GetPlayer(id).actor_key);
+    }
+
     void ApplyInput(PlayerInput input, uint32_t id) {
-        ActorData& actor_data = world_data.actors.at(id);
+        ActorData& actor_data = GetActor(id);
         auto fw = actor_data.VForward()*input.Normalized().x;
         auto rt = actor_data.VRight()*input.Normalized().y;
         
@@ -114,7 +137,8 @@ struct DrawingData {
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 public:
-    ActorData InitNewPlayerActor(const GameState& state, uint32_t id) {
+    void InitNewPlayer(GameState& state, uint32_t id) {
+
         BodyData body_data;
         CollisionShape sphere(SphereData{3.0});
         body_data.shapes.push_back(sphere);
@@ -126,23 +150,27 @@ public:
 
         actor_data.body.position = Vector3{0, 0, 0};
         actor_data.body.velocity = Vector3{0, 0, 0};
-        return actor_data;
+
+        PlayerData player_data;
+        player_data.actor_key = state.world_data.AddActor(actor_data);
+
+        state.players[id] = player_data;
     }
 
     virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id) {
         switch (event.event_id) {
         case EV_PLAYER_JOIN:
-            state.world_data.actors.insert({id, InitNewPlayerActor(state, id)});
+            InitNewPlayer(state, id);
             break;
 
         case EV_PLAYER_LEAVE:
-            state.world_data.actors.erase(id);
+            state.world_data.RemoveActor(state.players.at(id).actor_key);
             break;
 
         case EV_PLAYER_INPUT:
             if (std::holds_alternative<PlayerInput>(event.data)) {
                 auto input = std::get<PlayerInput>(event.data);
-                if (state.world_data.actors.find(id) != state.world_data.actors.end()) {
+                if (state.world_data.ActorExists(state.players[id].actor_key)) {
                     state.ApplyInput(input, id);
                 }
             }
@@ -154,8 +182,8 @@ public:
     }
 
     virtual void Draw(const GameState& state, const void* data) {
-        const uint32_t* except_id = static_cast<const uint32_t*>(data);
-        state.world_data.Draw(*except_id);
+        const ActorKey except_key = *static_cast<const ActorKey*>(data);
+        state.world_data.Draw(except_key);
     }
 
     virtual void UpdateGameLogic(GameState& state) {
@@ -193,14 +221,19 @@ public:
         alpha = fmin(1, fmax(0, alpha));
         GameState lerped = state2;
 
-        const uint32_t* except_id = static_cast<const uint32_t*>(data);
+        const ActorKey* except_key = static_cast<const ActorKey*>(data);
 
-        for (auto& [id, player] : state2.world_data.actors) {
-            if (id != *except_id) {
-                if (state1.world_data.actors.find(id) != state1.world_data.actors.end()) {
-                    ActorData& data = lerped.world_data.actors.at(id);
-                    data.body.position = Vector3Lerp(state1.world_data.actors.at(id).body.position, state2.world_data.actors.at(id).body.position, alpha);
-                    data.body.UpdateShapePositions();
+        for (auto& [actor_key, actor] : state2.world_data.actors) {
+            if (actor_key != *except_key) {
+                if (state1.world_data.ActorExists(actor_key)) {
+                    ActorData& actor_data = lerped.world_data.GetActor(actor_key);
+
+                    actor_data.body.position = Vector3Lerp(
+                        state1.world_data.GetActor(actor_key).body.position,
+                        state2.world_data.GetActor(actor_key).body.position,
+                        alpha
+                    );
+                    actor_data.body.UpdateShapePositions();
                 }
             }
         }
@@ -209,6 +242,12 @@ public:
 
     virtual SerializedGameState Serialize(const GameState& state) {
         nlohmann::json j;
+
+        j["players"] = nlohmann::json::array();
+        for (const auto& [id, p] : state.players) {
+            j["players"].push_back({id, SerializePlayer(p)});
+        }
+
         j["world"] = SerializeWorld(state.world_data);
         return SerializedGameState(j.dump().c_str());
     }
@@ -216,6 +255,16 @@ public:
     GameState Deserialize(SerializedGameState data) {
         GameState state{};
         nlohmann::json j = nlohmann::json::parse(std::string(data.text, max_string_len));
+
+        for (const auto& item : j["players"]) {
+            if (!item.is_array() || item.size() != 2) continue;
+
+            uint32_t id = item[0].get<uint32_t>();
+            const nlohmann::json& player_json = item[1];
+            
+            state.players.insert({id, DeserializePlayer(player_json)});
+        }
+
         state.world_data = DeserializeWorld(j["world"]);
         return state;
     }

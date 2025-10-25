@@ -64,6 +64,16 @@ inline ActorData DeserializeActor(const nlohmann::json& j) {
     return a;
 }
 
+inline PlayerData DeserializePlayer(const nlohmann::json& j) {
+    if (!j.contains("actor_key")) {
+        throw std::runtime_error("PlayerData requires 'actor_key' field");
+    }
+
+    PlayerData p;
+    p.actor_key = j["actor_key"].get<ActorKey>();
+    return p;
+}
+
 inline WorldData DeserializeWorld(const nlohmann::json& j) {
     WorldData w;
 

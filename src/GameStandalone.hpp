@@ -49,11 +49,11 @@ public:
         BeginDrawing();
         ClearBackground(DARKGRAY);
         
-        DrawingData drawing_data = {player_id, Resources::Get().ModelFromKey(R_MODEL_PLAYER)};
-        Camera3D camera = GetCameraFromActor(m_game_state.world_data.actors.at(player_id));
+        Camera3D camera = GetCameraFromActor(m_game_state.GetActor(player_id));
 
         BeginMode3D(camera);
-        Draw(m_game_state, &drawing_data);
+        ActorKey except_key = m_game_state.GetPlayer(player_id).actor_key;
+        Draw(m_game_state, &except_key);
         EndMode3D();
         
         EndDrawing();       

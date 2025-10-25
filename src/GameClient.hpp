@@ -83,13 +83,16 @@ public:
         DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
         DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
             
-        if (m_self_game_state.world_data.actors.find(m_id) != m_self_game_state.world_data.actors.end()) {
-            Camera3D camera = GetCameraFromActor(m_self_game_state.world_data.actors.at(m_id));
-
-            BeginMode3D(camera);
-                Draw(m_others_game_state, &m_id);
-            EndMode3D();
-        }        
+        if (m_self_game_state.PlayerExists(m_id)) {
+            const PlayerData& player_data = m_self_game_state.GetPlayer(m_id);
+            if (m_self_game_state.world_data.ActorExists(player_data.actor_key)) {
+                Camera3D camera = GetCameraFromActor(m_self_game_state.GetActor(m_id));
+                const ActorKey except_key = player_data.actor_key;
+                BeginMode3D(camera);
+                    Draw(m_others_game_state, &except_key);
+                EndMode3D();
+            }     
+        }
         
         EndDrawing();
     }

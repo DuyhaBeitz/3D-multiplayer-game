@@ -11,14 +11,13 @@ constexpr uint16_t R_MODEL_PLAYER = 1;
 class Resources {
 private:
     Resources() {
-        m_default_model = LoadModel("assets/model.glb");
+        m_models[R_MODEL_DEFAULT] = LoadModel("assets/model.glb");
         m_models[R_MODEL_PLAYER] = LoadModel("assets/model.glb");
     }
 
     ~Resources() {
     }
 
-    Model m_default_model;
     std::unordered_map<uint16_t, Model> m_models;
 
 public:
@@ -38,7 +37,7 @@ public:
         if (m_models.find(key) != m_models.end()) return m_models.at(key); 
         else {
             std::cerr << "No model found for key: " << key << std::endl;
-            return m_default_model;
+            return m_models[R_MODEL_DEFAULT];
         }
     }
 };

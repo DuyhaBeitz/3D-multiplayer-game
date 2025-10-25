@@ -8,7 +8,7 @@
 constexpr double gravity = 40;
 constexpr double floor_lvl = 0;
 constexpr double hor_speed = 60;
-constexpr double jump_impulse = 40;
+constexpr double jump_impulse = 20;
 /*****************************************/
 struct SphereData {
     float radius = 1.0f;
@@ -28,7 +28,7 @@ struct BoxData {
         return center + half_extents;
     }
     void Draw() const {
-        DrawCubeV(center-half_extents, half_extents*2.f, BLUE);
+        DrawCubeV(center, half_extents*2.f, BLUE);
     }
 };
 /*****************************************/

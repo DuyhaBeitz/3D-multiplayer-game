@@ -7,15 +7,28 @@
 
 #include "Actor.hpp"
 
-using actor_key = uint16_t;
+using ActorKey = uint16_t;
+
+struct PlayerData {
+    ActorKey actor_key;
+};
 
 struct WorldData {
-    actor_key new_actor_key = 0;
-    std::map<actor_key, ActorData> actors;
+    ActorKey new_actor_key = 0;
+    std::map<ActorKey, ActorData> actors;
 
-    WorldData() {}
+    WorldData() {
+        BoxData box_data;
+        box_data.half_extents = Vector3{10, 10, 10};
 
-    void Draw(actor_key except_key) const {
+        BodyData body_data;
+        body_data.position = Vector3{30, 0, 0};
+        body_data.shapes.push_back(CollisionShape(box_data));
+
+        AddActor(ActorData(body_data));
+    }
+
+    void Draw(ActorKey except_key) const {
         DrawGrid(100, 10);
 
         for (const auto& [key, actor_data] : actors) {
@@ -29,9 +42,9 @@ struct WorldData {
         }
     }
 
-    bool ActorExists(actor_key key) {return actors.find(key) != actors.end();}
-    actor_key AddActor(ActorData actor_data) {
-        actor_key key = new_actor_key;
+    bool ActorExists(ActorKey key) const {return actors.find(key) != actors.end();}
+    ActorKey AddActor(ActorData actor_data) {
+        ActorKey key = new_actor_key;
         actors.insert({key, actor_data});
 
         new_actor_key++;
@@ -39,5 +52,15 @@ struct WorldData {
         return key;
     }
 
-    void RemoveActor(actor_key key) {actors.erase(key);}
+    void RemoveActor(ActorKey key) {actors.erase(key);}
+
+    const ActorData& GetActor(ActorKey key) const {
+        if (ActorExists(key)) return actors.at(key);
+        else throw std::runtime_error("Actor doesn't exist");   
+    }
+
+    ActorData& GetActor(ActorKey key) {
+        if (ActorExists(key)) return actors.at(key);
+        else throw std::runtime_error("Actor doesn't exist");   
+    }
 };
