@@ -32,9 +32,9 @@ struct WorldData {
         }
     }
 
-void Update(float dt) {
+void Update(float delta_time) {
     constexpr int phys_iters = 1;
-    float sub_dt = dt / phys_iters;
+    float sub_dt = delta_time / phys_iters;
     
     for (int i = 0; i < phys_iters; i++) {
         std::vector<std::pair<BodyData*, BodyData*>> collisions;

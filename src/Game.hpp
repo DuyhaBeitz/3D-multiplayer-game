@@ -293,16 +293,16 @@ public:
         state.world_data.AddActor(ActorData(body_data));
         }
 
-        // {
-        // BoxData box_data;
-        // box_data.half_extents = Vector3{30, 10, 30};
+        {
+        BoxData box_data;
+        box_data.half_extents = Vector3{30, 5, 30};
 
-        // BodyData body_data;
-        // body_data.position = Vector3{40, 20, 0};
-        // body_data.shapes.push_back(CollisionShape(box_data));
+        BodyData body_data;
+        body_data.position = Vector3{40, 20, 0};
+        body_data.shapes.push_back(CollisionShape(box_data));
 
-        // state.world_data.AddActor(ActorData(body_data));
-        // }
+        state.world_data.AddActor(ActorData(body_data));
+        }
     }
 };
 
