@@ -9,14 +9,14 @@ inline nlohmann::json SerializeVector3(const Vector3& v) {
 
 inline nlohmann::json SerializeSphere(const SphereData& s) {
     return {
-        {"rel_center", SerializeVector3(s.rel_center)},
+        {"center", SerializeVector3(s.center)},
         {"radius", s.radius}
     };
 }
 
 inline nlohmann::json SerializeBox(const BoxData& b) {
     return {
-        {"rel_center", SerializeVector3(b.rel_center)},
+        {"center", SerializeVector3(b.center)},
         {"half_extents", SerializeVector3(b.half_extents)}
     };
 }
@@ -42,7 +42,7 @@ inline nlohmann::json SerializeBody(const BodyData& b) {
     j["vel"] = SerializeVector3(b.velocity);
 
     j["shapes"] = nlohmann::json::array();
-    for (const auto& c : b.collisions) {
+    for (const auto& c : b.shapes) {
         j["shapes"].push_back(SerializeShape(c));
     }
     return j;

@@ -116,6 +116,8 @@ class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 public:
     ActorData InitNewPlayerActor(const GameState& state, uint32_t id) {
         BodyData body_data;
+        CollisionShape sphere(SphereData{3.0});
+        body_data.shapes.push_back(sphere);
         ActorData actor_data(body_data);
 
         actor_data.pitch = 0;
@@ -198,6 +200,7 @@ public:
                 if (state1.world_data.actors.find(id) != state1.world_data.actors.end()) {
                     ActorData& data = lerped.world_data.actors.at(id);
                     data.body.position = Vector3Lerp(state1.world_data.actors.at(id).body.position, state2.world_data.actors.at(id).body.position, alpha);
+                    data.body.UpdateShapePositions();
                 }
             }
         }

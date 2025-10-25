@@ -16,13 +16,18 @@ struct ActorData {
 
     void Update(float dt) {
         body.velocity.y -= gravity*dt;
-        body.position += body.velocity;
-        body.position.y = fmax(floor_lvl, body.position.y);
         body.velocity *= 0.7;
+
+        body.position += body.velocity;
+        
+        body.position.y = fmax(floor_lvl, body.position.y);
+        
+        body.UpdateShapePositions();
     }
 
     void Draw() const {
         DrawModelEx(Resources::Get().ModelFromKey(model_key), body.position, Vector3{0, 1, 0}, -yaw*180/PI + 90, Vector3{10, 10, 10}, WHITE);
+        body.DrawShapes();
     }
 
     Vector3 VForward() const {

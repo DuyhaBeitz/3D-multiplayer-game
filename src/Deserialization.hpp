@@ -13,17 +13,17 @@ inline Vector3 DeserializeVector3(const nlohmann::json& j) {
 
 inline SphereData DeserializeSphere(const nlohmann::json& j) {
     SphereData s;
-    s.rel_center = DeserializeVector3(j["rel_center"]);
+    s.center = DeserializeVector3(j["center"]);
     s.radius = j["radius"];
     return s;
 }
 
 inline BoxData DeserializeBox(const nlohmann::json& j) {
-    if (!j.contains("rel_center") || !j.contains("half_extents")) {
-        throw std::runtime_error("BoxData requires 'rel_center' and 'half_extents' fields");
+    if (!j.contains("center") || !j.contains("half_extents")) {
+        throw std::runtime_error("BoxData requires 'center' and 'half_extents' fields");
     }
     BoxData b;
-    b.rel_center = DeserializeVector3(j["rel_center"]);
+    b.center = DeserializeVector3(j["center"]);
     b.half_extents = DeserializeVector3(j["half_extents"]);
     return b;
 }
@@ -48,7 +48,7 @@ inline BodyData DeserializeBody(const nlohmann::json& j) {
     b.position = DeserializeVector3(j["pos"]);
     b.velocity = DeserializeVector3(j["vel"]);
 
-    for (const auto& cj : j["shapes"]) b.collisions.push_back(DeserializeShape(cj));
+    for (const auto& cj : j["shapes"]) b.shapes.push_back(DeserializeShape(cj));
     return b;
 }
 
