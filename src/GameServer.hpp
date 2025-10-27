@@ -86,24 +86,19 @@ public:
     }
 
     void DrawGame() {
-        BeginDrawing();
+        Rendering::Get().BeginRendering();
         ClearBackground(DARKGRAY);
-            
-        Camera3D camera = { 0 };
-        Vector3 cam_offset = {0, 5, 0};
-        float r = 100;
-        camera.position = Vector3{r, r, r};
-        camera.target = Vector3{0, 0, 0};
-        camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-        camera.fovy = 180.0f;
-        camera.projection = CAMERA_ORTHOGRAPHIC;
+        
+        float r = 200;
+        Rendering::Get().SetCamera(
+            GetCameraFromPos(Vector3{r, r, r}, Vector3{0, 0, 0})
+        );
 
         const ActorKey except_key = 100;
-        BeginMode3D(camera);
+        Rendering::Get().BeginCameraMode();
             Draw(m_game_state, &except_key);
-        EndMode3D();
+        Rendering::Get().EndCameraMode();
         
-        
-        EndDrawing();
+        Rendering::Get().EndRendering();
     }
 };

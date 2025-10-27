@@ -4,8 +4,19 @@
 
 class Rendering {
 private:
+
+    RenderTexture2D m_texture;
+
+    Camera3D m_camera;
+
     Rendering() {
         Resources::Init();
+
+        m_texture = LoadRenderTexture(100, 100);
+        BeginTextureMode(m_texture);
+        ClearBackground(BLANK);
+        DrawText("Hello!", 0, 0, 64, RED);
+        EndTextureMode();
     }
 
     ~Rendering() {
@@ -31,4 +42,19 @@ public:
             position, rotationAxis, rotationAngle, scale, tint
         );
     }
+
+    void RenderText3D(const Camera3D& camera) {
+        DrawBillboard(camera, m_texture.texture, {0, 0, 0}, 1.f, WHITE);
+    }
+
+    void SetCamera(const Camera3D& camera) { m_camera = camera; }
+    const Camera3D& GetCamera() { return m_camera; }
+
+    void BeginRendering() {BeginDrawing();}
+    void EndRendering() {EndDrawing();}
+
+    void BeginCameraMode() {BeginMode3D(m_camera);}
+    void EndCameraMode() {EndMode3D();}
+
+    
 };

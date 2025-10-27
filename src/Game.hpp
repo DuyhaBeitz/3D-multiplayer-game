@@ -306,13 +306,20 @@ public:
     }
 };
 
-inline Camera GetCameraFromActor(const ActorData& actor_data) {
+inline Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
     Camera3D camera = { 0 };
     Vector3 cam_offset = {0, 5, 0};
-    camera.position = actor_data.body.position + cam_offset;
-    camera.target = camera.position + actor_data.VForward();
+    camera.position = pos;
+    camera.target = target;
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
     camera.fovy = 90.0f;
     camera.projection = CAMERA_PERSPECTIVE;
-    return camera;
+    return camera;    
+}
+
+inline Camera GetCameraFromActor(const ActorData& actor_data) {
+    Vector3 cam_offset = {0, 5, 0};
+    Vector3 position = actor_data.body.position + cam_offset;
+    Vector3 target =  position + actor_data.VForward();
+    return GetCameraFromPos(position, target);
 }
