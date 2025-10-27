@@ -60,6 +60,15 @@ inline BodyData DeserializeBody(const nlohmann::json& j) {
     return b;
 }
 
+inline ActorRenderData DeserializeActorRenderData(const nlohmann::json j) {
+    ActorRenderData render_data;
+    render_data.model_key = j["model_key"].get<ModelKey>();
+    render_data.sec_count = j["sec_count"].get<float>();
+    render_data.anim_id = j["anim_id"].get<int>();
+    render_data.offset = DeserializeVector3(j["offset"]);
+    return render_data;
+}
+
 inline ActorData DeserializeActor(const nlohmann::json& j) {
     if (!j.contains("yaw") || !j.contains("pitch")) {
         throw std::runtime_error("ActorData requires 'yaw' and 'pitch' fields");
@@ -68,7 +77,7 @@ inline ActorData DeserializeActor(const nlohmann::json& j) {
     ActorData a(DeserializeBody(j["body"]));
     a.yaw = j["yaw"].get<float>();
     a.pitch = j["pitch"].get<float>();
-    a.model_key = j["model_key"].get<ModelKey>();
+    a.render_data = DeserializeActorRenderData(j["render_data"]);
     return a;
 }
 

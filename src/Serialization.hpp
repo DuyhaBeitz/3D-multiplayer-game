@@ -52,12 +52,21 @@ inline nlohmann::json SerializeBody(const BodyData& b) {
     return j;
 }
 
+inline nlohmann::json SerializeActorRenderData(const ActorRenderData& render_data) {
+    return {
+        {"model_key", render_data.model_key},
+        {"sec_count", render_data.sec_count},
+        {"anim_id", render_data.anim_id},
+        {"offset", SerializeVector3(render_data.offset)}
+    };    
+}
+
 inline nlohmann::json SerializeActor(const ActorData& a) {
     return {
         {"body", SerializeBody(a.body)},
         {"yaw", a.yaw},
         {"pitch", a.pitch},
-        {"model_key", a.model_key}
+        {"render_data", SerializeActorRenderData(a.render_data)}
     };
 }
 

@@ -13,6 +13,7 @@ find_package(raylib 5.0 REQUIRED)
 add_executable(server 
     src/server.cpp
     src/Physics.cpp
+    src/Rendering.cpp
 )
 target_link_libraries(server PRIVATE
     EasyNet
@@ -24,6 +25,7 @@ target_link_libraries(server PRIVATE
 add_executable(client 
     src/client.cpp
     src/Physics.cpp
+    src/Rendering.cpp
 )
 target_link_libraries(client PRIVATE
     EasyNet
@@ -36,6 +38,7 @@ target_link_libraries(client PRIVATE
 add_executable(standalone 
     src/standalone.cpp
     src/Physics.cpp
+    src/Rendering.cpp
 )
 target_link_libraries(standalone PRIVATE
     raylib

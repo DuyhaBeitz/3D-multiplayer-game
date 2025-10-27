@@ -2,19 +2,21 @@
 
 #include "Physics.hpp"
 #include "Rendering.hpp"
+#include "ActorRender.hpp"
 #include <iostream>
 
 struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
-    ModelKey model_key;
     
-    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(R_MODEL_DEFAULT)
+    ActorRenderData render_data;
+    
+    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT, 0)
     {
     }
 
-    ActorData(const BodyData& body_, ModelKey model_key_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(model_key_)
+    ActorData(const BodyData& body_, ModelKey model_key_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(model_key_, 0)
     {
     }
 
@@ -23,23 +25,14 @@ struct ActorData {
             body.ApplyForce({0, -gravity/body.inverse_mass, 0});
             body.ApplyForce(body.velocity * -2);
         }        
-        
+        Vector2 hor_vel = {body.velocity.x, body.velocity.z};
+        render_data.UpdateAnim(Vector2Length(hor_vel) > 5, delta_time);
         body.Update(delta_time);
-        //body.position.y = fmax(floor_lvl, body.position.y);
     }
 
     void Draw() const {
-        if (model_key != R_MODEL_DEFAULT) {
-            Rendering::Get().RenderModel(
-                model_key,
-                body.position, Vector3{0, 1, 0},
-                -yaw*180/PI + 90,
-                Vector3{10, 10, 10},
-                WHITE
-            );
-        }
-        
-        body.DrawShapes();
+        render_data.Draw(body.position, yaw, pitch);        
+        if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
     }
 
     Vector3 VForward() const {

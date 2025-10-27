@@ -14,14 +14,18 @@ int main(){
     InitWindow(1000, 1000, "Server");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
-
     Rendering::Init();
+
     while (!WindowShouldClose()) {
         game_server->Update();
         game_server->DrawGame();
 
     }
     #else
+    InitWindow(1000, 1000, "Headless server");
+    SetWindowState(FLAG_WINDOW_HIDDEN);
+    SetTargetFPS(iters_per_sec); // not actually used
+    Rendering::Init();
     auto next_tick = std::chrono::steady_clock::now();
     while (running) {
         auto now = std::chrono::steady_clock::now();

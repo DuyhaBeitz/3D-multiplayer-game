@@ -173,14 +173,11 @@ public:
         BodyData body_data;
         CollisionShape sphere(SphereData{13});
         body_data.shapes.push_back(sphere);
-        ActorData actor_data(body_data);
-
-        actor_data.pitch = 0;
-        actor_data.yaw = 0;
-        actor_data.model_key = R_MODEL_PLAYER;
+        ActorData actor_data(body_data, R_MODEL_PLAYER);
+        
+        actor_data.render_data.offset = {0, -12, 0};
 
         actor_data.body.position = Vector3{0, 10, 0};
-        actor_data.body.velocity = Vector3{0, 0, 0};
 
         PlayerData player_data;
         player_data.actor_key = state.world_data.AddActor(actor_data);
