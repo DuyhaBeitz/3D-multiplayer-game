@@ -2,7 +2,7 @@
 
 #include <EasyNet/EasyNetClient.hpp>
 #include "shared.hpp"
-#include "Resources.hpp"
+#include "Rendering.hpp"
 
 class GameClient : public Game {
 private:
@@ -40,7 +40,7 @@ public:
         m_client->SetOnConnect([this](ENetEvent){m_connected = true;});
         m_client->SetOnDisconnect([this](ENetEvent){m_connected = false;});
 
-        Resources::Init();
+        Rendering::Init();
     }
 
     void Update() {

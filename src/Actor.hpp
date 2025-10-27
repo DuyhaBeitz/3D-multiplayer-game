@@ -1,20 +1,20 @@
 #pragma once
 
 #include "Physics.hpp"
-#include "Resources.hpp"
+#include "Rendering.hpp"
 #include <iostream>
 
 struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
-    uint16_t model_key;
+    ModelKey model_key;
     
     ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(R_MODEL_DEFAULT)
     {
     }
 
-    ActorData(const BodyData& body_, uint16_t model_key_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(model_key_)
+    ActorData(const BodyData& body_, ModelKey model_key_) : body(body_), yaw(0.0f), pitch(0.0f), model_key(model_key_)
     {
     }
 
@@ -29,15 +29,15 @@ struct ActorData {
     }
 
     void Draw() const {
-        // if (model_key != R_MODEL_DEFAULT) {
-        //     DrawModelEx(
-        //         Resources::Get().ModelFromKey(model_key),
-        //         body.position, Vector3{0, 1, 0},
-        //         -yaw*180/PI + 90,
-        //         Vector3{10, 10, 10},
-        //         WHITE
-        //     );
-        // }
+        if (model_key != R_MODEL_DEFAULT) {
+            Rendering::Get().RenderModel(
+                model_key,
+                body.position, Vector3{0, 1, 0},
+                -yaw*180/PI + 90,
+                Vector3{10, 10, 10},
+                WHITE
+            );
+        }
         
         body.DrawShapes();
     }

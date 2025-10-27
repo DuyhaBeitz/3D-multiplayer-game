@@ -15,7 +15,7 @@ int main(){
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 
-    Resources::Get();
+    Rendering::Init();
     while (!WindowShouldClose()) {
         game_server->Update();
         game_server->DrawGame();

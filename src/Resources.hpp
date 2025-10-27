@@ -5,8 +5,10 @@
 #include <iostream>
 #include <cstdint>
 
-constexpr uint16_t R_MODEL_DEFAULT = 0;
-constexpr uint16_t R_MODEL_PLAYER = 1;
+using ModelKey = uint16_t;
+
+constexpr ModelKey R_MODEL_DEFAULT = 0;
+constexpr ModelKey R_MODEL_PLAYER = 1;
 
 class Resources {
 private:
@@ -18,7 +20,7 @@ private:
     ~Resources() {
     }
 
-    std::unordered_map<uint16_t, Model> m_models;
+    std::unordered_map<ModelKey, Model> m_models;
 
 public:
     Resources(const Resources&) = delete;
@@ -33,7 +35,7 @@ public:
         Resources::Get();
     }
 
-    Model& ModelFromKey(uint16_t key) {
+    Model& ModelFromKey(ModelKey key) {
         if (m_models.find(key) != m_models.end()) return m_models.at(key); 
         else {
             std::cerr << "No model found for key: " << key << std::endl;

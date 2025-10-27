@@ -68,7 +68,7 @@ inline ActorData DeserializeActor(const nlohmann::json& j) {
     ActorData a(DeserializeBody(j["body"]));
     a.yaw = j["yaw"].get<float>();
     a.pitch = j["pitch"].get<float>();
-    a.model_key = j["model_key"].get<uint16_t>();
+    a.model_key = j["model_key"].get<ModelKey>();
     return a;
 }
 
