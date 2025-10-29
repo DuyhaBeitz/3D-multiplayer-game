@@ -33,4 +33,9 @@ struct ActorRenderData {
             frame++;
         }
     }
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(model_key, frame, offset, anim_id);
+    }
 };

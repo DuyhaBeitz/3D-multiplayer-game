@@ -10,7 +10,6 @@
 
 #include "World.hpp"
 #include "Serialization.hpp"
-#include "Deserialization.hpp"
 
 #include "Constants.hpp"
 
@@ -110,50 +109,23 @@ struct GameState {
             actor_data.body.on_ground = false;
         }        
     }
-};
 
-inline nlohmann::json SerializeGame(const GameState& state) {
-    nlohmann::json j;
 
-    j["players"] = nlohmann::json::array();
-    for (const auto& [id, p] : state.players) {
-        j["players"].push_back({id, SerializePlayer(p)});
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(players, world_data);
     }
-
-    j["world"] = SerializeWorld(state.world_data);
-    return j;
-}
-
-inline GameState DeserializeGame(nlohmann::json j) {
-    GameState state{};
-
-    for (const auto& item : j["players"]) {
-        if (!item.is_array() || item.size() != 2) continue;
-
-        uint32_t id = item[0].get<uint32_t>();
-        const nlohmann::json& player_json = item[1];
-        
-        state.players.insert({id, DeserializePlayer(player_json)});
-    }
-
-    state.world_data = DeserializeWorld(j["world"]);
-    return state;
-}
-
-struct SerializedGameState {
-    char text[max_string_len];
-    uint32_t tick;
-
-    SerializedGameState(const char* str) { 
-        std::strncpy(text, str, sizeof(text));
-        text[sizeof(text)-1] = '\0';
-    }
-    SerializedGameState() = default; // needed for packet data, because before copying the data, the lvalue is declared
 };
 
 struct DrawingData {
     uint32_t self_id;
     Model& model;
+};
+
+struct SerializedGameState {
+    uint32_t tick;
+    uint32_t size;          // number of valid bytes
+    uint8_t bytes[4096];    // max packet size
 };
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
@@ -258,11 +230,35 @@ public:
     };
 
     virtual SerializedGameState Serialize(const GameState& state) {
-        return SerializedGameState(SerializeGame(state).dump().c_str());
+        SerializedGameState sgs{};
+        
+        // Serialize into a temporary stream
+        std::ostringstream os(std::ios::binary);
+        {
+            cereal::BinaryOutputArchive archive(os);
+            archive(state);
+        }
+
+        // Copy into the fixed-size buffer
+        std::string str = os.str();
+        sgs.size = static_cast<uint32_t>(str.size());
+        if (sgs.size > sizeof(sgs.bytes)) {
+            throw std::runtime_error("Serialized state exceeds buffer size");
+        }
+        std::memcpy(sgs.bytes, str.data(), sgs.size);
+
+        return sgs;
     }
 
     GameState Deserialize(SerializedGameState data) {
-        return DeserializeGame(nlohmann::json::parse(std::string(data.text, max_string_len)));
+        // Wrap the raw buffer in a stringstream for Cereal
+        std::istringstream is(std::string(reinterpret_cast<const char*>(data.bytes), data.size),
+                            std::ios::binary);
+
+        cereal::BinaryInputArchive archive(is);
+        GameState gs;
+        archive(gs);
+        return gs;
     }
 
     void InitGame(GameState& state) {
@@ -305,11 +301,11 @@ inline Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
 
 inline Camera GetCameraFromActor(const ActorData& actor_data) {
     Vector3 cam_offset = {0, 5, 0};
-    // Vector3 position = actor_data.body.position + cam_offset;
-    // Vector3 target =  position + actor_data.VForward();
+    Vector3 position = actor_data.body.position + cam_offset;
+    Vector3 target =  position + actor_data.VForward();
 
-    Vector3 target =  actor_data.body.position + cam_offset;
-    Vector3 position = target - actor_data.VForward()*130;
+    // Vector3 target =  actor_data.body.position + cam_offset;
+    // Vector3 position = target - actor_data.VForward()*130;
     
 
     return GetCameraFromPos(position, target);

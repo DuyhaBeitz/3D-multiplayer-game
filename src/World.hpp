@@ -11,6 +11,10 @@ using ActorKey = uint16_t;
 
 struct PlayerData {
     ActorKey actor_key;
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(actor_key);
+    }
 };
 
 struct WorldData {
@@ -32,40 +36,40 @@ struct WorldData {
         }
     }
 
-void Update(float delta_time) {
-    constexpr int phys_iters = 1;
-    float sub_dt = delta_time / phys_iters;
-    
-    for (int i = 0; i < phys_iters; i++) {
-        std::vector<std::pair<BodyData*, BodyData*>> collisions;
+    void Update(float delta_time) {
+        constexpr int phys_iters = 1;
+        float sub_dt = delta_time / phys_iters;
         
-        auto actor_it1 = actors.begin();
-        while (actor_it1 != actors.end()) {
-            auto actor_it2 = actor_it1;
-            ++actor_it2;
+        for (int i = 0; i < phys_iters; i++) {
+            std::vector<std::pair<BodyData*, BodyData*>> collisions;
             
-            while (actor_it2 != actors.end()) {
-                auto& body1 = actor_it1->second.body;
-                auto& body2 = actor_it2->second.body;
-                
-                auto collision = body1.CollideWith(body2);
-                if (collision.penetration > 0) {
-                    collisions.emplace_back(&body1, &body2);
-                }
+            auto actor_it1 = actors.begin();
+            while (actor_it1 != actors.end()) {
+                auto actor_it2 = actor_it1;
                 ++actor_it2;
+                
+                while (actor_it2 != actors.end()) {
+                    auto& body1 = actor_it1->second.body;
+                    auto& body2 = actor_it2->second.body;
+                    
+                    auto collision = body1.CollideWith(body2);
+                    if (collision.penetration > 0) {
+                        collisions.emplace_back(&body1, &body2);
+                    }
+                    ++actor_it2;
+                }
+                ++actor_it1;
             }
-            ++actor_it1;
-        }
-        
-        for (auto& [body1, body2] : collisions) {
-            SolveCollision(*body1, *body2, body1->CollideWith(*body2));
-        }
-        
-        for (auto& [key, actor_data] : actors) {
-            actor_data.Update(sub_dt);
+            
+            for (auto& [body1, body2] : collisions) {
+                SolveCollision(*body1, *body2, body1->CollideWith(*body2));
+            }
+            
+            for (auto& [key, actor_data] : actors) {
+                actor_data.Update(sub_dt);
+            }
         }
     }
-}
 
     bool ActorExists(ActorKey key) const {return actors.find(key) != actors.end();}
     
@@ -90,5 +94,10 @@ void Update(float delta_time) {
     ActorData& GetActor(ActorKey key) {
         if (ActorExists(key)) return actors.at(key);
         else throw std::runtime_error("Actor doesn't exist");   
+    }
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(new_actor_key, actors);
     }
 };

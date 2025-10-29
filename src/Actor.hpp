@@ -11,7 +11,7 @@ struct ActorData {
     float pitch;
     
     ActorRenderData render_data;
-    
+    ActorData() = default;
     ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT, 0)
     {
     }
@@ -41,5 +41,10 @@ struct ActorData {
 
     Vector3 VRight() const {
         return Vector3{cos(yaw+PI/2) * cos(pitch), 0, sin(yaw+PI/2) * cos(pitch)};
+    }
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(body, yaw, pitch, render_data);
     }
 };

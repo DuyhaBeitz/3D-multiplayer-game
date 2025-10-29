@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Serialization.hpp"
 
 void PrintTest(bool test, std::string name) {
     std::cout << name << std::endl;
@@ -11,6 +12,8 @@ void PrintTest(bool test, std::string name) {
 }
 
 int main() {
+    InitWindow(10, 10, "Test");
+
     BodyData body_data;
     CollisionShape sphere(SphereData{13.0});
     body_data.shapes.push_back(sphere);
@@ -25,18 +28,20 @@ int main() {
     GameState game1;
     game1.world_data = world_data;
 
-    // GameState game2 = DeserializeGame(SerializeGame(game1));
-    // std::string s1 = SerializeGame(game1).dump(4);
-    // std::string s2 = SerializeGame(game2).dump(4);
+    Game game_manager = {};
+    GameState game2 = game1;
+    auto s1 = game_manager.Serialize(game1);
+    auto s2 = game_manager.Serialize(game1);
 
-    WorldData world_data2 = DeserializeWorld(SerializeWorld(world_data));
-    std::string s1 = SerializeWorld(world_data).dump(4);
-    std::string s2 = SerializeWorld(world_data2).dump(4);
+    bool eq = (s1.tick == s2.tick) && (s1.size = s2.size);
+    if (eq) {
+        for (int i = 0; i < s1.size; i++) {
+            if (s1.bytes[i] != s2.bytes[i]) {
+                eq = false;
+                break;
+            }
+        }
+    }
 
-    int diff = std::strcmp(
-        s1.c_str(),
-        s2.c_str()
-    );
-
-    PrintTest(diff == 0, "Serialization");
+    PrintTest(eq, "Serialization");
 }

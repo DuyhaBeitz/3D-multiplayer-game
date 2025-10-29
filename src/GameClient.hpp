@@ -85,7 +85,7 @@ public:
                 Rendering::Get().SetCamera(
                     GetCameraFromActor(m_self_game_state.GetActor(m_id))
                 );
-                const ActorKey except_key = player_data.actor_key + 100;
+                const ActorKey except_key = player_data.actor_key;
                 
                 Rendering::Get().BeginRendering();
                     //ClearBackground(DARKGRAY);

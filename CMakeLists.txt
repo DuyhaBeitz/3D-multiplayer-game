@@ -25,6 +25,8 @@ set(R3D_ASSIMP_VENDORED ON CACHE BOOL "" FORCE)
 set(R3D_RAYLIB_VENDORED ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(r3d)
 
+include_directories(src)
+
 add_executable(server 
     src/server.cpp
     src/Physics.cpp
@@ -67,12 +69,15 @@ target_link_libraries(standalone PUBLIC
     r3d
 )
 
-# add_executable(test
-#     src/test.cpp
-#     src/Physics.cpp
-# )
-# target_link_libraries(test PUBLIC
-#     raylib
-#     RaylibRetainedGUI
-#     nlohmann_json::nlohmann_json
-# )
+add_executable(test
+    src/test.cpp
+    src/Physics.cpp
+    src/Resources.cpp
+    src/Rendering.cpp
+)
+target_link_libraries(test PUBLIC
+    raylib
+    RaylibRetainedGUI
+    nlohmann_json::nlohmann_json
+    r3d
+)

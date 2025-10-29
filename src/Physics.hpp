@@ -8,6 +8,8 @@
 #include <variant>
 #include <iostream>
 
+#include "Serialization.hpp"
+
 constexpr float gravity = 220;
 //constexpr float floor_lvl = 0;
 constexpr float hor_speed = 160;
@@ -16,11 +18,10 @@ constexpr float jump_impulse = 120;
 struct SphereData {
     float radius = 1.0f;
     Vector3 center{};
-    void Draw() const {
-        // const R3D_Mesh m = R3D_GenMeshSphere(radius, 10, 10, false);
-        // R3D_DrawMesh(&m, NULL, MatrixIdentity());
-        
-        //DrawSphere(center, radius, RED);
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(radius, center);
     }
 };
 
@@ -33,17 +34,17 @@ struct BoxData {
     Vector3 Max() const {
         return center + half_extents;
     }
-    void Draw() const {
-        // const R3D_Mesh m = R3D_GenMeshCube(half_extents.x, half_extents.z, half_extents.y, false);
-        // R3D_DrawMesh(&m, NULL, MatrixIdentity());
 
-        //DrawCubeV(center, half_extents*2.f, BLUE);
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(half_extents, center);
     }
 };
 /*****************************************/
 struct CollisionShape {
     std::variant<SphereData, BoxData> shape;
 
+    CollisionShape() = default;
     CollisionShape(const SphereData& s) : shape(s) {}
     CollisionShape(const BoxData& b) : shape(b) {}
 
@@ -55,6 +56,11 @@ struct CollisionShape {
 
     SphereData* AsSphere() { return std::get_if<SphereData>(&shape); }
     BoxData* AsBox() { return std::get_if<BoxData>(&shape); }
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(shape);
+    }
 };
 
 struct CollisionResult {
@@ -147,10 +153,15 @@ struct BodyData {
     }
 
     void DrawShapes() const {
-        for (const CollisionShape& shape : shapes) {
-            if (shape.IsSphere()) shape.AsSphere()->Draw();
-            else if (shape.IsBox()) shape.AsBox()->Draw();
-        }
+        // for (const CollisionShape& shape : shapes) {
+        //     if (shape.IsSphere()) shape.AsSphere()->Draw();
+        //     else if (shape.IsBox()) shape.AsBox()->Draw();
+        // }
+    }
+
+    template <class Archive>
+    void serialize(Archive& ar) {
+        ar(position, velocity, acceleration, on_ground, inverse_mass, restitution, shapes);
     }
 };
 
