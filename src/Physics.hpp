@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include "Rendering.hpp"
 #include <vector>
 #include <stdint.h>
 #include <variant>
@@ -16,7 +17,10 @@ struct SphereData {
     float radius = 1.0f;
     Vector3 center{};
     void Draw() const {
-        DrawSphere(center, radius, RED);
+        // const R3D_Mesh m = R3D_GenMeshSphere(radius, 10, 10, false);
+        // R3D_DrawMesh(&m, NULL, MatrixIdentity());
+        
+        //DrawSphere(center, radius, RED);
     }
 };
 
@@ -30,7 +34,10 @@ struct BoxData {
         return center + half_extents;
     }
     void Draw() const {
-        DrawCubeV(center, half_extents*2.f, BLUE);
+        // const R3D_Mesh m = R3D_GenMeshCube(half_extents.x, half_extents.z, half_extents.y, false);
+        // R3D_DrawMesh(&m, NULL, MatrixIdentity());
+
+        //DrawCubeV(center, half_extents*2.f, BLUE);
     }
 };
 /*****************************************/

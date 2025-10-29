@@ -63,7 +63,7 @@ inline BodyData DeserializeBody(const nlohmann::json& j) {
 inline ActorRenderData DeserializeActorRenderData(const nlohmann::json j) {
     ActorRenderData render_data;
     render_data.model_key = j["model_key"].get<ModelKey>();
-    render_data.sec_count = j["sec_count"].get<float>();
+    render_data.frame = j["frame"].get<int>();
     render_data.anim_id = j["anim_id"].get<int>();
     render_data.offset = DeserializeVector3(j["offset"]);
     return render_data;
@@ -99,5 +99,7 @@ inline WorldData DeserializeWorld(const nlohmann::json& j) {
         uint32_t key = std::stoul(it.key());
         w.AddActor(key, DeserializeActor(it.value()));
     }
+    std::cout << j.dump(1) << std::endl << std::endl;
+
     return w;
 }

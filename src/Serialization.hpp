@@ -55,7 +55,7 @@ inline nlohmann::json SerializeBody(const BodyData& b) {
 inline nlohmann::json SerializeActorRenderData(const ActorRenderData& render_data) {
     return {
         {"model_key", render_data.model_key},
-        {"sec_count", render_data.sec_count},
+        {"frame", render_data.frame},
         {"anim_id", render_data.anim_id},
         {"offset", SerializeVector3(render_data.offset)}
     };    

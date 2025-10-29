@@ -86,19 +86,17 @@ public:
     }
 
     void DrawGame() {
-        Rendering::Get().BeginRendering();
-        ClearBackground(DARKGRAY);
-        
         float r = 200;
         Rendering::Get().SetCamera(
             GetCameraFromPos(Vector3{r, r, r}, Vector3{0, 0, 0})
         );
 
         const ActorKey except_key = 100;
-        Rendering::Get().BeginCameraMode();
-            Draw(m_game_state, &except_key);
-        Rendering::Get().EndCameraMode();
-        
+        BeginDrawing();
+        Rendering::Get().BeginRendering();
+            ClearBackground(DARKGRAY);
+            Draw(m_game_state, &except_key);        
         Rendering::Get().EndRendering();
+        EndDrawing();
     }
 };

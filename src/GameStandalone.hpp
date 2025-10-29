@@ -48,20 +48,18 @@ public:
     }
 
     void DrawGame() {
-        Rendering::Get().BeginRendering();
-        ClearBackground(DARKGRAY);
-        
+        BeginDrawing();
         if (m_game_state.PlayerExists(player_id)) {
             Rendering::Get().SetCamera(
                 GetCameraFromActor(m_game_state.GetActor(player_id))
             );
-
-            Rendering::Get().BeginCameraMode();
             ActorKey except_key = m_game_state.GetPlayer(player_id).actor_key;
-            Draw(m_game_state, &except_key);
-            Rendering::Get().EndCameraMode();
-        }     
-        Rendering::Get().EndRendering();
 
+            Rendering::Get().BeginRendering();
+                ClearBackground(DARKGRAY);
+                Draw(m_game_state, &except_key);
+            Rendering::Get().EndRendering();
+        } 
+        EndDrawing();
     }
 };

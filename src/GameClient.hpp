@@ -77,26 +77,24 @@ public:
         m_ticks_since_last_recieved_game++;
     }
 
-    void DrawGame() {
+    void DrawGame() {            
         BeginDrawing();
-        ClearBackground(DARKGRAY);
-        DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
-        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
-            
         if (m_self_game_state.PlayerExists(m_id)) {
             const PlayerData& player_data = m_self_game_state.GetPlayer(m_id);
             if (m_self_game_state.world_data.ActorExists(player_data.actor_key)) {
                 Rendering::Get().SetCamera(
                     GetCameraFromActor(m_self_game_state.GetActor(m_id))
                 );
-                const ActorKey except_key = player_data.actor_key;
+                const ActorKey except_key = player_data.actor_key + 100;
                 
-                Rendering::Get().BeginCameraMode();
-                Draw(m_others_game_state, &except_key);
-                Rendering::Get().EndCameraMode();
+                Rendering::Get().BeginRendering();
+                    //ClearBackground(DARKGRAY);
+                    // DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
+                    // DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
+                    Draw(m_others_game_state, &except_key);
+                Rendering::Get().EndRendering();
             }     
         }
-        
         EndDrawing();
     }
 

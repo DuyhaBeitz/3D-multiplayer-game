@@ -12,18 +12,7 @@
 #include "Serialization.hpp"
 #include "Deserialization.hpp"
 
-constexpr int max_string_len = 2048;
-
-constexpr int iters_per_sec = 60;
-constexpr double dt = 1.f/iters_per_sec;
-
-// client also uses that
-constexpr uint32_t tick_period = iters_per_sec/20; // broadcast game state every 100 ms
-constexpr uint32_t receive_tick_period = iters_per_sec/2; // allow late received events
-constexpr uint32_t send_tick_period = tick_period; // sync client's tick with server's tick
-constexpr uint32_t server_lateness = receive_tick_period;
-// ensuring that we're not substructing bigger uint32_t from the smaller one
-constexpr uint32_t max_lateness = server_lateness+tick_period+receive_tick_period;
+#include "Constants.hpp"
 
 enum EventId {
     EV_PLAYER_JOIN = 0,
@@ -279,7 +268,7 @@ public:
     void InitGame(GameState& state) {
         { // floor
         BoxData box_data;
-        box_data.half_extents = Vector3{100, 100, 100};
+        box_data.half_extents = Vector3{1000, 100, 1000};
 
         BodyData body_data;
         body_data.position = Vector3{0, -100, 0};
@@ -316,7 +305,12 @@ inline Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
 
 inline Camera GetCameraFromActor(const ActorData& actor_data) {
     Vector3 cam_offset = {0, 5, 0};
-    Vector3 position = actor_data.body.position + cam_offset;
-    Vector3 target =  position + actor_data.VForward();
+    // Vector3 position = actor_data.body.position + cam_offset;
+    // Vector3 target =  position + actor_data.VForward();
+
+    Vector3 target =  actor_data.body.position + cam_offset;
+    Vector3 position = target - actor_data.VForward()*130;
+    
+
     return GetCameraFromPos(position, target);
 }
