@@ -27,7 +27,7 @@ struct ActorData {
             body.ApplyForce(body.velocity * -2);
         }        
         Vector2 hor_vel = {body.velocity.x, body.velocity.z};
-        render_data.UpdateAnim(Vector2Length(hor_vel) > 5, delta_time);
+        render_data.UpdateAnim(Vector2Length(hor_vel) > 20, delta_time);
         body.Update(delta_time);
     }
 

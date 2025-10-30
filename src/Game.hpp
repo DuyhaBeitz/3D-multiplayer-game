@@ -300,7 +300,8 @@ public:
         body_data.position = Vector3{0, 20, 40};
         body_data.shapes.push_back(CollisionShape(box_data));
 
-        state.world_data.AddActor(ActorData(body_data));
+        ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+        state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
         }
     }
 };

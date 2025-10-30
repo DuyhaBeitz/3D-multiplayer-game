@@ -1,3 +1,4 @@
 cmake -S . -B build
 cmake --build build
-cp -R assets build/
+
+ln -sf "$(pwd)/assets" build/assets

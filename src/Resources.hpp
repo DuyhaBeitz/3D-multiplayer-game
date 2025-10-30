@@ -13,6 +13,7 @@ using ModelKey = uint16_t;
 
 constexpr ModelKey R_MODEL_DEFAULT = 0;
 constexpr ModelKey R_MODEL_PLAYER = 1;
+constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
 
 struct AnimatedModelAlias {
     std::vector<R3D_Model> aliases;
@@ -70,6 +71,7 @@ private:
     Resources() {
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
         AddModel(R_MODEL_PLAYER, "assets/Character.gltf", 10);
+        AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/Cube_Exclamation.gltf", 0);
     }
 
     ~Resources() {
