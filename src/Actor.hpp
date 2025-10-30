@@ -9,6 +9,7 @@ struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
+    char name[64] = "\0";
     
     ActorRenderData render_data;
     ActorData() = default;
@@ -31,7 +32,7 @@ struct ActorData {
     }
 
     void Draw() const {
-        render_data.Draw(body.position, yaw, pitch);        
+        render_data.Draw(body, yaw, pitch, name);        
         if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
     }
 
@@ -45,6 +46,6 @@ struct ActorData {
 
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(body, yaw, pitch, render_data);
+        ar(body, yaw, pitch, render_data, name);
     }
 };

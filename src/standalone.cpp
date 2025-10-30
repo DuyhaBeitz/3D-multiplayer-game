@@ -11,7 +11,9 @@ int main() {
 
     while (!WindowShouldClose()) {
         game->Update();
+        BeginDrawing();
         game->DrawGame();
+        EndDrawing();
     }
 
     return 0;

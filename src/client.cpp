@@ -28,7 +28,9 @@ int main() {
         }
         else {
             game_client->Update();
+            BeginDrawing();
             game_client->DrawGame();
+            EndDrawing();
         }
     }
     net_client->RequestDisconnectFromServer();
@@ -38,7 +40,7 @@ int main() {
 
 void Init() {
     EasyNetInit();
-    InitWindow(1000, 1000, "Multiplayer");
+    InitWindow(1000, 1000, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 

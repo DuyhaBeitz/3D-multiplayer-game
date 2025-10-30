@@ -48,7 +48,6 @@ public:
     }
 
     void DrawGame() {
-        BeginDrawing();
         if (m_game_state.PlayerExists(player_id)) {
             Rendering::Get().SetCamera(
                 GetCameraFromActor(m_game_state.GetActor(player_id))
@@ -60,6 +59,9 @@ public:
                 Draw(m_game_state, &except_key);
             Rendering::Get().EndRendering();
         } 
-        EndDrawing();
+        Rendering::Get().EnableCameraBasic();
+        Rendering::Get().DrawPrimitives();
+        Rendering::Get().DrawTexts();
+        Rendering::Get().DisableCameraBasic();
     }
 };

@@ -18,8 +18,9 @@ int main(){
 
     while (!WindowShouldClose()) {
         game_server->Update();
+        BeginDrawing();
         game_server->DrawGame();
-
+        EndDrawing();
     }
     #else
     InitWindow(1000, 1000, "Headless server");

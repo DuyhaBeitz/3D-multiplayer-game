@@ -78,7 +78,6 @@ public:
     }
 
     void DrawGame() {            
-        BeginDrawing();
         if (m_self_game_state.PlayerExists(m_id)) {
             const PlayerData& player_data = m_self_game_state.GetPlayer(m_id);
             if (m_self_game_state.world_data.ActorExists(player_data.actor_key)) {
@@ -95,7 +94,13 @@ public:
                 Rendering::Get().EndRendering();
             }     
         }
-        EndDrawing();
+        
+        DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
+        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
+        Rendering::Get().EnableCameraBasic();
+        Rendering::Get().DrawPrimitives();
+        Rendering::Get().DrawTexts();
+        Rendering::Get().DisableCameraBasic();
     }
 
     void OnReceive(ENetEvent event) {

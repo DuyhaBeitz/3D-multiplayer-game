@@ -142,6 +142,12 @@ public:
 
         PlayerData player_data;
         player_data.actor_key = state.world_data.AddActor(actor_data);
+        
+        snprintf(
+            state.world_data.GetActor(player_data.actor_key).name,
+            sizeof(state.world_data.GetActor(player_data.actor_key).name),
+            "player%d",
+            state.players.size());
 
         state.players[id] = player_data;
     }
@@ -281,6 +287,17 @@ public:
 
         BodyData body_data;
         body_data.position = Vector3{40, 20, 0};
+        body_data.shapes.push_back(CollisionShape(box_data));
+
+        state.world_data.AddActor(ActorData(body_data));
+        }
+        
+        {
+        BoxData box_data;
+        box_data.half_extents = Vector3{10, 10, 10};
+
+        BodyData body_data;
+        body_data.position = Vector3{0, 20, 40};
         body_data.shapes.push_back(CollisionShape(box_data));
 
         state.world_data.AddActor(ActorData(body_data));

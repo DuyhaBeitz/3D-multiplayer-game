@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <variant>
 #include <iostream>
+#include <rlgl.h>
 
 #include "Serialization.hpp"
 
@@ -19,9 +20,20 @@ struct SphereData {
     float radius = 1.0f;
     Vector3 center{};
 
+    Vector3 Min() const {
+        return center - Vector3{radius, radius, radius};
+    }
+    Vector3 Max() const {
+        return center + Vector3{radius, radius, radius};
+    }
+
     template <class Archive>
     void serialize(Archive& ar) {
         ar(radius, center);
+    }
+
+    void Draw() const {
+        Rendering::Get().RenderPrimitiveSphere(center, radius);
     }
 };
 
@@ -38,6 +50,10 @@ struct BoxData {
     template <class Archive>
     void serialize(Archive& ar) {
         ar(half_extents, center);
+    }
+
+    void Draw() const {
+        Rendering::Get().RenderPrimitiveCube(center, half_extents);
     }
 };
 /*****************************************/
@@ -153,15 +169,41 @@ struct BodyData {
     }
 
     void DrawShapes() const {
-        // for (const CollisionShape& shape : shapes) {
-        //     if (shape.IsSphere()) shape.AsSphere()->Draw();
-        //     else if (shape.IsBox()) shape.AsBox()->Draw();
-        // }
+        for (const CollisionShape& shape : shapes) {
+            if (shape.IsSphere()) shape.AsSphere()->Draw();
+            else if (shape.IsBox()) shape.AsBox()->Draw();
+        }
     }
 
     template <class Archive>
     void serialize(Archive& ar) {
         ar(position, velocity, acceleration, on_ground, inverse_mass, restitution, shapes);
+    }
+
+    Vector3 Max() const {
+        Vector3 max = position;
+        for (const CollisionShape& shape : shapes) {
+            Vector3 m;
+            if (shape.IsSphere()) m = shape.AsSphere()->Max();
+            else if (shape.IsBox()) m = shape.AsBox()->Max();
+            max.x = fmax(max.x, m.x);
+            max.y = fmax(max.y, m.y);
+            max.z = fmax(max.z, m.z);
+        }
+        return max;
+    }
+
+    Vector3 Min() const {
+        Vector3 min = position;
+        for (const CollisionShape& shape : shapes) {
+            Vector3 m;
+            if (shape.IsSphere()) m = shape.AsSphere()->Min();
+            else if (shape.IsBox()) m = shape.AsBox()->Min();
+            min.x = fmin(min.x, m.x);
+            min.y = fmin(min.y, m.y);
+            min.z = fmin(min.z, m.z);
+        }
+        return min;
     }
 };
 

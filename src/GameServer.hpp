@@ -92,11 +92,14 @@ public:
         );
 
         const ActorKey except_key = 100;
-        BeginDrawing();
         Rendering::Get().BeginRendering();
             ClearBackground(DARKGRAY);
             Draw(m_game_state, &except_key);        
         Rendering::Get().EndRendering();
-        EndDrawing();
+
+        Rendering::Get().EnableCameraBasic();
+        Rendering::Get().DrawPrimitives();
+        Rendering::Get().DrawTexts();
+        Rendering::Get().DisableCameraBasic();
     }
 };
