@@ -1,8 +1,8 @@
 # Build the image
 #sudo systemctl start docker
 
-sudo docker build --no-cache -t docker-server .
-sudo docker run -it -p 7777:7777/udp --name docker-server docker-server
+docker build --no-cache -t docker-server .
+docker run -it -p 7777:7777/udp --name docker-server docker-server
 
 #sudo docker run -it --name docker-server --network host docker-server
 #sudo sudo docker run -it --name docker-server -p 7777:7777 docker-server
