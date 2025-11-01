@@ -46,6 +46,10 @@ struct AnimatedModelAlias {
         }
     }
 
+    void IncAnimFrame(int delta_frame = 1) {
+        aliases[current_alias].animFrame += delta_frame;
+    }
+
     void SetAnimFrame(int frame) {
         aliases[current_alias].animFrame = frame;
     }

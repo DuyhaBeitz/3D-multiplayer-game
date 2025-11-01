@@ -294,7 +294,7 @@ public:
         
         {
         BoxData box_data;
-        box_data.half_extents = Vector3{10, 10, 10};
+        box_data.half_extents = Vector3{12, 12, 12};
 
         BodyData body_data;
         body_data.position = Vector3{0, 20, 40};
@@ -302,6 +302,17 @@ public:
 
         ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
         state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
+        }
+
+        for (int i = 0; i < 6; i++) {
+            SphereData sphere_data;
+            sphere_data.radius = 10;
+
+            BodyData body_data;
+            body_data.position = Vector3{40, 20.f*i, 40};
+            body_data.shapes.push_back(CollisionShape(sphere_data));
+
+            ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
         }
     }
 };

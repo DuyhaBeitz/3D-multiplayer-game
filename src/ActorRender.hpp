@@ -4,16 +4,17 @@
 
 struct ActorRenderData {
     ModelKey model_key;
-    int frame;
-    Vector3 offset = {0, 0, 0};
+    Vector3 offset;
+    ActorRenderData() = default;
+    ActorRenderData(ModelKey model_key_, Vector3 offset_ = Vector3{0, 0, 0}) : model_key(model_key_), offset(offset_) {}
 
-    int anim_id = 0;
-
-    void Draw(const BodyData& body, const float yaw, const float pitch, const char* name = nullptr) const {
+    void Draw(bool running, const BodyData& body, const float yaw, const float pitch, const char* name = nullptr) const {
+        
         AnimatedModelAlias& model_aliased = Resources::Get().ModelFromKey(model_key);
         if (model_aliased.anim_count > 0) {
+            int anim_id = running ? 11 : 3;            
             model_aliased.SetAnim(anim_id);
-            model_aliased.SetAnimFrame(frame);            
+            model_aliased.IncAnimFrame();            
         }
 
         if (model_key != R_MODEL_DEFAULT) {
@@ -35,16 +36,8 @@ struct ActorRenderData {
         if (name) Rendering::Get().RenderText(name, draw_pos, -yaw*180/PI+90, font_size);
     }    
 
-    void UpdateAnim(bool running, float delta_time) {
-        AnimatedModelAlias& model_aliased = Resources::Get().ModelFromKey(model_key);
-        if (model_aliased.anim_count > 0) {
-            anim_id = running ? 11 : 3;            
-            frame++;
-        }
-    }
-
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(model_key, frame, offset, anim_id);
+        ar(model_key, offset);
     }
 };

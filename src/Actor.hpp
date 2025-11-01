@@ -13,11 +13,11 @@ struct ActorData {
     
     ActorRenderData render_data;
     ActorData() = default;
-    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT, 0)
+    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT)
     {
     }
 
-    ActorData(const BodyData& body_, ModelKey model_key_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(model_key_, 0)
+    ActorData(const BodyData& body_, ModelKey model_key_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(model_key_)
     {
     }
 
@@ -26,13 +26,15 @@ struct ActorData {
             body.ApplyForce({0, -gravity/body.inverse_mass, 0});
             body.ApplyForce(body.velocity * -2);
         }        
-        Vector2 hor_vel = {body.velocity.x, body.velocity.z};
-        render_data.UpdateAnim(Vector2Length(hor_vel) > 20, delta_time);
+        //Vector2 hor_vel = {body.velocity.x, body.velocity.z};
+        //render_data.UpdateAnim(Vector2Length(hor_vel) > 20, delta_time);
         body.Update(delta_time);
     }
 
     void Draw() const {
-        render_data.Draw(body, yaw, pitch, name);        
+        Vector2 hor_vel = {body.velocity.x, body.velocity.z};
+        bool running = Vector2Length(hor_vel) > 20;
+        render_data.Draw(running, body, yaw, pitch, name);        
         if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
     }
 

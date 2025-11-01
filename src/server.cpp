@@ -23,10 +23,9 @@ int main(){
         EndDrawing();
     }
     #else
-    InitWindow(1000, 1000, "Headless server");
-    SetWindowState(FLAG_WINDOW_HIDDEN);
-    SetTargetFPS(iters_per_sec); // not actually used
-    Rendering::Init();
+    // InitWindow(1000, 1000, "Headless server");
+    // SetWindowState(FLAG_WINDOW_HIDDEN);
+    // SetTargetFPS(iters_per_sec); // not actually used
     auto next_tick = std::chrono::steady_clock::now();
     while (running) {
         auto now = std::chrono::steady_clock::now();

@@ -13,7 +13,6 @@ set(CMAKE_BUILD_TYPE Release)
 find_package(RaylibRetainedGUI)
 find_package(EasyNet)
 find_package(fmt)
-find_package(nlohmann_json REQUIRED)
 
 FetchContent_Declare(
   r3d
@@ -37,7 +36,6 @@ target_link_libraries(server PUBLIC
     EasyNet
     fmt::fmt
     raylib
-    nlohmann_json::nlohmann_json
     r3d
 )
 
@@ -52,7 +50,6 @@ target_link_libraries(client PUBLIC
     fmt::fmt
     raylib
     RaylibRetainedGUI
-    nlohmann_json::nlohmann_json
     r3d
 )
 
@@ -65,7 +62,6 @@ add_executable(standalone
 target_link_libraries(standalone PUBLIC
     raylib
     RaylibRetainedGUI
-    nlohmann_json::nlohmann_json
     r3d
 )
 
@@ -78,6 +74,5 @@ add_executable(test
 target_link_libraries(test PUBLIC
     raylib
     RaylibRetainedGUI
-    nlohmann_json::nlohmann_json
     r3d
 )
