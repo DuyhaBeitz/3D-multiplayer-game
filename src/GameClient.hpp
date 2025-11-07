@@ -3,6 +3,10 @@
 #include <EasyNet/EasyNetClient.hpp>
 #include "shared.hpp"
 #include "Rendering.hpp"
+#include "Chat.hpp"
+
+#include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
+
 
 class GameClient : public Game {
 private:
@@ -29,6 +33,12 @@ private:
 
     bool m_connected = false;
 
+    Chat m_chat;
+    std::shared_ptr<UIScreen> m_ui_screen;
+    std::string m_new_chat_text;
+    bool m_chat_entering = false;
+    std::shared_ptr<UIStringButton> m_text_input_box;
+
 public:
 
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
@@ -41,15 +51,56 @@ public:
         m_client->SetOnDisconnect([this](ENetEvent){m_connected = false;});
 
         Rendering::Init();
+
+        m_ui_screen = std::make_shared<UIScreen>();
+        m_text_input_box = std::make_shared<UIStringButton>(&m_new_chat_text, Rectangle{0, 0.9, 1, 0.1});
+    }
+
+    void CloseChat() {
+        m_text_input_box->Close();
+        DisableCursor();
+    }
+    void OpenChat() {
+        m_text_input_box->Open();
+        m_ui_screen->AddChild(m_text_input_box);
+        EnableCursor();
+    }
+
+    void ToggleChat() {
+        if (m_chat_entering) {
+            CloseChat();
+        }
+        else {
+            OpenChat();
+        }
+        m_chat_entering = !m_chat_entering;
+    }
+
+    void ToggleCursor() {
+        if (IsCursorHidden()){
+            EnableCursor();
+        }
+        else {
+            DisableCursor();
+        }
     }
 
     void Update() {
-        if (IsKeyPressed(KEY_L)){
-            if (IsCursorHidden()){
-                EnableCursor();
+        if (IsKeyPressed(KEY_TAB)) {
+            ToggleChat();
+        }
+        if (IsKeyPressed(KEY_ENTER)) {
+            if (m_chat_entering) {
+                if (m_new_chat_text.size() > 0) {
+                    TextPacketData data(m_new_chat_text.c_str());
+                    m_client->SendPacket(CreatePacket<TextPacketData>(MSG_CHAT_MESSAGE, data));
+                    m_text_input_box->Clear();
+                }
             }
-            else {
-                DisableCursor();
+        }
+        if (IsKeyPressed(KEY_L)){
+            if (!m_chat_entering) {
+                ToggleCursor();
             }
         }
 
@@ -57,7 +108,7 @@ public:
         
         input.Detect();
 
-        if (!input.IsEmpty()) {
+        if (!input.IsEmpty() && !m_chat_entering) {
             GameEvent event;
             event.event_id = EV_PLAYER_INPUT;
             event.data = input;
@@ -66,7 +117,7 @@ public:
             PlayerInputPacketData data;
             data.input = input;
             data.tick = m_tick;
-            m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT));
+            m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data));
         }
         
         m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
@@ -75,6 +126,8 @@ public:
 
         m_tick++;
         m_ticks_since_last_recieved_game++;
+
+        m_ui_screen->Update(nullptr);
     }
 
     void DrawGame() {            
@@ -95,12 +148,15 @@ public:
             }     
         }
         
-        DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
-        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
+
         Rendering::Get().EnableCameraBasic();
         Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
+        m_ui_screen->Draw();
+        //DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
+        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, GetScreenHeight()-128, 64, WHITE);
+        m_chat.Draw();        
     }
 
     void OnReceive(ENetEvent event) {
@@ -127,6 +183,17 @@ public:
                         
             m_last_received_game = rec_state;
             m_last_received_game_tick = data.tick;       
+            }
+            break;
+
+        case MSG_CHAT_MESSAGE:
+            {
+                /*
+                Server recieves text,
+                all clients except the one who's message that is receive full ChatMessage
+                */
+                auto&& [message, id] = ExtractDataWithID<ChatMessage>(event.packet);
+                m_chat.AddMessage(message);
             }
             break;
 

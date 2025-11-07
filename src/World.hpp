@@ -35,7 +35,7 @@ struct WorldData {
     }
 
     void Update(float delta_time) {
-        constexpr int phys_iters = 1;
+        constexpr int phys_iters = 10;
         float sub_dt = delta_time / phys_iters;
         
         for (int i = 0; i < phys_iters; i++) {

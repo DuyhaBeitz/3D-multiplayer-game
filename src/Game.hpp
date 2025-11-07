@@ -16,7 +16,7 @@
 enum EventId {
     EV_PLAYER_JOIN = 0,
     EV_PLAYER_LEAVE,
-    EV_PLAYER_INPUT,
+    EV_PLAYER_INPUT
 };
 
 // Event data
@@ -125,7 +125,7 @@ struct DrawingData {
 struct SerializedGameState {
     uint32_t tick;
     uint32_t size;          // number of valid bytes
-    uint8_t bytes[4096];    // max packet size
+    uint8_t bytes[4096*2];    // max packet size
 };
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
@@ -164,13 +164,13 @@ public:
 
         case EV_PLAYER_INPUT:
             if (std::holds_alternative<PlayerInput>(event.data)) {
-                auto input = std::get<PlayerInput>(event.data);
+                const PlayerInput& input = std::get<PlayerInput>(event.data);
                 if (state.world_data.ActorExists(state.players[id].actor_key)) {
                     state.ApplyInput(input, id);
                 }
             }
-            break; 
-
+            break;
+        
         default:
             break;
         }
@@ -294,7 +294,8 @@ public:
         
         {
         BoxData box_data;
-        box_data.half_extents = Vector3{12, 12, 12};
+        float a = 11;
+        box_data.half_extents = Vector3{a, a, a};
 
         BodyData body_data;
         body_data.position = Vector3{0, 20, 40};
@@ -304,7 +305,7 @@ public:
         state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
         }
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 4; i++) {
             SphereData sphere_data;
             sphere_data.radius = 10;
 

@@ -74,7 +74,9 @@ void Init() {
         }
     );
 
+    //net_client->RequestConnectToServer("185.245.34.7", 7777);
     //net_client->RequestConnectToServer("45.159.79.84", 7777);
+
     net_client->RequestConnectToServer("127.0.0.1", 7777);
     // if (!client->ConnectToServer("127.0.0.1", 7777)) {
     //     client->RequestConnectToServer("45.159.79.84", 7777);

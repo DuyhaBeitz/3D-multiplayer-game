@@ -14,3 +14,5 @@ constexpr uint32_t send_tick_period = tick_period; // sync client's tick with se
 constexpr uint32_t server_lateness = receive_tick_period;
 // ensuring that we're not substructing bigger uint32_t from the smaller one
 constexpr uint32_t max_lateness = server_lateness+tick_period+receive_tick_period;
+
+constexpr size_t max_chat_messages = 10;

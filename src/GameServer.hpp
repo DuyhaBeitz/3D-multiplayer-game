@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EasyNet/EasyNetServer.hpp>
+#include "Chat.hpp"
 #include "shared.hpp"
 
 class GameServer : public Game{
@@ -9,6 +10,7 @@ private:
     GameState m_late_game_state;
     GameState m_game_state;
     std::shared_ptr<EasyNetServer> m_server;
+    Chat m_chat;
 
 public:
 
@@ -69,14 +71,34 @@ public:
         switch (msgType) {
         case MSG_PLAYER_INPUT:
             {
-            PlayerInputPacketData recieved = ExtractData<PlayerInputPacketData>(event.packet);
-            uint32_t id = enet_peer_get_id(event.peer);
+                PlayerInputPacketData recieved = ExtractData<PlayerInputPacketData>(event.packet);
+                uint32_t id = enet_peer_get_id(event.peer);
 
-            GameEvent game_event;
-            game_event.event_id = EV_PLAYER_INPUT;
-            game_event.data = recieved.input;
+                GameEvent game_event;
+                game_event.event_id = EV_PLAYER_INPUT;
+                game_event.data = recieved.input;
 
-            AddEvent(game_event, id, recieved.tick);
+                AddEvent(game_event, id, recieved.tick);
+            }
+            break;
+
+        case MSG_CHAT_MESSAGE:
+            {
+                /*
+                Server recieves text,
+                all clients except the one who's message that is receive full ChatMessage
+                */
+                const TextPacketData& recieved = ExtractData<TextPacketData>(event.packet);
+                uint32_t id = enet_peer_get_id(event.peer);
+                ChatMessage message;
+                std::strncpy(message.name, m_game_state.GetActor(id).name, max_string_len);
+                std::strncpy(message.text, recieved.text, max_string_len);
+
+                m_chat.AddMessage(message);
+
+                m_server->Broadcast(
+                    CreatePacketWithID(MSG_CHAT_MESSAGE, id, message)
+                );
             }
             break;
 
@@ -101,5 +123,10 @@ public:
         Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
+        m_chat.Draw();
+    }
+
+    virtual void HandleNewChatMessage(const ChatMessage& message) {
+        
     }
 };
