@@ -10,10 +10,13 @@
 #include "Constants.hpp"
 
 using ModelKey = uint16_t;
+using FontKey = uint16_t;
 
 constexpr ModelKey R_MODEL_DEFAULT = 0;
 constexpr ModelKey R_MODEL_PLAYER = 1;
 constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
+
+constexpr FontKey R_FONT_DEFAULT = 0;
 
 struct AnimatedModelAlias {
     std::vector<R3D_Model> aliases;
@@ -76,15 +79,26 @@ private:
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
         AddModel(R_MODEL_PLAYER, "assets/Character.gltf", 10);
         AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/Cube_Exclamation.gltf", 0);
+
+        AddFont(R_FONT_DEFAULT,
+            LoadFontEx("assets/NotoSans-Black.ttf", 128, 0, 0)
+        );     
+        SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);        
+        
     }
 
     ~Resources() {
     }
 
     std::unordered_map<ModelKey, AnimatedModelAlias> m_models;
+    std::unordered_map<FontKey, Font> m_fonts;
 
     void AddModel(ModelKey model_key, std::string filename, int num_aliases) {
         m_models[model_key].Load(filename, 10);
+    }
+
+    void AddFont(FontKey font_key, Font font) {
+        m_fonts[font_key] = font;
     }
 
 public:
@@ -105,6 +119,14 @@ public:
         else {
             std::cerr << "No model found for key: " << key << std::endl;
             return m_models[R_MODEL_DEFAULT];
+        }
+    }
+
+    Font FontFromKey(FontKey key) {
+        if (m_fonts.find(key) != m_fonts.end()) return m_fonts.at(key); 
+        else {
+            std::cerr << "No font found for key: " << key << std::endl;
+            return GetFontDefault();
         }
     }
 

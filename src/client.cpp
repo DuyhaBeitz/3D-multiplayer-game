@@ -44,10 +44,15 @@ void Init() {
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 
+    Resources::Init();
+
     game_client = std::make_unique<GameClient>();
     net_client = game_client->GetNetClient();
 
     /********** UI **********/
+
+    UIElement::SetDefaultStyle(std::make_shared<UIStyle>(Resources::Get().FontFromKey(R_FONT_DEFAULT)));
+
     screen = std::make_shared<UIScreen>();
     bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
     Rectangle rect = SizeRect(1, 0.33);
