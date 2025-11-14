@@ -9,7 +9,7 @@ struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
-    char name[64] = "\0";
+    char name[max_string_len] = "\0";
     
     ActorRenderData render_data;
     ActorData() = default;
@@ -48,6 +48,6 @@ struct ActorData {
 
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(body, yaw, pitch, render_data, name);
+        ar(body, yaw, pitch, render_data);
     }
 };

@@ -38,7 +38,6 @@ public:
             m_late_game_state = ApplyEvents(m_late_game_state, previous_old_tick, current_old_tick);
             m_game_state = ApplyEvents(m_late_game_state, current_old_tick, current_tick);
 
-            char buffer[max_string_len];
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
 

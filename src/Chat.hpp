@@ -4,6 +4,7 @@
 #include <deque>
 #include <cstring>
 #include "Constants.hpp"
+#include "Resources.hpp"
 
 struct ChatMessage {
     char name[max_string_len] = {};
@@ -14,7 +15,6 @@ class Chat {
 private:
     std::deque<ChatMessage> m_messages;
     float font_size = 64;
-    Font font = GetFontDefault();
     float spacing = 1.0;
 
 public:
@@ -29,7 +29,7 @@ public:
 
     Vector2 Measure(const char* text) {
         return MeasureTextEx(
-            font,
+            Resources::Get().FontFromKey(R_FONT_DEFAULT),
             text,
             font_size,
             spacing
@@ -51,14 +51,14 @@ public:
                 Vector2 text_pos = Vector2{0, (j+1)*font_size};
 
                 DrawTextEx(
-                    font,
+                    Resources::Get().FontFromKey(R_FONT_DEFAULT),
                     m_messages[i].name,
                     name_pos,
                     font_size,
                     spacing, RED
                 );
                 DrawTextEx(
-                    font,
+                    Resources::Get().FontFromKey(R_FONT_DEFAULT),
                     m_messages[i].text,
                     text_pos,
                     font_size,

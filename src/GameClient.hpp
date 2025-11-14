@@ -37,6 +37,7 @@ private:
     std::shared_ptr<UIScreen> m_ui_screen;
     std::string m_new_chat_text;
     bool m_chat_entering = false;
+    std::shared_ptr<UIElement> m_chat_ui;
     std::shared_ptr<UIStringButton> m_text_input_box;
 
 public:
@@ -53,16 +54,20 @@ public:
         Rendering::Init();
 
         m_ui_screen = std::make_shared<UIScreen>();
-        m_text_input_box = std::make_shared<UIStringButton>(&m_new_chat_text, Rectangle{0, 0.9, 1, 0.1});
+        m_chat_ui = std::make_shared<UIElement>();
+        
+        m_text_input_box = std::make_shared<UIStringButton>(&m_new_chat_text, Rectangle{0, 0, 1, 1});
+        m_chat_ui->AddChild(m_text_input_box);
+        m_chat_ui->AddChild(std::make_shared<UIText>("Chat", CenteredRectAlignUp(0.5, 0.1)));
     }
 
     void CloseChat() {
-        m_text_input_box->Close();
+        m_chat_ui->Close();
         DisableCursor();
     }
     void OpenChat() {
-        m_text_input_box->Open();
-        m_ui_screen->AddChild(m_text_input_box);
+        m_chat_ui->Open();
+        m_ui_screen->AddChild(m_chat_ui);
         EnableCursor();
     }
 

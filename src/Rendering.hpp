@@ -35,7 +35,7 @@ struct TextDrawingData {
     float font_size;
 
     void Draw() {
-        DrawText3DEx(GetFontDefault(), text, center, font_size, 1, 1, true, GOLD, yaw, true);
+        DrawText3DEx(Resources::Get().FontFromKey(R_FONT_DEFAULT), text, center, font_size, 1, 1, true, GOLD, yaw, true);
     }
 };
 

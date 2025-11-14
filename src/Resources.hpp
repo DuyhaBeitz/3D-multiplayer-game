@@ -18,6 +18,9 @@ constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
 
 constexpr FontKey R_FONT_DEFAULT = 0;
 
+std::vector<int> CodepointsFromStr(const char* chars);
+Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
+
 struct AnimatedModelAlias {
     std::vector<R3D_Model> aliases;
     std::vector<R3D_ModelAnimation*> anims;
@@ -75,16 +78,23 @@ struct AnimatedModelAlias {
 
 class Resources {
 private:
+    int max_font_size = 128; // any begger than that will be upscaled
+    const char* supported_font_chars = 
+    " !\"#$%&'()*+,-./0123456789:;<=>?@|"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+    "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+
     Resources() {
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
         AddModel(R_MODEL_PLAYER, "assets/Character.gltf", 10);
         AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/Cube_Exclamation.gltf", 0);
 
         AddFont(R_FONT_DEFAULT,
-            LoadFontEx("assets/NotoSans-Black.ttf", 128, 0, 0)
+            LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
         );     
         SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);        
-        
     }
 
     ~Resources() {
