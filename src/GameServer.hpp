@@ -3,6 +3,7 @@
 #include <EasyNet/EasyNetServer.hpp>
 #include "Chat.hpp"
 #include "shared.hpp"
+#include "GameMetadata.hpp"
 
 class GameServer : public Game{
 private:
@@ -12,6 +13,8 @@ private:
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat;
 
+    GameMetadata m_game_metadata;
+
 public:
 
     GameServer() {
@@ -20,7 +23,7 @@ public:
         
         m_server->SetOnConnect([this](ENetEvent event){this->OnConnect(event);});
         m_server->SetOnDisconnect([this](ENetEvent event){this->OnDisconnect(event);});
-        m_server->SetOnReceive([this](ENetEvent event){this->OnRecieve(event);});
+        m_server->SetOnReceive([this](ENetEvent event){this->Onreceive(event);});
 
         InitGame(m_late_game_state);
     }
@@ -45,6 +48,10 @@ public:
             m_server->Broadcast(packet); 
             DropEventHistory(previous_old_tick);
         }
+        if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
+            BroadcastMetadata();
+        }
+        
         m_tick++;
     }
 
@@ -64,34 +71,34 @@ public:
         AddEvent(game_event, id, m_tick);
     }
 
-    void OnRecieve(ENetEvent event)
+    void Onreceive(ENetEvent event)
     {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
         case MSG_PLAYER_INPUT:
             {
-                PlayerInputPacketData recieved = ExtractData<PlayerInputPacketData>(event.packet);
+                PlayerInputPacketData received = ExtractData<PlayerInputPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
 
                 GameEvent game_event;
                 game_event.event_id = EV_PLAYER_INPUT;
-                game_event.data = recieved.input;
+                game_event.data = received.input;
 
-                AddEvent(game_event, id, recieved.tick);
+                AddEvent(game_event, id, received.tick);
             }
             break;
 
         case MSG_CHAT_MESSAGE:
             {
                 /*
-                Server recieves text,
+                Server receives text,
                 all clients except the one who's message that is receive full ChatMessage
                 */
-                const TextPacketData& recieved = ExtractData<TextPacketData>(event.packet);
+                const TextPacketData& received = ExtractData<TextPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
                 ChatMessage message;
-                std::strncpy(message.name, m_game_state.GetActor(id).name, max_string_len);
-                std::strncpy(message.text, recieved.text, max_string_len);
+                std::snprintf(message.name, max_string_len, "%s", m_game_state.GetActor(id).name);
+                std::snprintf(message.text, max_string_len, "%s", received.text);
 
                 m_chat.AddMessage(message);
 
@@ -125,7 +132,10 @@ public:
         m_chat.Draw();
     }
 
-    virtual void HandleNewChatMessage(const ChatMessage& message) {
-        
+    void BroadcastMetadata() {
+        SerializedGameMetadata serialized = m_game_metadata.Serialize();
+        m_server->Broadcast(
+            CreatePacket(MSG_GAME_METADATA, serialized)
+        );
     }
 };

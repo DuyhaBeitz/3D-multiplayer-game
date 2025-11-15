@@ -6,6 +6,7 @@
 #include "Chat.hpp"
 
 #include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
+#include "GameMetadata.hpp"
 
 
 class GameClient : public Game {
@@ -14,7 +15,7 @@ private:
     uint32_t m_id = 0;
     std::shared_ptr<EasyNetClient> m_client;
 
-    uint32_t m_ticks_since_last_recieved_game = 0;
+    uint32_t m_ticks_since_last_received_game = 0;
 
     GameState m_last_received_game{};
     uint32_t m_last_received_game_tick = 0;
@@ -39,6 +40,8 @@ private:
     bool m_chat_entering = false;
     std::shared_ptr<UIElement> m_chat_ui;
     std::shared_ptr<UIStringButton> m_text_input_box;
+
+    GameMetadata m_game_metadata;
 
 public:
 
@@ -126,11 +129,11 @@ public:
         }
         
         m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
-        float alpha = float(m_ticks_since_last_recieved_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
+        float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
         m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &m_id);
 
         m_tick++;
-        m_ticks_since_last_recieved_game++;
+        m_ticks_since_last_received_game++;
 
         m_ui_screen->Update(nullptr);
     }
@@ -177,7 +180,7 @@ public:
             
         case MSG_GAME_STATE:
             {
-            m_ticks_since_last_recieved_game = 0;
+            m_ticks_since_last_received_game = 0;
             m_prev_last_received_game = m_last_received_game;
             m_prev_last_received_game_tick = m_last_received_game_tick;
 
@@ -194,14 +197,20 @@ public:
         case MSG_CHAT_MESSAGE:
             {
                 /*
-                Server recieves text,
+                Server receives text,
                 all clients except the one who's message that is receive full ChatMessage
                 */
                 auto&& [message, id] = ExtractDataWithID<ChatMessage>(event.packet);
                 m_chat.AddMessage(message);
             }
             break;
-
+            
+        case MSG_GAME_METADATA:
+            {
+                SerializedGameMetadata received = ExtractData<SerializedGameMetadata>(event.packet);
+                m_game_metadata.Deserialize(received);
+            }
+            break;
         default:
             break;
         }
