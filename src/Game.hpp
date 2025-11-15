@@ -71,6 +71,29 @@ struct GameState {
     std::map<uint32_t, PlayerData> players;
     WorldData world_data;
 
+    void Draw(GameDrawingData &drawing_data) const {
+        world_data.Draw(drawing_data);
+
+        for (const auto& [id, player_data] : players) {
+            if (drawing_data.actors_except.find(player_data.actor_key) == drawing_data.actors_except.end()) {
+
+                if (world_data.ActorExists(player_data.actor_key)) {
+                    const ActorData actor_data = world_data.GetActor(player_data.actor_key);
+
+                    constexpr float font_size = 16;
+                    const Vector3 draw_pos = {
+                        actor_data.body.position.x,
+                        actor_data.body.Max().y+font_size,
+                        actor_data.body.position.z
+                    };
+                    const char* name = drawing_data.game_metatada.GetPlayerName(id);
+
+                    if (name) Rendering::Get().RenderText(name, draw_pos, -actor_data.yaw*180/PI+90, font_size);
+                }
+            }
+        }
+    }
+
     bool PlayerExists(uint32_t id) const {
         return players.find(id) != players.end();
     }
@@ -117,226 +140,36 @@ struct GameState {
     }
 };
 
-struct DrawingData {
-    uint32_t self_id;
-    Model& model;
-};
-
 struct SerializedGameState {
     uint32_t tick;
     uint32_t size;          // number of valid bytes
     uint8_t bytes[4096*2];    // max packet size
 };
 
+class GameDrawingData;
+
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
+protected:
+    GameMetadata m_game_metadata;
+
 public:
-    void InitNewPlayer(GameState& state, uint32_t id) {
-        BodyData body_data;
-        CollisionShape sphere(SphereData{13});
-        body_data.shapes.push_back(sphere);
-        ActorData actor_data(body_data, R_MODEL_PLAYER);
-        
-        actor_data.render_data.offset = {0, -12, 0};
+    void InitNewPlayer(GameState& state, uint32_t id);
 
-        actor_data.body.position = Vector3{0, 10, 0};
+    virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id);
 
-        PlayerData player_data;
-        player_data.actor_key = state.world_data.AddActor(actor_data);
-        
-        snprintf(
-            state.world_data.GetActor(player_data.actor_key).name,
-            sizeof(state.world_data.GetActor(player_data.actor_key).name),
-            "player%d",
-            state.players.size());
-
-        state.players[id] = player_data;
-    }
-
-    virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id) {
-        switch (event.event_id) {
-        case EV_PLAYER_JOIN:
-            InitNewPlayer(state, id);
-            break;
-
-        case EV_PLAYER_LEAVE:
-            state.world_data.RemoveActor(state.players.at(id).actor_key);
-            break;
-
-        case EV_PLAYER_INPUT:
-            if (std::holds_alternative<PlayerInput>(event.data)) {
-                const PlayerInput& input = std::get<PlayerInput>(event.data);
-                if (state.world_data.ActorExists(state.players[id].actor_key)) {
-                    state.ApplyInput(input, id);
-                }
-            }
-            break;
-        
-        default:
-            break;
-        }
-    }
-
-    virtual void Draw(const GameState& state, const void* data) {
-        const ActorKey except_key = *static_cast<const ActorKey*>(data);
-        state.world_data.Draw(except_key);
-    }
+    virtual void Draw(const GameState& state, GameDrawingData& data);
 
     virtual void UpdateGameLogic(GameState& state) {
         state.world_data.Update(dt);
     }
 
-    void OutputHistory() {
-        bool to_file = true;
-        std::ofstream file("output.txt");
-        std::ostream* out = to_file ? &file : &std::cout;
-    
-        for (auto& [tick, events] : m_event_history) {
-            *out << tick << ":" << events.size() << "\n";
-            for (auto& [id, event] : events) {
-                switch (event.event_id) {
-                case EV_PLAYER_INPUT:
-                    {
-                    auto input = std::get<PlayerInput>(event.data);
-                    //*out << "\tINPUT\t" << "X: " << input.GetX() << " up: " << input.up << std::endl;
-                    }
-                    break;
-                case EV_PLAYER_JOIN:
-                    *out << "\tJOIN\n" << std::endl;
-                    break;
-                case EV_PLAYER_LEAVE:
-                    *out << "\tLEAVE\n" << std::endl;
-                    break;
-                }         
-                *out << std::endl;       
-            }
-        }
-    }
+    virtual GameState Lerp(const GameState& state1, const GameState& state2, float alpha, const void* data);
 
-    virtual GameState Lerp(const GameState& state1, const GameState& state2, float alpha, const void* data) {
-        alpha = fmin(1, fmax(0, alpha));
-        GameState lerped = state2;
+    virtual SerializedGameState Serialize(const GameState& state);
+    GameState Deserialize(SerializedGameState data);
 
-        const ActorKey* except_key = static_cast<const ActorKey*>(data);
-
-        for (auto& [actor_key, actor] : state2.world_data.actors) {
-            if (actor_key != *except_key) {
-                if (state1.world_data.ActorExists(actor_key)) {
-                    ActorData& actor_data = lerped.world_data.GetActor(actor_key);
-
-                    actor_data.body.position = Vector3Lerp(
-                        state1.world_data.GetActor(actor_key).body.position,
-                        state2.world_data.GetActor(actor_key).body.position,
-                        alpha
-                    );
-                    actor_data.body.UpdateShapePositions();
-                }
-            }
-        }
-        return lerped;
-    };
-
-    virtual SerializedGameState Serialize(const GameState& state) {
-        SerializedGameState sgs{};
-        
-        // Serialize into a temporary stream
-        std::ostringstream os(std::ios::binary);
-        {
-            cereal::BinaryOutputArchive archive(os);
-            archive(state);
-        }
-
-        // Copy into the fixed-size buffer
-        std::string str = os.str();
-        sgs.size = static_cast<uint32_t>(str.size());
-        if (sgs.size > sizeof(sgs.bytes)) {
-            throw std::runtime_error("Serialized state exceeds buffer size");
-        }
-        std::memcpy(sgs.bytes, str.data(), sgs.size);
-
-        return sgs;
-    }
-
-    GameState Deserialize(SerializedGameState data) {
-        // Wrap the raw buffer in a stringstream for Cereal
-        std::istringstream is(std::string(reinterpret_cast<const char*>(data.bytes), data.size),
-                            std::ios::binary);
-
-        cereal::BinaryInputArchive archive(is);
-        GameState gs;
-        archive(gs);
-        return gs;
-    }
-
-    void InitGame(GameState& state) {
-        { // floor
-        BoxData box_data;
-        box_data.half_extents = Vector3{1000, 100, 1000};
-
-        BodyData body_data;
-        body_data.position = Vector3{0, -100, 0};
-        body_data.velocity = Vector3{0, 0, 0};
-        body_data.inverse_mass = 0;
-        body_data.shapes.push_back(CollisionShape(box_data));
-
-        state.world_data.AddActor(ActorData(body_data));
-        }
-
-        {
-        BoxData box_data;
-        box_data.half_extents = Vector3{30, 5, 30};
-
-        BodyData body_data;
-        body_data.position = Vector3{40, 20, 0};
-        body_data.shapes.push_back(CollisionShape(box_data));
-
-        state.world_data.AddActor(ActorData(body_data));
-        }
-        
-        {
-        BoxData box_data;
-        float a = 11;
-        box_data.half_extents = Vector3{a, a, a};
-
-        BodyData body_data;
-        body_data.position = Vector3{0, 20, 40};
-        body_data.shapes.push_back(CollisionShape(box_data));
-
-        ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-        state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
-        }
-
-        for (int i = 0; i < 4; i++) {
-            SphereData sphere_data;
-            sphere_data.radius = 10;
-
-            BodyData body_data;
-            body_data.position = Vector3{40, 20.f*i, 40};
-            body_data.shapes.push_back(CollisionShape(sphere_data));
-
-            ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-        }
-    }
+    void InitGame(GameState& state);
 };
 
-inline Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
-    Camera3D camera = { 0 };
-    Vector3 cam_offset = {0, 5, 0};
-    camera.position = pos;
-    camera.target = target;
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-    camera.fovy = 90.0f;
-    camera.projection = CAMERA_PERSPECTIVE;
-    return camera;    
-}
-
-inline Camera GetCameraFromActor(const ActorData& actor_data) {
-    Vector3 cam_offset = {0, 5, 0};
-    Vector3 position = actor_data.body.position + cam_offset;
-    Vector3 target =  position + actor_data.VForward();
-
-    // Vector3 target =  actor_data.body.position + cam_offset;
-    // Vector3 position = target - actor_data.VForward()*130;
-    
-
-    return GetCameraFromPos(position, target);
-}
+Camera GetCameraFromPos(Vector3 pos, Vector3 target);
+Camera GetCameraFromActor(const ActorData& actor_data);

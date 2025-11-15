@@ -80,11 +80,24 @@ class Resources {
 private:
     int max_font_size = 128; // any begger than that will be upscaled
     const char* supported_font_chars = 
-    " !\"#$%&'()*+,-./0123456789:;<=>?@|"
+    " !\"#$%&'()*+,-./0123456789:;<=>?@|_"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
+    // Latin-1 Supplement (accents for Western European languages)
+    "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
+    "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+    // Spanish extra letters
+    "¡¿"
+    // French extra letters
+    "Œœ"
+    // German extra letters
+    "ÄÖÜäöüß"
+    // Portuguese extra letters
+    "ÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇáéíóúàèìòùâêîôûãõç"
+    // Cyrillic (Russian, Ukrainian, etc.)
     "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-    "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+    ;
 
     Resources() {
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);

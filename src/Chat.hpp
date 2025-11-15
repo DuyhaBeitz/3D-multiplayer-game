@@ -7,7 +7,7 @@
 #include "Resources.hpp"
 
 struct ChatMessage {
-    char name[max_string_len] = {};
+    char name[max_player_name_len] = {};
     char text[max_string_len] = {};
 };
 

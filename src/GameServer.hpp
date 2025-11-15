@@ -3,7 +3,6 @@
 #include <EasyNet/EasyNetServer.hpp>
 #include "Chat.hpp"
 #include "shared.hpp"
-#include "GameMetadata.hpp"
 
 class GameServer : public Game{
 private:
@@ -12,8 +11,6 @@ private:
     GameState m_game_state;
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat;
-
-    GameMetadata m_game_metadata;
 
 public:
 
@@ -51,7 +48,7 @@ public:
         if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
             BroadcastMetadata();
         }
-        
+
         m_tick++;
     }
 
@@ -97,7 +94,7 @@ public:
                 const TextPacketData& received = ExtractData<TextPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
                 ChatMessage message;
-                std::snprintf(message.name, max_string_len, "%s", m_game_state.GetActor(id).name);
+                std::snprintf(message.name, max_player_name_len, "%s", m_game_metadata.GetPlayerName(id));
                 std::snprintf(message.text, max_string_len, "%s", received.text);
 
                 m_chat.AddMessage(message);
@@ -107,7 +104,13 @@ public:
                 );
             }
             break;
-
+        case MSG_NAME_CHANGE:
+            {
+                const TextPacketData& received = ExtractData<TextPacketData>(event.packet);
+                uint32_t id = enet_peer_get_id(event.peer);
+                m_game_metadata.SetPlayerName(id, received.text);
+                BroadcastMetadata();
+            }
         default:
             break;
         }
@@ -119,10 +122,13 @@ public:
             GetCameraFromPos(Vector3{r, r, r}, Vector3{0, 0, 0})
         );
 
-        const ActorKey except_key = 100;
+        GameDrawingData drawing_data{
+            {},
+            m_game_metadata
+        };
         Rendering::Get().BeginRendering();
             ClearBackground(DARKGRAY);
-            Draw(m_game_state, &except_key);        
+            Draw(m_game_state, drawing_data);        
         Rendering::Get().EndRendering();
 
         Rendering::Get().EnableCameraBasic();

@@ -58,7 +58,6 @@ public:
     }
 
     virtual void ApplyEvent(GameStateType& state, const GameEventType& event, uint32_t id) = 0;
-    virtual void Draw(const GameStateType& state, const void* data) = 0;
     virtual void UpdateGameLogic(GameStateType& state) = 0;
 
     virtual SerializedGameStateType Serialize(const GameStateType& state) = 0;

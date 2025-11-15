@@ -1,7 +1,7 @@
 #pragma once
 
-#include "World.hpp"
-
+#include "Serialization.hpp"
+#include "Constants.hpp"
 /*
 Information that doesn't get synced every frame
 Like player's name etc.
@@ -10,11 +10,11 @@ It's for drawing, chat etc.
 */
 
 struct PlayerMetadata {
-    char name[max_string_len] = {};
+    char name[max_player_name_len] = {};
 
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(cereal::binary_data(name, max_string_len));
+        ar(cereal::binary_data(name, max_player_name_len));
     }
 };
 
@@ -36,7 +36,7 @@ public:
     }
 
     void SetPlayerName(uint32_t id, const char* name) {
-        std::snprintf(m_players[id].name, max_string_len, "%s", name);
+        std::snprintf(m_players[id].name, max_player_name_len, "%s", name);
     }
 
     SerializedGameMetadata Serialize() {

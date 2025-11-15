@@ -11,6 +11,7 @@ constexpr MessageType MSG_GAME_TICK = MSG_USER_BASE+2;
 constexpr MessageType MSG_PLAYER_ID = MSG_USER_BASE+3;
 constexpr MessageType MSG_CHAT_MESSAGE = MSG_USER_BASE+4;
 constexpr MessageType MSG_GAME_METADATA = MSG_USER_BASE+5;
+constexpr MessageType MSG_NAME_CHANGE = MSG_USER_BASE+6;
 
 struct PlayerInputPacketData {
     PlayerInput input;

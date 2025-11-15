@@ -4,12 +4,12 @@
 #include "Rendering.hpp"
 #include "ActorRender.hpp"
 #include <iostream>
+#include "GameDrawingData.hpp"
 
 struct ActorData {
     BodyData body;
     float yaw;
     float pitch;
-    char name[max_string_len] = "\0";
     
     ActorRenderData render_data;
     ActorData() = default;
@@ -31,10 +31,10 @@ struct ActorData {
         body.Update(delta_time);
     }
 
-    void Draw() const {
+    void Draw(GameDrawingData& drawing_data) const {
         Vector2 hor_vel = {body.velocity.x, body.velocity.z};
         bool running = Vector2Length(hor_vel) > 20;
-        render_data.Draw(running, body, yaw, pitch, name);        
+        render_data.Draw(running, body, yaw, pitch);        
         if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
     }
 

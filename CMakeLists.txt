@@ -27,6 +27,7 @@ FetchContent_MakeAvailable(r3d)
 include_directories(src)
 
 add_executable(server 
+    src/Game.cpp
     src/server.cpp
     src/Physics.cpp
     src/Resources.cpp
@@ -40,6 +41,7 @@ target_link_libraries(server PUBLIC
 )
 
 add_executable(client 
+    src/Game.cpp
     src/client.cpp
     src/Physics.cpp
     src/Resources.cpp
@@ -54,6 +56,7 @@ target_link_libraries(client PUBLIC
 )
 
 add_executable(standalone 
+    src/Game.cpp
     src/standalone.cpp
     src/Physics.cpp
     src/Resources.cpp
@@ -66,6 +69,7 @@ target_link_libraries(standalone PUBLIC
 )
 
 add_executable(test
+    src/Game.cpp
     src/test.cpp
     src/Physics.cpp
     src/Resources.cpp

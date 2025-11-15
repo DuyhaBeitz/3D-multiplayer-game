@@ -8,7 +8,7 @@ struct ActorRenderData {
     ActorRenderData() = default;
     ActorRenderData(ModelKey model_key_, Vector3 offset_ = Vector3{0, 0, 0}) : model_key(model_key_), offset(offset_) {}
 
-    void Draw(bool running, const BodyData& body, const float yaw, const float pitch, const char* name = nullptr) const {
+    void Draw(bool running, const BodyData& body, const float yaw, const float pitch) const {
         
         AnimatedModelAlias& model_aliased = Resources::Get().ModelFromKey(model_key);
         if (model_aliased.anim_count > 0) {
@@ -25,15 +25,6 @@ struct ActorRenderData {
                 Vector3{10, 10, 10}
             );
         }
-
-        float font_size = 16;
-        Vector3 draw_pos = {
-            body.position.x,
-            body.Max().y+font_size,
-            body.position.z
-        };
-
-        if (name) Rendering::Get().RenderText(name, draw_pos, -yaw*180/PI+90, font_size);
     }    
 
     template <class Archive>

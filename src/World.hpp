@@ -7,8 +7,6 @@
 
 #include "Actor.hpp"
 
-using ActorKey = uint16_t;
-
 struct PlayerData {
     ActorKey actor_key;
     template <class Archive>
@@ -28,9 +26,9 @@ struct WorldData {
         */        
     }
 
-    void Draw(ActorKey except_key) const {
+    void Draw(GameDrawingData &drawing_data) const {
         for (const auto& [key, actor_data] : actors) {
-            if (key != except_key) actor_data.Draw();
+            if (drawing_data.actors_except.find(key) == drawing_data.actors_except.end()) actor_data.Draw(drawing_data);
         }
     }
 

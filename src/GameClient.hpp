@@ -6,8 +6,6 @@
 #include "Chat.hpp"
 
 #include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
-#include "GameMetadata.hpp"
-
 
 class GameClient : public Game {
 private:
@@ -41,7 +39,8 @@ private:
     std::shared_ptr<UIElement> m_chat_ui;
     std::shared_ptr<UIStringButton> m_text_input_box;
 
-    GameMetadata m_game_metadata;
+    std::string m_name_buffer;
+    std::shared_ptr<UIStringButton> m_name_input_box;
 
 public:
 
@@ -60,8 +59,18 @@ public:
         m_chat_ui = std::make_shared<UIElement>();
         
         m_text_input_box = std::make_shared<UIStringButton>(&m_new_chat_text, Rectangle{0, 0, 1, 1});
-        m_chat_ui->AddChild(m_text_input_box);
-        m_chat_ui->AddChild(std::make_shared<UIText>("Chat", CenteredRectAlignUp(0.5, 0.1)));
+        m_name_input_box = std::make_shared<UIStringButton>(&m_name_buffer, Rectangle{0, 0, 1, 1});
+
+        auto apply_button = std::make_shared<UIFuncButton>("Apply name");
+        apply_button->BindOnReleased([this](){
+            TextPacketData data(m_name_buffer.c_str());
+            m_client->SendPacket(CreatePacket<TextPacketData>(MSG_NAME_CHANGE, data));
+        });
+
+        auto split_h1 = std::make_shared<UISplit>(apply_button, m_name_input_box, 0.25);
+        auto split_v = std::make_shared<UISplit>(split_h1, m_text_input_box, 0.1, UI_FULL_RECT, false);
+
+        m_chat_ui->AddChild(split_v);
     }
 
     void CloseChat() {
@@ -145,13 +154,16 @@ public:
                 Rendering::Get().SetCamera(
                     GetCameraFromActor(m_self_game_state.GetActor(m_id))
                 );
-                const ActorKey except_key = player_data.actor_key;
+                GameDrawingData drawing_data{
+                    {player_data.actor_key},
+                    m_game_metadata
+                };
                 
                 Rendering::Get().BeginRendering();
                     //ClearBackground(DARKGRAY);
                     // DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
                     // DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
-                    Draw(m_others_game_state, &except_key);
+                    Draw(m_others_game_state, drawing_data);
                 Rendering::Get().EndRendering();
             }     
         }

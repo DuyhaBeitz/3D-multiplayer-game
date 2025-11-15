@@ -11,7 +11,7 @@ void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, f
 inline void DrawText3DEx(Font font, const char *text, Vector3 position, float fontSize, float fontSpacing, float lineSpacing, bool backface, Color tint, float yaw, bool centered) {
     rlPushMatrix();
         float ryaw = yaw*PI/180;
-        float textLength = (float)TextLength(text) * fontSize * 0.6f;
+        float textLength = MeasureTextEx(font, text, fontSize, fontSpacing).x;
 
         if (centered) {
             rlTranslatef(position.x-cos(-ryaw)*textLength/2, position.y+fontSize/2, position.z-sin(-ryaw)*textLength/2);
@@ -24,7 +24,7 @@ inline void DrawText3DEx(Font font, const char *text, Vector3 position, float fo
                
         
         rlRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        DrawText3D(GetFontDefault(), text, (Vector3){0, 0, 0}, fontSize, fontSpacing, lineSpacing, backface, tint);
+        DrawText3D(font, text, (Vector3){0, 0, 0}, fontSize, fontSpacing, lineSpacing, backface, tint);
     rlPopMatrix();
 }
 
@@ -36,6 +36,7 @@ struct TextDrawingData {
 
     void Draw() {
         DrawText3DEx(Resources::Get().FontFromKey(R_FONT_DEFAULT), text, center, font_size, 1, 1, true, GOLD, yaw, true);
+        //DrawTextEx(Resources::Get().FontFromKey(R_FONT_DEFAULT), text, Vector2{100, 100}, font_size, 1, GOLD);
     }
 };
 

@@ -3,6 +3,7 @@
 #include <cstdint>
 
 constexpr int max_string_len = 2048;
+constexpr int max_player_name_len = 64;
 
 constexpr int iters_per_sec = 60;
 constexpr double dt = 1.f/iters_per_sec;
@@ -18,3 +19,5 @@ constexpr uint32_t max_lateness = server_lateness+tick_period+receive_tick_perio
 constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
 
 constexpr size_t max_chat_messages = 10;
+
+using ActorKey = uint16_t;

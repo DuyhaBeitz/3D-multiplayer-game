@@ -52,11 +52,15 @@ public:
             Rendering::Get().SetCamera(
                 GetCameraFromActor(m_game_state.GetActor(player_id))
             );
-            ActorKey except_key = m_game_state.GetPlayer(player_id).actor_key;
+
+            GameDrawingData drawing_data{
+                {m_game_state.GetPlayer(player_id).actor_key},
+                m_game_metadata
+            };
 
             Rendering::Get().BeginRendering();
                 ClearBackground(DARKGRAY);
-                Draw(m_game_state, &except_key);
+                Draw(m_game_state, drawing_data);
             Rendering::Get().EndRendering();
         } 
         Rendering::Get().EnableCameraBasic();
