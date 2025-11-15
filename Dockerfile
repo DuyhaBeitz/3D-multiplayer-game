@@ -46,12 +46,4 @@ RUN git clone https://github.com/DuyhaBeitz/EasyNet.git &&\
     ./rebuild.sh &&\
     ./install.sh
 
-
-COPY . .
-
-RUN ./rebuild.sh
-
-
 EXPOSE 7777
-#CMD ["build/server"]
-

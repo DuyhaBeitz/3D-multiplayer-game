@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <deque>
 #include <cstring>
+#include <cmath>
 #include "Constants.hpp"
 #include "Resources.hpp"
 
