@@ -52,20 +52,23 @@ GameState Game::Lerp(const GameState &state1, const GameState &state2, float alp
     alpha = fmin(1, fmax(0, alpha));
     GameState lerped = state2;
 
-    const ActorKey* except_key = static_cast<const ActorKey*>(data);
+    const std::set<ActorKey>* except_keys = static_cast<const std::set<ActorKey>*>(data);
 
     for (auto& [actor_key, actor] : state2.world_data.actors) {
-        if (actor_key != *except_key) {
-            if (state1.world_data.ActorExists(actor_key)) {
-                ActorData& actor_data = lerped.world_data.GetActor(actor_key);
+        if (state1.world_data.ActorExists(actor_key)) {
+            ActorData& actor_data = lerped.world_data.GetActor(actor_key);
 
+            if (except_keys->find(actor_key) == except_keys->end()) {
                 actor_data.body.position = Vector3Lerp(
                     state1.world_data.GetActor(actor_key).body.position,
                     state2.world_data.GetActor(actor_key).body.position,
                     alpha
                 );
-                actor_data.body.UpdateShapePositions();
             }
+            else {
+                actor_data = state1.world_data.GetActor(actor_key);
+            }
+            actor_data.body.UpdateShapePositions();
         }
     }
     return lerped;

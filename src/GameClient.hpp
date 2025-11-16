@@ -139,7 +139,9 @@ public:
         
         m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
         float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
-        m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &m_id);
+        
+        std::set<ActorKey> except_keys = {};
+        m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &except_keys);
 
         m_tick++;
         m_ticks_since_last_received_game++;
@@ -160,10 +162,14 @@ public:
                 };
                 
                 Rendering::Get().BeginRendering();
-                    //ClearBackground(DARKGRAY);
-                    // DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
-                    // DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 200, 64, WHITE);
-                    Draw(m_others_game_state, drawing_data);
+                    std::set<ActorKey> except_keys = {};
+                    for (auto& [id, player] : m_others_game_state.players) {
+                        if (id != m_id) except_keys.insert(player.actor_key);
+                    }
+
+                    // everything is client-predicted, except other players - they are lerped
+                    GameState smooth = Lerp(m_others_game_state, m_self_game_state, 1.f, &except_keys);
+                    Draw(smooth, drawing_data);
                 Rendering::Get().EndRendering();
             }     
         }

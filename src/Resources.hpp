@@ -80,7 +80,7 @@ class Resources {
 private:
     int max_font_size = 128; // any begger than that will be upscaled
     const char* supported_font_chars = 
-    " !\"#$%&'()*+,-./0123456789:;<=>?@|_"
+    " `~!\"#$%&'()*+,-./0123456789:;<=>?@|_"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     // Latin-1 Supplement (accents for Western European languages)

@@ -3,3 +3,5 @@ docker run -it \
   --name docker-server-container \
   -v $(pwd):/project \
   docker-server
+
+#docker start -ai docker-server-container
