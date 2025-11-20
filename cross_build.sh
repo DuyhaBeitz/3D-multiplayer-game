@@ -1,0 +1,1 @@
+mkdir -p build-win && cd build-win &&     cmake ..       -DCMAKE_TOOLCHAIN_FILE=/mingw-toolchain.cmake       -DCMAKE_INSTALL_PREFIX=/usr/x86_64-w64-mingw32       -DCMAKE_BUILD_TYPE=Release       -DCMAKE_PREFIX_PATH=/usr/x86_64-w64-mingw32 &&     make -j$(nproc) &&     make install

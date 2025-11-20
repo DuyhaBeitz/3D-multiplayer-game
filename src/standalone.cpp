@@ -1,4 +1,4 @@
-#include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
+#include <RaylibRetainedGUI.hpp>
 
 #include "GameStandalone.hpp"
 

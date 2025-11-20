@@ -1,5 +1,5 @@
 #pragma once
-#include "shared.hpp"
+#include "Game.hpp"
 #include "Resources.hpp"
 
 // placeholder for net id, for standalone there's one player

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EasyNet/EasyNetShared.hpp>
+#include <EasyNetShared.hpp>
 #include "Game.hpp"
 
 int server_port = 7777;
