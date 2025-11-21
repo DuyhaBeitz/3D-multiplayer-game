@@ -37,6 +37,7 @@ int main() {
     }
     net_client->RequestDisconnectFromServer();
     net_client->Update();
+    CloseWindow();
     return 0;
 }
 

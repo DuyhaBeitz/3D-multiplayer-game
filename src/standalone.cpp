@@ -13,7 +13,7 @@ int main() {
         game->DrawGame();
         EndDrawing();
     }
-
+    CloseWindow();
     return 0;
 }
 
