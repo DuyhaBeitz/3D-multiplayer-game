@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EasyNetClient.hpp>
+#include <EasyNet/EasyNetClient.hpp>
 #include "shared.hpp"
 #include "Rendering.hpp"
 #include "Chat.hpp"

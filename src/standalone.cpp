@@ -1,5 +1,3 @@
-#include <RaylibRetainedGUI.hpp>
-
 #include "GameStandalone.hpp"
 
 std::unique_ptr<GameStandalone> game;

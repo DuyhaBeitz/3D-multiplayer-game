@@ -50,7 +50,7 @@ include_directories(
 )
 
 
-add_executable(server 
+add_executable(server
     src/Game.cpp
     src/server.cpp
     src/Physics.cpp
@@ -64,20 +64,20 @@ target_link_libraries(server PUBLIC
     r3d
 )
 
-# add_executable(client 
-#     src/Game.cpp
-#     src/client.cpp
-#     src/Physics.cpp
-#     src/Resources.cpp
-#     src/Rendering.cpp
-# )
-# target_link_libraries(client PUBLIC
-#     EasyNet
-#     fmt::fmt
-#     raylib
-#     RaylibRetainedGUI
-#     r3d
-# )
+add_executable(client 
+    src/Game.cpp
+    src/client.cpp
+    src/Physics.cpp
+    src/Resources.cpp
+    src/Rendering.cpp
+)
+target_link_libraries(client PUBLIC
+    EasyNet
+    fmt::fmt
+    raylib
+    RaylibRetainedGUI
+    r3d
+)
 
 add_executable(standalone 
     src/Game.cpp
@@ -92,22 +92,22 @@ target_link_libraries(standalone PUBLIC
     r3d
 )
 
-# add_executable(test
-#     src/Game.cpp
-#     src/test.cpp
-#     src/Physics.cpp
-#     src/Resources.cpp
-#     src/Rendering.cpp
-# )
-# target_link_libraries(test PUBLIC
-#     raylib
-#     RaylibRetainedGUI
-#     r3d
-# )
+add_executable(test
+    src/Game.cpp
+    src/test.cpp
+    src/Physics.cpp
+    src/Resources.cpp
+    src/Rendering.cpp
+)
+target_link_libraries(test PUBLIC
+    raylib
+    RaylibRetainedGUI
+    r3d
+)
 
 if(WIN32)
     target_link_libraries(server PRIVATE ws2_32)
-    #target_link_libraries(client PRIVATE ws2_32)
+    target_link_libraries(client PRIVATE ws2_32)
     target_link_libraries(standalone PRIVATE ws2_32)
-    #target_link_libraries(test PRIVATE ws2_32)
+    target_link_libraries(test PRIVATE ws2_32)
 endif()

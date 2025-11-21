@@ -10,4 +10,4 @@
 // Then include raylib AFTER the Windows definitions
 #include <raylib.h>
 // Then include enet
-#include <EasyNetShared.hpp>
+#include <EasyNet/EasyNetShared.hpp>
