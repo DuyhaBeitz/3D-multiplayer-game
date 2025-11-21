@@ -81,11 +81,14 @@ void Init() {
         }
     );
 
-    net_client->RequestConnectToServer("185.245.34.7", 7777);
-    //net_client->RequestConnectToServer("45.159.79.84", 7777);
-
-    //net_client->RequestConnectToServer("127.0.0.1", 7777);
-    // if (!client->ConnectToServer("127.0.0.1", 7777)) {
-    //     client->RequestConnectToServer("45.159.79.84", 7777);
-    // }    
+    constexpr int server_count = 3;
+    const char* servers[server_count] = {
+        "127.0.0.1",
+        "45.159.79.84",
+        "185.245.34.7"
+    };
+    int i = 0;
+    while (!net_client->RequestConnectToServer(servers[i], 7777) && i < server_count) {
+        i++;
+    }
 }
