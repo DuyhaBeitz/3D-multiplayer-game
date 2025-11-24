@@ -12,20 +12,35 @@
 using ModelKey = uint16_t;
 using FontKey = uint16_t;
 
+std::vector<int> CodepointsFromStr(const char* chars);
+Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
+
 constexpr ModelKey R_MODEL_DEFAULT = 0;
 constexpr ModelKey R_MODEL_PLAYER = 1;
 constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
+constexpr ModelKey R_MODEL_HEIGHTMAP0 = 3;
 
 constexpr FontKey R_FONT_DEFAULT = 0;
 
-std::vector<int> CodepointsFromStr(const char* chars);
-Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
+/*
+Unlike other resources, Images can be loaded without window being initialized,
+it's just pixel data.
+Images can be used to initialize stuff like heightmap, dungeons etc. which has to be done on the server side too
+So in order to load images, without initializing resources,
+we store path to images, not images themselves
+*/
+
+#define P_HIEGHTMAP0_IMAGE_PATH "assets/heightmap.png"
 
 struct AnimatedModelAlias {
     std::vector<R3D_Model> aliases;
     std::vector<R3D_ModelAnimation*> anims;
     int current_alias = 0;
     int anim_count = 0;
+
+    void CreateSingle(R3D_Model model) {
+        aliases.push_back(model);
+    }
 
     void Load(std::string filename, int num_aliases) {
         aliases.clear();
@@ -103,7 +118,8 @@ private:
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
         AddModel(R_MODEL_PLAYER, "assets/Character.gltf", 10);
         AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/Cube_Exclamation.gltf", 0);
-
+        AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
+        
         AddFont(R_FONT_DEFAULT,
             LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
         );     
@@ -118,6 +134,15 @@ private:
 
     void AddModel(ModelKey model_key, std::string filename, int num_aliases) {
         m_models[model_key].Load(filename, 10);
+    }
+
+    void AddHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+        Image img = LoadImage(filename.c_str());
+        R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale, true);
+        m_models[model_key].CreateSingle(R3D_LoadModelFromMesh(&mesh));
+        m_models[model_key].aliases[0].materials->albedo.texture = LoadTextureFromImage(img);
+        m_models[model_key].aliases[0].materials->albedo.color = GREEN;
+        UnloadImage(img);
     }
 
     void AddFont(FontKey font_key, Font font) {

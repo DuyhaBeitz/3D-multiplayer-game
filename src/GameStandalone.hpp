@@ -5,7 +5,7 @@
 // placeholder for net id, for standalone there's one player
 constexpr int player_id = 0;
 
-class GameStandalone : Game {
+class GameStandalone : public Game {
     
 private:
     uint32_t m_tick;
@@ -14,13 +14,12 @@ private:
 public:
 
     GameStandalone() {
+        Resources::Init();
         InitGame(m_game_state);
         
         GameEvent game_event;
         game_event.event_id = EV_PLAYER_JOIN;
         AddEvent(game_event, player_id, m_tick+19);
-
-        Resources::Init();
     }
 
     void Update() {
@@ -67,5 +66,6 @@ public:
         Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
+        DrawFPS(100, 100);
     }
 };

@@ -16,7 +16,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG        12.1.0
 )
-#set(FMT_HEADER_ONLY ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(fmt)
 
 FetchContent_Declare(
@@ -51,6 +50,7 @@ include_directories(
 
 
 add_executable(server
+    src/World.cpp
     src/Game.cpp
     src/server.cpp
     src/Physics.cpp
@@ -65,6 +65,7 @@ target_link_libraries(server PUBLIC
 )
 
 add_executable(client 
+    src/World.cpp
     src/Game.cpp
     src/client.cpp
     src/Physics.cpp
@@ -80,6 +81,7 @@ target_link_libraries(client PUBLIC
 )
 
 add_executable(standalone 
+    src/World.cpp
     src/Game.cpp
     src/standalone.cpp
     src/Physics.cpp
@@ -93,6 +95,7 @@ target_link_libraries(standalone PUBLIC
 )
 
 add_executable(test
+    src/World.cpp
     src/Game.cpp
     src/test.cpp
     src/Physics.cpp

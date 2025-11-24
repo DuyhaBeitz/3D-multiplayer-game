@@ -21,3 +21,5 @@ constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
 constexpr size_t max_chat_messages = 10;
 
 using ActorKey = uint16_t;
+
+constexpr Vector3 heightmap0_scale = Vector3{1000, 50, 1000};

@@ -15,14 +15,14 @@ private:
 public:
 
     GameServer() {
+        InitGame(m_late_game_state);
+
         m_server = std::make_shared<EasyNetServer>();
         m_server->CreateServer(server_port);
         
         m_server->SetOnConnect([this](ENetEvent event){this->OnConnect(event);});
         m_server->SetOnDisconnect([this](ENetEvent event){this->OnDisconnect(event);});
         m_server->SetOnReceive([this](ENetEvent event){this->Onreceive(event);});
-
-        InitGame(m_late_game_state);
     }
 
     void Update() {

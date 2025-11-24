@@ -71,28 +71,7 @@ struct GameState {
     std::map<uint32_t, PlayerData> players;
     WorldData world_data;
 
-    void Draw(GameDrawingData &drawing_data) const {
-        world_data.Draw(drawing_data);
-
-        for (const auto& [id, player_data] : players) {
-            if (drawing_data.actors_except.find(player_data.actor_key) == drawing_data.actors_except.end()) {
-
-                if (world_data.ActorExists(player_data.actor_key)) {
-                    const ActorData actor_data = world_data.GetActor(player_data.actor_key);
-
-                    constexpr float font_size = 16;
-                    const Vector3 draw_pos = {
-                        actor_data.body.position.x,
-                        actor_data.body.Max().y+font_size,
-                        actor_data.body.position.z
-                    };
-                    const char* name = drawing_data.game_metatada.GetPlayerName(id);
-
-                    if (name) Rendering::Get().RenderText(name, draw_pos, -actor_data.yaw*180/PI+90, font_size);
-                }
-            }
-        }
-    }
+    void Draw(GameDrawingData &drawing_data) const;
 
     bool PlayerExists(uint32_t id) const {
         return players.find(id) != players.end();
@@ -160,7 +139,7 @@ public:
     virtual void Draw(const GameState& state, GameDrawingData& data);
 
     virtual void UpdateGameLogic(GameState& state) {
-        state.world_data.Update(dt);
+        state.world_data.Update(dt, m_game_metadata);
     }
 
     virtual GameState Lerp(const GameState& state1, const GameState& state2, float alpha, const void* data);

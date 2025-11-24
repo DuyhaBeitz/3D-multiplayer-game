@@ -138,7 +138,7 @@ struct BodyData {
 
     void ApplyImulse(Vector3 impulse){
         velocity += impulse * inverse_mass;
-        if (Vector3DotProduct(impulse, {0, 1, 0})/Vector3Length(impulse) > 0.5) {
+        if (Vector3Length(impulse) > 0.01 && Vector3DotProduct(impulse, {0, 1, 0})/Vector3Length(impulse) > 0.5) {
             on_ground = true;
         }        
     }
@@ -196,7 +196,7 @@ struct BodyData {
     Vector3 Min() const {
         Vector3 min = position;
         for (const CollisionShape& shape : shapes) {
-            Vector3 m;
+            Vector3 m = position;
             if (shape.IsSphere()) m = shape.AsSphere()->Min();
             else if (shape.IsBox()) m = shape.AsBox()->Min();
             min.x = fmin(min.x, m.x);
@@ -208,3 +208,42 @@ struct BodyData {
 };
 
 void SolveCollision(BodyData& bA, BodyData& bB, const CollisionResult& collision_result);
+
+/*
+Following shapes are heavy, so they aren't supposed to be synced - they are static
+TODO: Heightmap, Dungeon (tilemap with walls)
+*/
+
+class HeightmapData {
+private:
+    std::vector<float> m_heights = {};
+    Vector3 m_scale = {};
+    Vector3 m_position = {};
+    int m_samples = 0; // m_heights.size() = m_samples^2
+
+    Vector3 Min() const {
+        return m_position;
+    }
+    Vector3 Max() const {
+        return m_position + m_scale;
+    }
+
+public:
+    HeightmapData() = default;
+    
+    void Load(Image heightmap_image, Vector3 center, Vector3 scale);
+
+    float GetHeightAtGrid(float ix, float iz) const;
+
+    float GetHeightAt(float x, float z) const;
+    Vector3 GetNormalAt(float x, float z) const;
+
+
+    void Draw() const;
+
+    void SolveCollisionWith(BodyData& other) const;
+
+    Vector3 GetBottomCenter() const {
+        return Vector3{m_position.x+m_scale.x/2, m_position.y, m_position.z+m_scale.z/2};
+    }
+};

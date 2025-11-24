@@ -2,6 +2,29 @@
 
 #include "GameDrawingData.hpp"
 
+void GameState::Draw(GameDrawingData &drawing_data) const {
+    world_data.Draw(drawing_data);
+
+    for (const auto& [id, player_data] : players) {
+        if (drawing_data.actors_except.find(player_data.actor_key) == drawing_data.actors_except.end()) {
+
+            if (world_data.ActorExists(player_data.actor_key)) {
+                const ActorData actor_data = world_data.GetActor(player_data.actor_key);
+
+                constexpr float font_size = 16;
+                const Vector3 draw_pos = {
+                    actor_data.body.position.x,
+                    actor_data.body.Max().y+font_size,
+                    actor_data.body.position.z
+                };
+                const char* name = drawing_data.game_metadata.GetPlayerName(id);
+
+                if (name) Rendering::Get().RenderText(name, draw_pos, -actor_data.yaw*180/PI+90, font_size);
+            }
+        }
+    }
+}
+
 void Game::InitNewPlayer(GameState &state, uint32_t id) {
     BodyData body_data;
     CollisionShape sphere(SphereData{13});
@@ -46,6 +69,7 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
 
 void Game::Draw(const GameState &state, GameDrawingData &drawing_data) {
     state.Draw(drawing_data);
+    drawing_data.game_metadata.Draw();
 }
 
 GameState Game::Lerp(const GameState &state1, const GameState &state2, float alpha, const void *data) {
@@ -106,18 +130,20 @@ GameState Game::Deserialize(SerializedGameState data) {
 }
 
 void Game::InitGame(GameState &state) {
-    { // floor
-    BoxData box_data;
-    box_data.half_extents = Vector3{1000, 100, 1000};
+    m_game_metadata.Load();
 
-    BodyData body_data;
-    body_data.position = Vector3{0, -100, 0};
-    body_data.velocity = Vector3{0, 0, 0};
-    body_data.inverse_mass = 0;
-    body_data.shapes.push_back(CollisionShape(box_data));
+    // { // floor
+    // BoxData box_data;
+    // box_data.half_extents = Vector3{1000, 100, 1000};
 
-    state.world_data.AddActor(ActorData(body_data));
-    }
+    // BodyData body_data;
+    // body_data.position = Vector3{0, -100, 0};
+    // body_data.velocity = Vector3{0, 0, 0};
+    // body_data.inverse_mass = 0;
+    // body_data.shapes.push_back(CollisionShape(box_data));
+
+    // state.world_data.AddActor(ActorData(body_data));
+    // }
 
     {
     BoxData box_data;

@@ -4,5 +4,5 @@
 
 struct GameDrawingData {
     std::set<ActorKey> actors_except;
-    GameMetadata& game_metatada;
+    GameMetadata& game_metadata;
 };

@@ -2,6 +2,8 @@
 
 #include "Serialization.hpp"
 #include "Constants.hpp"
+#include "Physics.hpp"
+
 /*
 Information that doesn't get synced every frame
 Like player's name etc.
@@ -23,13 +25,19 @@ struct SerializedGameMetadata {
     uint8_t bytes[4096*2];    // max packet size
 };
 
-
 class GameMetadata {
 private:
     std::map<uint32_t, PlayerMetadata> m_players;
+    HeightmapData m_heightmap;
+    ModelKey m_heightmap_model_key;
 
 public:
     GameMetadata() = default;
+
+    void Draw() const {
+        //m_heightmap.Draw();
+        Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());
+    }
 
     const char* GetPlayerName(uint32_t id) {
         return m_players[id].name;
@@ -72,5 +80,22 @@ public:
     template <class Archive>
     void serialize(Archive& ar) {
         ar(m_players);
+    }
+
+    HeightmapData& GetHeightmap() {
+        return m_heightmap;
+    }
+
+    const HeightmapData& GetHeightmap() const {
+        return m_heightmap;
+    }
+
+    void Load() {
+        m_heightmap.Load(
+            LoadImage(P_HIEGHTMAP0_IMAGE_PATH),
+            {0, 0, 0},
+            heightmap0_scale
+        );
+        m_heightmap_model_key = R_MODEL_HEIGHTMAP0;
     }
 };
