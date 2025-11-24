@@ -24,7 +24,7 @@ Rendering::Rendering() {
     {
         R3D_SetLightDirection(light, (Vector3) { -1, -0.5, -1 });
         R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_CONTINUOUS);
-        R3D_SetShadowBias(light, 0.005f);
+        //R3D_SetShadowBias(light, 0.005f);
         R3D_EnableShadow(light, 4096/2);
         R3D_SetLightActive(light, true);
     }

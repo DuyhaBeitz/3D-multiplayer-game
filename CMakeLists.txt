@@ -26,15 +26,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EasyNet)
 
-FetchContent_Declare(
-    r3d
-    GIT_REPOSITORY https://github.com/Bigfoot71/r3d.git
-    GIT_TAG        v0.4
-    UPDATE_COMMAND ""
-)
 set(R3D_ASSIMP_VENDORED ON CACHE BOOL "" FORCE)
 set(R3D_RAYLIB_VENDORED ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(r3d)
+add_subdirectory(external/r3d)
+
 
 FetchContent_Declare(
     RaylibRetainedGUI
@@ -46,6 +41,7 @@ FetchContent_MakeAvailable(RaylibRetainedGUI)
 
 include_directories(
     src
+    "${CMAKE_SOURCE_DIR}/external/r3d/include"
 )
 
 
