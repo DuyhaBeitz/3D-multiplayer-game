@@ -105,6 +105,9 @@ public:
     }
 
     void Update() {
+        if (IsKeyPressed(KEY_F11)) {
+            ToggleWindow();
+        }
         if (IsKeyPressed(KEY_TAB)) {
             ToggleChat();
         }
@@ -178,7 +181,7 @@ public:
         
 
         Rendering::Get().EnableCameraBasic();
-        Rendering::Get().DrawPrimitives();
+        //Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
         m_ui_screen->Draw();

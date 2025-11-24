@@ -12,7 +12,7 @@ struct ActorRenderData {
         
         AnimatedModelAlias& model_aliased = Resources::Get().ModelFromKey(model_key);
         if (model_aliased.anim_count > 0) {
-            int anim_id = running ? 11 : 3;            
+            int anim_id = running ? 5 : 15;            
             model_aliased.SetAnim(anim_id);
             model_aliased.IncAnimFrame();            
         }

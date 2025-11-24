@@ -23,6 +23,9 @@ public:
     }
 
     void Update() {
+        if (IsKeyPressed(KEY_F11)) {
+            ToggleWindow();
+        }
         if (IsKeyPressed(KEY_L)){
             if (IsCursorHidden()){
                 EnableCursor();
@@ -62,10 +65,10 @@ public:
                 Draw(m_game_state, drawing_data);
             Rendering::Get().EndRendering();
         } 
-        Rendering::Get().EnableCameraBasic();
-        Rendering::Get().DrawPrimitives();
-        Rendering::Get().DrawTexts();
-        Rendering::Get().DisableCameraBasic();
-        DrawFPS(100, 100);
+        // Rendering::Get().EnableCameraBasic();
+        // Rendering::Get().DrawPrimitives();
+        // Rendering::Get().DrawTexts();
+        // Rendering::Get().DisableCameraBasic();
+        // DrawFPS(100, 100);
     }
 };

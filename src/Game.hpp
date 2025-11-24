@@ -152,3 +152,4 @@ public:
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target);
 Camera GetCameraFromActor(const ActorData& actor_data);
+void ToggleWindow();

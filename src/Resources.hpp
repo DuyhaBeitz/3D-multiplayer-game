@@ -1,6 +1,7 @@
 #pragma once
 
 #include <raylib.h>
+#include <raymath.h>
 #include <unordered_map>
 #include <iostream>
 #include <cstdint>
@@ -30,11 +31,14 @@ So in order to load images, without initializing resources,
 we store path to images, not images themselves
 */
 
-#define P_HIEGHTMAP0_IMAGE_PATH "assets/heightmap.png"
+#define P_HIEGHTMAP0_IMAGE_PATH "assets/Heightmap_01_Mountain.png"
 
 struct AnimatedModelAlias {
     std::vector<R3D_Model> aliases;
     std::vector<R3D_ModelAnimation*> anims;
+    float scale_multiplier = 1.f;
+    Vector3 offset = {};
+
     int current_alias = 0;
     int anim_count = 0;
 
@@ -82,14 +86,40 @@ struct AnimatedModelAlias {
     void Draw(Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
         R3D_DrawModelEx(
             &aliases[current_alias],
-            position, rotationAxis, rotationAngle, scale
+            position+offset, rotationAxis, rotationAngle, scale*scale_multiplier
         );
         current_alias++;
         current_alias = current_alias % aliases.size();
     }
 
+
+    void SetMaterial(R3D_Material material) {
+        for (int i = 0; i < aliases.size(); i++) {
+            for (int j = 0; j < aliases[i].materialCount; j++) {
+                aliases[i].materials[j] = material;
+            }            
+        }
+    }
+
     //static R3D_Model CreateAlias(R3D_Model source);
 };
+
+inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal) {
+    R3D_Material mat = R3D_Material();
+    mat.albedo.texture = albedo;
+    mat.albedo.color = WHITE;
+
+    mat.normal.texture = normal;
+    mat.normal.scale = 1;
+    
+    mat.orm.metalness = 0;
+    mat.orm.roughness = 0.7;
+    mat.orm.occlusion = 0;
+
+    mat.uvScale = {10, 10};
+
+    return mat;
+}
 
 class Resources {
 private:
@@ -116,9 +146,21 @@ private:
 
     Resources() {
         AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
-        AddModel(R_MODEL_PLAYER, "assets/Character.gltf", 10);
-        AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/Cube_Exclamation.gltf", 0);
+        AddModel(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 1);
+        m_models[R_MODEL_PLAYER].scale_multiplier = 1.5;
+        AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb", 0);
+        //float s = 8.f;
+        //m_models[R_MODEL_CUBE_EXCLAMATION].scale_multiplier = s;
+        //m_models[R_MODEL_CUBE_EXCLAMATION].offset = Vector3{0, -1, 0}*s/2;
+
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
+
+        m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
+            CreateMaterial(
+                LoadTexture("assets/grass/GroundSand005_COL_1K.jpg"),
+                LoadTexture("assets/grass/GroundSand005_NRM_1K.jpg")
+            )
+        );
         
         AddFont(R_FONT_DEFAULT,
             LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
@@ -133,15 +175,15 @@ private:
     std::unordered_map<FontKey, Font> m_fonts;
 
     void AddModel(ModelKey model_key, std::string filename, int num_aliases) {
-        m_models[model_key].Load(filename, 10);
+        m_models[model_key].Load(filename, num_aliases);
     }
 
     void AddHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
         Image img = LoadImage(filename.c_str());
         R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale, true);
         m_models[model_key].CreateSingle(R3D_LoadModelFromMesh(&mesh));
-        m_models[model_key].aliases[0].materials->albedo.texture = LoadTextureFromImage(img);
-        m_models[model_key].aliases[0].materials->albedo.color = GREEN;
+        //m_models[model_key].aliases[0].materials->albedo.texture = LoadTextureFromImage(img);
+        //m_models[model_key].aliases[0].materials->albedo.color = GREEN;
         UnloadImage(img);
     }
 

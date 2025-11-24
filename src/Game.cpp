@@ -145,20 +145,20 @@ void Game::InitGame(GameState &state) {
     // state.world_data.AddActor(ActorData(body_data));
     // }
 
-    {
-    BoxData box_data;
-    box_data.half_extents = Vector3{30, 5, 30};
+    // {
+    // BoxData box_data;
+    // box_data.half_extents = Vector3{30, 5, 30};
 
-    BodyData body_data;
-    body_data.position = Vector3{40, 20, 0};
-    body_data.shapes.push_back(CollisionShape(box_data));
+    // BodyData body_data;
+    // body_data.position = Vector3{40, 20, 0};
+    // body_data.shapes.push_back(CollisionShape(box_data));
 
-    state.world_data.AddActor(ActorData(body_data));
-    }
+    // state.world_data.AddActor(ActorData(body_data));
+    // }
     
     {
     BoxData box_data;
-    float a = 11;
+    float a = 10;
     box_data.half_extents = Vector3{a, a, a};
 
     BodyData body_data;
@@ -169,16 +169,16 @@ void Game::InitGame(GameState &state) {
     state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
     }
 
-    for (int i = 0; i < 4; i++) {
-        SphereData sphere_data;
-        sphere_data.radius = 10;
+    // for (int i = 0; i < 4; i++) {
+    //     SphereData sphere_data;
+    //     sphere_data.radius = 10;
 
-        BodyData body_data;
-        body_data.position = Vector3{40, 20.f*i, 40};
-        body_data.shapes.push_back(CollisionShape(sphere_data));
+    //     BodyData body_data;
+    //     body_data.position = Vector3{40, 20.f*i, 40};
+    //     body_data.shapes.push_back(CollisionShape(sphere_data));
 
-        ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-    }
+    //     ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    // }
 }
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
@@ -193,7 +193,7 @@ Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
 }
 
 Camera GetCameraFromActor(const ActorData &actor_data) {
-    Vector3 cam_offset = {0, 5, 0};
+    Vector3 cam_offset = {0, 10, 0};
     Vector3 position = actor_data.body.position + cam_offset;
     Vector3 target =  position + actor_data.VForward();
 
@@ -201,4 +201,9 @@ Camera GetCameraFromActor(const ActorData &actor_data) {
     // Vector3 position = target - actor_data.VForward()*130;
     
     return GetCameraFromPos(position, target);
+}
+
+void ToggleWindow() {
+    ToggleBorderlessWindowed();
+    R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
 }

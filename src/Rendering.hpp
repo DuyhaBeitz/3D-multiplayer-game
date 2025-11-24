@@ -42,9 +42,6 @@ struct TextDrawingData {
 
 class Rendering {
 private:
-
-    RenderTexture2D m_texture;
-
     Camera3D m_camera;
 
     Rendering();
