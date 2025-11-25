@@ -67,6 +67,7 @@ public:
         apply_button->BindOnReleased([this](){
             TextPacketData data(m_name_buffer.c_str());
             m_client->SendPacket(CreatePacket<TextPacketData>(MSG_NAME_CHANGE, data));
+            SetWindowTitle(m_name_buffer.c_str());
         });
 
         auto split_h1 = std::make_shared<UISplit>(apply_button, m_name_input_box, 0.25);

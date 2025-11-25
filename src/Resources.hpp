@@ -20,6 +20,7 @@ constexpr ModelKey R_MODEL_DEFAULT = 0;
 constexpr ModelKey R_MODEL_PLAYER = 1;
 constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
 constexpr ModelKey R_MODEL_HEIGHTMAP0 = 3;
+constexpr ModelKey R_MODEL_FOOTBALL = 4;
 
 constexpr FontKey R_FONT_DEFAULT = 0;
 
@@ -149,8 +150,9 @@ private:
         AddModel(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 1);
         m_models[R_MODEL_PLAYER].scale_multiplier = 1.5;
         AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb", 0);
-        //float s = 8.f;
-        //m_models[R_MODEL_CUBE_EXCLAMATION].scale_multiplier = s;
+        AddModel(R_MODEL_FOOTBALL, "assets/football_ball.glb", 0);
+        float s = 9.1f;
+        m_models[R_MODEL_FOOTBALL].scale_multiplier = s;
         //m_models[R_MODEL_CUBE_EXCLAMATION].offset = Vector3{0, -1, 0}*s/2;
 
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);

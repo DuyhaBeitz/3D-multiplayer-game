@@ -31,7 +31,9 @@ Rendering::Rendering() {
     
     R3D_ShadowCastMode(R3D_SHADOW_CAST_FRONT_FACES);
 
-    R3D_Skybox skybox = R3D_LoadSkybox("assets/skybox1.png", CUBEMAP_LAYOUT_AUTO_DETECT);
+    R3D_Skybox skybox = R3D_LoadSkybox("assets/skybox_1.png", CUBEMAP_LAYOUT_AUTO_DETECT);
+    float intens = 0.3;
+    R3D_SetSkyboxIntensity(intens, intens, intens);
     R3D_EnableSkybox(skybox);
 
     R3D_SetAmbientColor(DARKGRAY);

@@ -11,7 +11,14 @@ std::shared_ptr<UIFuncButton> connect_button;
 std::unique_ptr<GameClient> game_client;
 std::shared_ptr<EasyNetClient> net_client;
 
-std::string server_ip = "127.0.0.1";
+std::string server_ip = "127.0.0.1"; // buffer for ui ip input
+
+constexpr int server_count = 3;
+const char* servers[server_count] = {
+    "127.0.0.1",
+    "45.159.79.84",
+    "185.245.34.7"
+};
 
 void Init();
 
@@ -67,7 +74,8 @@ void Init() {
 
     screen = std::make_shared<UIScreen>();
     bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
-    Rectangle rect = SizeRect(1, 0.33);
+    int elems = 6;
+    Rectangle rect = SizeRect(1, 1.0f/elems);
 
     auto ip_text = std::make_shared<UIText>("IP  ");    
     auto server_ip_button = std::make_shared<UIStringButton>(&server_ip, rect);
@@ -83,22 +91,21 @@ void Init() {
     bar->AddChild(split_port);
     bar->AddChild(connect_button);
     
+    // Will be removed
+    for (int i = 0; i < server_count; i++) {
+        auto button = std::make_shared<UIFuncButton>(TextFormat("Server%d", i), rect);
+        
+        button->BindOnReleased([i](){
+                net_client->RequestConnectToServer(servers[i], 7777);
+            }
+        );
+        bar->AddChild(button);
+    }
+
     screen->AddChild(bar);
 
-    /********** LOGIC **********/
     connect_button->BindOnReleased([](){
             net_client->RequestConnectToServer(server_ip, server_port);
         }
     );
-
-    constexpr int server_count = 3;
-    const char* servers[server_count] = {
-        "127.0.0.1",
-        "45.159.79.84",
-        "185.245.34.7"
-    };
-    int i = 0;
-    while (!net_client->ConnectToServer(servers[i], 7777)) {
-        i = (i+1)%server_count;
-    }
 }
