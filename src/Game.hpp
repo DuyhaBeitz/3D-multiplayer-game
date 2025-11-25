@@ -60,6 +60,44 @@ struct PlayerInput {
     bool IsEmpty() {
         return mouse_x == 0.f && mouse_y == 0.f && Normalized().x == 0 && Normalized().y == 0 && UpDown() == 0;
     }
+
+    void ClearNonContinuous() {
+    }
+};
+
+struct UIInput {
+    bool toggle_window_pressed = false;
+    bool toggle_cursor_pressed = false;
+    bool toggle_chat_pressed   = false;
+    bool enter_chat_pressed    = false;
+
+    void Detect() {
+        toggle_window_pressed = IsKeyPressed(KEY_F11);
+        toggle_cursor_pressed = IsKeyPressed(KEY_L);
+        toggle_chat_pressed   = IsKeyPressed(KEY_TAB);
+        enter_chat_pressed    = IsKeyPressed(KEY_ENTER);
+    }
+
+    void ClearNonContinuous() {
+        toggle_window_pressed = false;
+        toggle_cursor_pressed = false;
+        toggle_chat_pressed   = false;
+        enter_chat_pressed    = false;
+    }
+};
+
+struct GameInput {
+    UIInput ui_input;
+    PlayerInput player_input;
+    void Detect() {
+        ui_input.Detect();
+        player_input.Detect();
+    }
+    void ClearNonContinuous() {
+        ui_input.ClearNonContinuous();
+        player_input.ClearNonContinuous();
+    }
+
 };
 
 struct GameEvent {
@@ -153,3 +191,4 @@ public:
 Camera GetCameraFromPos(Vector3 pos, Vector3 target);
 Camera GetCameraFromActor(const ActorData& actor_data);
 void ToggleWindow();
+void ToggleCursor();

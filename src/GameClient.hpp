@@ -95,23 +95,14 @@ public:
         m_chat_entering = !m_chat_entering;
     }
 
-    void ToggleCursor() {
-        if (IsCursorHidden()){
-            EnableCursor();
-        }
-        else {
-            DisableCursor();
-        }
-    }
-
-    void Update() {
-        if (IsKeyPressed(KEY_F11)) {
+    void Update(GameInput input) {
+        if (input.ui_input.toggle_window_pressed) {
             ToggleWindow();
         }
-        if (IsKeyPressed(KEY_TAB)) {
+        if (input.ui_input.toggle_chat_pressed) {
             ToggleChat();
         }
-        if (IsKeyPressed(KEY_ENTER)) {
+        if (input.ui_input.enter_chat_pressed) {
             if (m_chat_entering) {
                 if (m_new_chat_text.size() > 0) {
                     TextPacketData data(m_new_chat_text.c_str());
@@ -120,28 +111,24 @@ public:
                 }
             }
         }
-        if (IsKeyPressed(KEY_L)){
+        if (input.ui_input.toggle_cursor_pressed){
             if (!m_chat_entering) {
                 ToggleCursor();
             }
         }
 
-        PlayerInput input;
-        
-        input.Detect();
-
-        if (!input.IsEmpty() && !m_chat_entering) {
+        if (!input.player_input.IsEmpty() && !m_chat_entering) {
             GameEvent event;
             event.event_id = EV_PLAYER_INPUT;
-            event.data = input;
+            event.data = input.player_input;
             AddEvent(event, m_id, m_tick);
 
             PlayerInputPacketData data;
-            data.input = input;
+            data.input = input.player_input;
             data.tick = m_tick;
             m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data));
         }
-        
+
         m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
         float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
         

@@ -18,6 +18,7 @@ void Init();
 int main() {
     Init();
 
+    float accumulator = 0.0f;
     while (!WindowShouldClose()) {
         net_client->Update();
 
@@ -29,7 +30,15 @@ int main() {
             EndDrawing();
         }
         else {
-            game_client->Update();
+            accumulator += GetFrameTime();
+            GameInput input;
+            input.Detect();
+            while (accumulator >= dt) {
+                game_client->Update(input);
+                accumulator -= dt;
+                input.ClearNonContinuous();
+            }
+            
             BeginDrawing();
             game_client->DrawGame();
             EndDrawing();
@@ -43,7 +52,7 @@ int main() {
 
 void Init() {
     EasyNetInit();
-    InitWindow(1920/2, 1080, "Client");
+    InitWindow(1920, 1080*2, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 
@@ -89,7 +98,7 @@ void Init() {
         "185.245.34.7"
     };
     int i = 0;
-    while (!net_client->RequestConnectToServer(servers[i], 7777) && i < server_count) {
-        i++;
+    while (!net_client->ConnectToServer(servers[i], 7777)) {
+        i = (i+1)%server_count;
     }
 }

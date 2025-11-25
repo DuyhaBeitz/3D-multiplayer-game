@@ -22,26 +22,18 @@ public:
         AddEvent(game_event, player_id, m_tick+19);
     }
 
-    void Update() {
-        if (IsKeyPressed(KEY_F11)) {
+    void Update(GameInput input) {
+        if (input.ui_input.toggle_window_pressed) {
             ToggleWindow();
         }
-        if (IsKeyPressed(KEY_L)){
-            if (IsCursorHidden()){
-                EnableCursor();
-            }
-            else {
-                DisableCursor();
-            }
+        if (input.ui_input.toggle_cursor_pressed){
+            ToggleCursor();   
         }
 
-        PlayerInput input;
-        input.Detect();
-
-        if (!input.IsEmpty()) {
+        if (!input.player_input.IsEmpty()) {
             GameEvent event;
             event.event_id = EV_PLAYER_INPUT;
-            event.data = input;
+            event.data = input.player_input;
             AddEvent(event, player_id, m_tick);
         }
         

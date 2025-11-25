@@ -205,5 +205,14 @@ Camera GetCameraFromActor(const ActorData &actor_data) {
 
 void ToggleWindow() {
     ToggleBorderlessWindowed();
-    R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
+    //R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
+}
+
+void ToggleCursor() {
+    if (IsCursorHidden()){
+        EnableCursor();
+    }
+    else {
+        DisableCursor();
+    }
 }
