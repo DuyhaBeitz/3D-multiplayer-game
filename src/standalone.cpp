@@ -21,6 +21,7 @@ int main() {
         BeginDrawing();
         game->DrawGame();
         EndDrawing();
+        R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
     }
     CloseWindow();
     return 0;

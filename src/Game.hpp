@@ -70,12 +70,14 @@ struct UIInput {
     bool toggle_cursor_pressed = false;
     bool toggle_chat_pressed   = false;
     bool enter_chat_pressed    = false;
+    bool disconnect_pressed    = false;
 
     void Detect() {
         toggle_window_pressed = IsKeyPressed(KEY_F11);
         toggle_cursor_pressed = IsKeyPressed(KEY_L);
         toggle_chat_pressed   = IsKeyPressed(KEY_TAB);
         enter_chat_pressed    = IsKeyPressed(KEY_ENTER);
+        disconnect_pressed    = IsKeyPressed(KEY_MINUS);
     }
 
     void ClearNonContinuous() {
@@ -83,6 +85,7 @@ struct UIInput {
         toggle_cursor_pressed = false;
         toggle_chat_pressed   = false;
         enter_chat_pressed    = false;
+        disconnect_pressed    = false;
     }
 };
 
@@ -97,7 +100,6 @@ struct GameInput {
         ui_input.ClearNonContinuous();
         player_input.ClearNonContinuous();
     }
-
 };
 
 struct GameEvent {

@@ -169,12 +169,13 @@ void Game::InitGame(GameState &state) {
     state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
     }
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 1; i++) {
         SphereData sphere_data;
         sphere_data.radius = 10;
 
         BodyData body_data;
-        body_data.position = Vector3{40, 20.f*i, 40};
+        body_data.restitution = 2;
+        body_data.position = Vector3{40, 30.f*i, 40.f};
         body_data.shapes.push_back(CollisionShape(sphere_data));
 
         ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
@@ -205,8 +206,15 @@ Camera GetCameraFromActor(const ActorData &actor_data) {
 }
 
 void ToggleWindow() {
+    bool cursor_was_hidden = IsCursorHidden();
+
+    EnableCursor();
     ToggleBorderlessWindowed();
-    //R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
+    BeginDrawing();
+    EndDrawing();
+    if (cursor_was_hidden) DisableCursor();
+    BeginDrawing();
+    EndDrawing();  
 }
 
 void ToggleCursor() {

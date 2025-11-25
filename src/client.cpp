@@ -49,6 +49,7 @@ int main() {
             BeginDrawing();
             game_client->DrawGame();
             EndDrawing();
+            R3D_UpdateResolution(GetScreenWidth(), GetScreenHeight());
         }
     }
     net_client->RequestDisconnectFromServer();
@@ -59,7 +60,7 @@ int main() {
 
 void Init() {
     EasyNetInit();
-    InitWindow(1920, 1080*2, "Client");
+    InitWindow(1920/2, 1080, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "Game.hpp"
-#include "Resources.hpp"
+#include "Rendering.hpp"
 
 // placeholder for net id, for standalone there's one player
 constexpr int player_id = 0;
@@ -14,7 +14,7 @@ private:
 public:
 
     GameStandalone() {
-        Resources::Init();
+        Rendering::Init();
         InitGame(m_game_state);
         
         GameEvent game_event;

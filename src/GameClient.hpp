@@ -117,6 +117,10 @@ public:
                 ToggleCursor();
             }
         }
+        if (input.ui_input.disconnect_pressed) {
+            m_client->RequestDisconnectFromServer();
+            EnableCursor();
+        }
 
         if (!input.player_input.IsEmpty() && !m_chat_entering) {
             GameEvent event;
