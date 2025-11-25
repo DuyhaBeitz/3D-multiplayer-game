@@ -34,75 +34,86 @@ we store path to images, not images themselves
 
 #define P_HIEGHTMAP0_IMAGE_PATH "assets/Heightmap_01_Mountain.png"
 
-struct AnimatedModelAlias {
-    std::vector<R3D_Model> aliases;
-    std::vector<R3D_ModelAnimation*> anims;
-    float scale_multiplier = 1.f;
-    Vector3 offset = {};
+struct AnimationData {
+    int animFrame = 0;
+    int animId    = 0;
+};
 
-    int current_alias = 0;
-    int anim_count = 0;
+struct AnimatedModelAlias {
+    std::vector<AnimationData> m_aliases_anim_data = {};
+    R3D_ModelAnimation* m_anims;
+    R3D_Model m_model = {};
+    
+    float m_scale_multiplier = 1.f;
+    Vector3 m_offset = {};
+
+    int m_current_alias = 0;
+    int m_anim_count = 0;
 
     void CreateSingle(R3D_Model model) {
-        aliases.push_back(model);
+        m_aliases_anim_data = std::vector<AnimationData>(1, AnimationData());
+        m_model = model;
     }
 
     void Load(std::string filename, int num_aliases) {
-        aliases.clear();
+        std::cout << "Loading model with anims: " << filename << std::endl;
+        if (num_aliases <= 0) {
+            std::cerr << "Loading AnimatedModelAlias, but num_aliases is <= 0" << std::endl;
+            return;
+        }
+        m_aliases_anim_data = std::vector<AnimationData>(num_aliases, AnimationData());
+
         const char* s = filename.c_str();
         {
-            anims.push_back(R3D_LoadModelAnimations(s, &anim_count, iters_per_sec));
-            aliases.push_back(R3D_LoadModel(s));
-            aliases[0].anim = &anims[0][0];
-
-            R3D_Model& model = aliases[0];
-            std::cout << "Model bones: " << model.boneCount << std::endl;
-            std::cout << "Model meshes: " << model.meshCount << std::endl;
-            std::cout << "Anim count: " << anim_count << std::endl;
-            for (int i = 0; i < anim_count; i++) {
-                std::cout << "Anim " << i << " bones: " << model.boneCount
-                        << " frames: " << model.anim[i].frameCount << std::endl;
-            }
+        // Load model, anims into temp pointer, write temp pointer into model
+        m_model = R3D_LoadModel(s);
+        m_anims = R3D_LoadModelAnimations(s, &m_anim_count, iters_per_sec);
+        m_model.anim = &m_anims[0];
         }
-
-        for (int i = 1; i < num_aliases; i++) {
-            anims.push_back(R3D_LoadModelAnimations(s, &anim_count, iters_per_sec));
-            aliases.push_back(R3D_LoadModel(s));
-            aliases[i].anim = &anims[i][0];
+        
+        std::cout << "\tBones: " << m_model.boneCount << std::endl;
+        std::cout << "\tMeshes: " << m_model.meshCount << std::endl;
+        std::cout << "\tAnims: " << m_anim_count << std::endl;
+        for (int i = 0; i < m_anim_count; i++) {
+            std::cout
+            << "\tAnim: " << i << " " << m_model.anim[i].name 
+            << "\tbones: " << m_model.boneCount
+            << "\tframes: " << m_model.anim[i].frameCount << std::endl;
         }
+        std::cout << "Successfully loaded model " << filename << '\n' << std::endl;
     }
 
     void IncAnimFrame(int delta_frame = 1) {
-        aliases[current_alias].animFrame += delta_frame;
+        m_aliases_anim_data[m_current_alias].animFrame += delta_frame;
     }
 
     void SetAnimFrame(int frame) {
-        aliases[current_alias].animFrame = frame;
+        m_aliases_anim_data[m_current_alias].animFrame = frame;
     }
 
     void SetAnim(int anim_id) {
-        aliases[current_alias].anim = &anims[current_alias][anim_id];
+        m_aliases_anim_data[m_current_alias].animId = anim_id;
     }
 
     void Draw(Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
+        if (m_anim_count > 0) {
+        AnimationData& anim_data = m_aliases_anim_data[m_current_alias];
+        m_model.animFrame = anim_data.animFrame;
+        m_model.anim = &m_anims[anim_data.animId];
+        }
         R3D_DrawModelEx(
-            &aliases[current_alias],
-            position+offset, rotationAxis, rotationAngle, scale*scale_multiplier
+            &m_model,
+            position+m_offset, rotationAxis, rotationAngle, scale*m_scale_multiplier
         );
-        current_alias++;
-        current_alias = current_alias % aliases.size();
+        m_current_alias++;
+        m_current_alias = m_current_alias % m_aliases_anim_data.size();
     }
-
 
     void SetMaterial(R3D_Material material) {
-        for (int i = 0; i < aliases.size(); i++) {
-            for (int j = 0; j < aliases[i].materialCount; j++) {
-                aliases[i].materials[j] = material;
-            }            
-        }
+        for (int i = 0; i < m_model.materialCount; i++) {
+            m_model.materials[i] = material;
+        }        
     }
-
-    //static R3D_Model CreateAlias(R3D_Model source);
 };
 
 inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal) {
@@ -146,14 +157,14 @@ private:
     ;
 
     Resources() {
-        AddModel(R_MODEL_DEFAULT, "assets/model.glb", 0);
-        AddModel(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 1);
-        m_models[R_MODEL_PLAYER].scale_multiplier = 1.5;
-        AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb", 0);
-        AddModel(R_MODEL_FOOTBALL, "assets/football_ball.glb", 0);
+        AddModel(R_MODEL_DEFAULT, "assets/model.glb", 1);
+        AddModel(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 100);
+        m_models[R_MODEL_PLAYER].m_scale_multiplier = 1.5;
+        AddModel(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb", 1);
+        AddModel(R_MODEL_FOOTBALL, "assets/football_ball.glb", 1);
         float s = 9.1f;
-        m_models[R_MODEL_FOOTBALL].scale_multiplier = s;
-        //m_models[R_MODEL_CUBE_EXCLAMATION].offset = Vector3{0, -1, 0}*s/2;
+        m_models[R_MODEL_FOOTBALL].m_scale_multiplier = s;
+        //m_models[R_MODEL_CUBE_EXCLAMATION].m_offset = Vector3{0, -1, 0}*s/2;
 
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
 
@@ -183,6 +194,7 @@ private:
     void AddHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
         Image img = LoadImage(filename.c_str());
         R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale, true);
+
         m_models[model_key].CreateSingle(R3D_LoadModelFromMesh(&mesh));
         //m_models[model_key].aliases[0].materials->albedo.texture = LoadTextureFromImage(img);
         //m_models[model_key].aliases[0].materials->albedo.color = GREEN;
@@ -224,7 +236,7 @@ public:
 
     void ResetModelCurrentAlias() {
         for (auto& [model_key, aliased_model] : m_models) {
-            aliased_model.current_alias = 0;
+            aliased_model.m_current_alias = 0;
         }
     }
 };

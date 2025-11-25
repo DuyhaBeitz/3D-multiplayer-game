@@ -60,10 +60,12 @@ int main() {
 
 void Init() {
     EasyNetInit();
+    
+    SetTraceLogLevel(raylib_log_level);
     InitWindow(1920/2, 1080, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
-
+    
     Resources::Init();
 
     game_client = std::make_unique<GameClient>();

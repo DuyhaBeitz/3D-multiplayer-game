@@ -28,6 +28,8 @@ int main() {
 }
 
 void Init() {
+    SetTraceLogLevel(raylib_log_level);
+
     InitWindow(1000, 1000, "Standalone");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
