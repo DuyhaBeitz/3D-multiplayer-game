@@ -41,7 +41,7 @@ public:
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
 
-            ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data);
+            ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
             m_server->Broadcast(packet); 
             DropEventHistory(previous_old_tick);
         }
