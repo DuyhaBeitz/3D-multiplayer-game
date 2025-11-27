@@ -31,12 +31,11 @@ int main(){
         auto now = std::chrono::steady_clock::now();
 
         while (now >= next_tick) {
-            bool stay = game_server->Update();
+            game_server->Update();
 
             next_tick += std::chrono::duration_cast<std::chrono::steady_clock::duration>(
                 std::chrono::duration<double>(dt)
             );
-            if (!stay) running = false;
         }
         std::this_thread::sleep_until(next_tick);
     }  
