@@ -2,10 +2,12 @@
 
 #include <raylib.h>
 #include <deque>
-#include <cstring>
+
 #include <cmath>
 #include "Constants.hpp"
 #include "Resources.hpp"
+
+#include "TextHelper.hpp"
 
 struct ChatMessage {
     char name[max_player_name_len] = {};
@@ -21,12 +23,34 @@ private:
 public:
     Chat() = default;
 
-    void AddMessage(const ChatMessage& text) {
+    void AddMessage(const ChatMessage& message) {
         if (m_messages.size() == max_chat_messages) {
             m_messages.pop_front();
         }
-        m_messages.push_back(text);
+
+        if (!m_messages.empty()) {
+            ChatMessage& last = m_messages.back();
+
+            if (strcmp(last.name, message.name) == 0) {
+                char temp[max_string_len];
+                snprintf(
+                    temp,
+                    max_string_len,
+                    "%s\n%s",
+                    last.text,
+                    message.text
+                );
+
+                strncpy(last.text, temp, max_string_len);
+                last.text[max_string_len - 1] = '\0';
+
+                return;
+            }
+        }
+
+        m_messages.push_back(message);
     }
+
 
     Vector2 Measure(const char* text) {
         return MeasureTextEx(
@@ -38,33 +62,42 @@ public:
     }
 
     void Draw() {
-        if (m_messages.size() > 0) {
-            float max_width;
-            for (auto& message : m_messages) {
-                max_width = fmax(max_width, Measure(message.name).x);
-                max_width = fmax(max_width, Measure(message.text).x);                              
-            }
-            DrawRectangle(0, 0, max_width, font_size*m_messages.size()*2, Fade(BLACK, 0.5));
+        if (m_messages.empty()) return;
 
-            for (int i = 0; i < m_messages.size(); i++) {
-                int j = i*2;
-                Vector2 name_pos = Vector2{0, j*font_size};
-                Vector2 text_pos = Vector2{0, (j+1)*font_size};
+        Font font = Resources::Get().FontFromKey(R_FONT_DEFAULT);
 
-                DrawTextEx(
-                    Resources::Get().FontFromKey(R_FONT_DEFAULT),
-                    m_messages[i].name,
-                    name_pos,
-                    font_size,
-                    spacing, RED
-                );
-                DrawTextEx(
-                    Resources::Get().FontFromKey(R_FONT_DEFAULT),
-                    m_messages[i].text,
-                    text_pos,
-                    font_size,
-                    spacing, GREEN
-                );
+        const float max_width = GetScreenWidth() * 0.35f;
+
+        float total_height = 0.0f;
+        std::vector<std::vector<std::string>> wrapped_texts;
+        wrapped_texts.reserve(m_messages.size());
+
+        for (auto& msg : m_messages) {
+            // name is 1 line
+            total_height += font_size;
+
+            std::vector<std::string> lines = WrapText(msg.text, max_width, font, font_size, spacing);
+            total_height += lines.size() * font_size;
+
+            wrapped_texts.push_back(std::move(lines));
+        }
+
+        DrawRectangle(0, 0, max_width, total_height, Fade(BLACK, 0.5f));
+
+        float y = 0.0f;
+        for (int i = 0; i < m_messages.size(); i++) {
+            auto& msg = m_messages[i];
+
+            Color name_clr = GOLD;
+            if (strcmp(msg.name, server_chat_name) == 0) name_clr = RED;
+
+            DrawLineV({0, y}, {max_width, y}, name_clr);
+            DrawTextEx(font, msg.name, Vector2{0, y}, font_size, spacing, name_clr);
+            y += font_size;
+
+            for (auto& line : wrapped_texts[i]) {
+                DrawTextEx(font, line.c_str(), Vector2{0, y}, font_size, spacing, LIGHTGRAY);
+                y += font_size;
             }
         }
     }

@@ -179,7 +179,8 @@ public:
         m_ui_screen->Draw();
         //DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
         DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, GetScreenHeight()-128, 64, WHITE);
-        m_chat.Draw();        
+        m_chat.Draw();      
+        DrawFPS(100, 100);
     }
 
     void OnReceive(ENetEvent event) {
@@ -215,7 +216,7 @@ public:
                 Server receives text,
                 all clients except the one who's message that is receive full ChatMessage
                 */
-                auto&& [message, id] = ExtractDataWithID<ChatMessage>(event.packet);
+                auto&& message = ExtractData<ChatMessage>(event.packet);
                 m_chat.AddMessage(message);
             }
             break;

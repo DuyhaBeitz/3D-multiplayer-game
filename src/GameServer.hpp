@@ -59,6 +59,7 @@ public:
         AddEvent(game_event, id, m_tick);
         m_server->SendTo(id, CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
         m_server->SendTo(id, CreatePacket<uint32_t>(MSG_PLAYER_ID, id));
+        AddAndSyncChatMessage(server_chat_name, TextFormat("Player joined"));
     }
 
     void OnDisconnect(ENetEvent event) {
@@ -66,6 +67,7 @@ public:
         game_event.event_id = EV_PLAYER_LEAVE;
         uint32_t id = enet_peer_get_id(event.peer);
         AddEvent(game_event, id, m_tick);
+        AddAndSyncChatMessage(server_chat_name, TextFormat("%s left", m_game_metadata.GetPlayerName(id)));
     }
 
     void Onreceive(ENetEvent event)
@@ -93,15 +95,8 @@ public:
                 */
                 const TextPacketData& received = ExtractData<TextPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
-                ChatMessage message;
-                std::snprintf(message.name, max_player_name_len, "%s", m_game_metadata.GetPlayerName(id));
-                std::snprintf(message.text, max_string_len, "%s", received.text);
-
-                m_chat.AddMessage(message);
-
-                m_server->Broadcast(
-                    CreatePacketWithID(MSG_CHAT_MESSAGE, id, message)
-                );
+            
+                AddAndSyncChatMessage(m_game_metadata.GetPlayerName(id), received.text);
             }
             break;
         case MSG_NAME_CHANGE:
@@ -142,6 +137,18 @@ public:
         SerializedGameMetadata serialized = m_game_metadata.Serialize();
         m_server->Broadcast(
             CreatePacket(MSG_GAME_METADATA, serialized)
+        );
+    }
+
+    void AddAndSyncChatMessage(const char* name, const char* text) {
+        ChatMessage message;
+        std::snprintf(message.name, max_player_name_len, "%s", name);
+        std::snprintf(message.text, max_string_len, "%s", text);
+
+        m_chat.AddMessage(message);
+
+        m_server->Broadcast(
+            CreatePacket(MSG_CHAT_MESSAGE, message)
         );
     }
 };
