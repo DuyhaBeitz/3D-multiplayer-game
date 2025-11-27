@@ -9,8 +9,8 @@ class GameBase {
 protected:
     // usage: m_event_history[tick][event_index].first() = player id, not all events use this
     // usage: m_event_history[tick][event_index].second() = event
-    std::map<uint32_t, std::vector<std::pair<uint32_t, GameEventType>>> m_event_history;
-    std::map<uint32_t, GameStateType> m_state_history;
+    std::map<uint32_t, std::vector<std::pair<uint32_t, GameEventType>>> m_event_history{};
+    std::map<uint32_t, GameStateType> m_state_history{};
 
 public:
     void AddEvent(GameEventType event, uint32_t id, uint32_t tick) {

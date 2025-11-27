@@ -6,11 +6,11 @@
 
 class GameServer : public Game{
 private:
-    uint32_t m_tick;
-    GameState m_late_game_state;
-    GameState m_game_state;
+    uint32_t m_tick = 0;
+    GameState m_late_game_state{};
+    GameState m_game_state{};
     std::shared_ptr<EasyNetServer> m_server;
-    Chat m_chat;
+    Chat m_chat{};
 
 public:
 
@@ -25,7 +25,7 @@ public:
         m_server->SetOnReceive([this](ENetEvent event){this->Onreceive(event);});
     }
 
-    void Update() {
+    bool Update() {
         m_server->Update();
 
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
@@ -50,6 +50,9 @@ public:
         }
 
         m_tick++;
+
+        if (m_tick > 60*3) return false;
+        return true;
     }
 
     void OnConnect(ENetEvent event) {

@@ -21,15 +21,15 @@ struct PlayerMetadata {
 };
 
 struct SerializedGameMetadata {
-    uint32_t size;          // number of valid bytes
+    uint32_t size = 0;          // number of valid bytes
     uint8_t bytes[4096*2];    // max packet size
 };
 
 class GameMetadata {
 private:
-    std::map<uint32_t, PlayerMetadata> m_players;
-    HeightmapData m_heightmap;
-    ModelKey m_heightmap_model_key;
+    std::map<uint32_t, PlayerMetadata> m_players{};
+    HeightmapData m_heightmap{};
+    ModelKey m_heightmap_model_key{};
 
 public:
     GameMetadata() = default;
@@ -91,11 +91,13 @@ public:
     }
 
     void Load() {
+        Image image = LoadImage(P_HIEGHTMAP0_IMAGE_PATH);
         m_heightmap.Load(
-            LoadImage(P_HIEGHTMAP0_IMAGE_PATH),
+            image,
             {0, 0, 0},
             heightmap0_scale
         );
         m_heightmap_model_key = R_MODEL_HEIGHTMAP0;
+        UnloadImage(image);
     }
 };

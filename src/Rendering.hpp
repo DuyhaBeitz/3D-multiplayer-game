@@ -29,10 +29,10 @@ inline void DrawText3DEx(Font font, const char *text, Vector3 position, float fo
 }
 
 struct TextDrawingData {
-    const char* text;
-    Vector3 center;
-    float yaw;
-    float font_size;
+    const char* text{};
+    Vector3 center{};
+    float yaw = 0.f;
+    float font_size{};
 
     void Draw() {
         DrawText3DEx(Resources::Get().FontFromKey(R_FONT_DEFAULT), text, center, font_size, 1, 1, true, GOLD, yaw, true);
@@ -42,7 +42,7 @@ struct TextDrawingData {
 
 class Rendering {
 private:
-    Camera3D m_camera;
+    Camera3D m_camera{};
 
     Rendering();
 

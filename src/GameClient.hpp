@@ -32,14 +32,14 @@ private:
 
     bool m_connected = false;
 
-    Chat m_chat;
+    Chat m_chat{};
     std::shared_ptr<UIScreen> m_ui_screen;
-    std::string m_new_chat_text;
+    std::string m_new_chat_text{};
     bool m_chat_entering = false;
     std::shared_ptr<UIElement> m_chat_ui;
     std::shared_ptr<UIStringButton> m_text_input_box;
 
-    std::string m_name_buffer;
+    std::string m_name_buffer{};
     std::shared_ptr<UIStringButton> m_name_input_box;
 
 public:

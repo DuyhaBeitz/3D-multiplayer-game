@@ -3,8 +3,8 @@
 #include "Rendering.hpp"
 
 struct ActorRenderData {
-    ModelKey model_key;
-    Vector3 offset;
+    ModelKey model_key{};
+    Vector3 offset{};
     ActorRenderData() = default;
     ActorRenderData(ModelKey model_key_, Vector3 offset_ = Vector3{0, 0, 0}) : model_key(model_key_), offset(offset_) {}
 

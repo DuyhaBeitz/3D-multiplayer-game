@@ -7,9 +7,9 @@
 #include "GameDrawingData.hpp"
 
 struct ActorData {
-    BodyData body;
-    float yaw;
-    float pitch;
+    BodyData body{};
+    float yaw = 0.0f;
+    float pitch = 0.0f;
     
     ActorRenderData render_data;
     ActorData() = default;

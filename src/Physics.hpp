@@ -123,7 +123,7 @@ struct BodyData {
     // inverse so that we can have infinite mass, and connot have zero mass
     float inverse_mass = 1;
     float restitution = 0;
-    std::vector<CollisionShape> shapes; 
+    std::vector<CollisionShape> shapes{}; 
 
     void UpdateShapePositions() {
         for (CollisionShape& shape : shapes) {

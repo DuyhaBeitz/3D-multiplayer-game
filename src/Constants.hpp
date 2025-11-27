@@ -23,6 +23,6 @@ constexpr size_t max_chat_messages = 10;
 using ActorKey = uint16_t;
 
 constexpr Vector3 heightmap0_scale = Vector3{1000, 100, 1000};
-constexpr int raylib_log_level = LOG_ERROR;
+constexpr int raylib_log_level = LOG_ALL;
 
 constexpr const char* server_chat_name = "Server";

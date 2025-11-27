@@ -8,7 +8,7 @@
 #include "Actor.hpp"
 
 struct PlayerData {
-    ActorKey actor_key;
+    ActorKey actor_key = 0;
     template <class Archive>
     void serialize(Archive& ar) {
         ar(actor_key);
@@ -19,7 +19,7 @@ class GameMetadata;
 
 struct WorldData {
     ActorKey new_actor_key = 0;
-    std::map<ActorKey, ActorData> actors;
+    std::map<ActorKey, ActorData> actors{};
 
     WorldData() {
         /*

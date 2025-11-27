@@ -14,8 +14,8 @@ constexpr MessageType MSG_GAME_METADATA = MSG_USER_BASE+5;
 constexpr MessageType MSG_NAME_CHANGE = MSG_USER_BASE+6;
 
 struct PlayerInputPacketData {
-    PlayerInput input;
-    uint32_t tick;
+    PlayerInput input{};
+    uint32_t tick{};
 
     PlayerInputPacketData() = default;
 };

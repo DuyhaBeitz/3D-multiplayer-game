@@ -23,14 +23,14 @@ enum EventId {
 struct PlayerJoin {};
 struct PlayerLeave {};
 struct PlayerInput {
-    float mouse_x;
-    float mouse_y;
-    bool right;
-    bool left;
-    bool forw;
-    bool back;
-    bool up;
-    bool down;
+    float mouse_x = 0.f;
+    float mouse_y = 0.f;
+    bool right = false;
+    bool left = false;
+    bool forw = false;
+    bool back = false;
+    bool up = false;
+    bool down = false;
   
     void Detect() {
         if (!IsCursorHidden()){
@@ -90,8 +90,8 @@ struct UIInput {
 };
 
 struct GameInput {
-    UIInput ui_input;
-    PlayerInput player_input;
+    UIInput ui_input{};
+    PlayerInput player_input{};
     void Detect() {
         ui_input.Detect();
         player_input.Detect();
@@ -103,13 +103,13 @@ struct GameInput {
 };
 
 struct GameEvent {
-    EventId event_id; // for sending over the net
-    std::variant<std::monostate, PlayerJoin, PlayerLeave, PlayerInput> data;
+    EventId event_id{}; // for sending over the net
+    std::variant<std::monostate, PlayerJoin, PlayerLeave, PlayerInput> data{};
 };
 
 struct GameState {
-    std::map<uint32_t, PlayerData> players;
-    WorldData world_data;
+    std::map<uint32_t, PlayerData> players{};
+    WorldData world_data{};
 
     void Draw(GameDrawingData &drawing_data) const;
 
