@@ -63,6 +63,11 @@ struct PlayerInput {
 
     void ClearNonContinuous() {
     }
+
+    void Divide(float denum) {
+        mouse_x /= denum;
+        mouse_y /= denum;
+    }
 };
 
 struct UIInput {
@@ -87,6 +92,8 @@ struct UIInput {
         enter_chat_pressed    = false;
         disconnect_pressed    = false;
     }
+
+    void Divide(float denum) {}
 };
 
 struct GameInput {
@@ -99,6 +106,11 @@ struct GameInput {
     void ClearNonContinuous() {
         ui_input.ClearNonContinuous();
         player_input.ClearNonContinuous();
+    }
+
+    void Divide(float denum) {
+        ui_input.Divide(denum);
+        player_input.Divide(denum);
     }
 };
 

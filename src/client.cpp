@@ -40,10 +40,19 @@ int main() {
             accumulator += GetFrameTime();
             GameInput input;
             input.Detect();
+
+            int i = 0;
             while (accumulator >= dt) {
-                game_client->Update(input);
                 accumulator -= dt;
-                input.ClearNonContinuous();
+                i++;
+            }
+            input.Divide(i);
+
+            game_client->Update(input);
+            input.ClearNonContinuous();
+
+            for (int j = 1; i < i; j++) {
+                game_client->Update(input);
             }
             
             BeginDrawing();

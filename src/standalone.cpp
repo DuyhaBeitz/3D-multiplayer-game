@@ -7,16 +7,10 @@ void Init();
 int main() {
     Init();
 
-    float accumulator = 0.0f;
     while (!WindowShouldClose()) {
-        accumulator += GetFrameTime();
         GameInput input;
         input.Detect();
-        while (accumulator >= dt) {
-            game->Update(input);
-            accumulator -= dt;
-            input.ClearNonContinuous();
-        }
+        game->Update(input);    
         
         BeginDrawing();
         game->DrawGame();
