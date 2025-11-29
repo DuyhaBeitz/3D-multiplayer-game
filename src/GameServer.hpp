@@ -22,7 +22,7 @@ public:
         
         m_server->SetOnConnect([this](ENetEvent event){this->OnConnect(event);});
         m_server->SetOnDisconnect([this](ENetEvent event){this->OnDisconnect(event);});
-        m_server->SetOnReceive([this](ENetEvent event){this->Onreceive(event);});
+        m_server->SetOnReceive([this](ENetEvent event){this->OnReceive(event);});
     }
 
     void Update() {
@@ -70,7 +70,7 @@ public:
         AddAndSyncChatMessage(server_chat_name, TextFormat("%s left", m_game_metadata.GetPlayerName(id)));
     }
 
-    void Onreceive(ENetEvent event)
+    void OnReceive(ENetEvent event)
     {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
@@ -135,9 +135,8 @@ public:
 
     void BroadcastMetadata() {
         SerializedGameMetadata serialized = m_game_metadata.Serialize();
-        m_server->Broadcast(
-            CreatePacket(MSG_GAME_METADATA, serialized)
-        );
+        ENetPacket* packet = CreatePacket(MSG_GAME_METADATA, serialized);
+        m_server->Broadcast(packet);
     }
 
     void AddAndSyncChatMessage(const char* name, const char* text) {
@@ -147,8 +146,7 @@ public:
 
         m_chat.AddMessage(message);
 
-        m_server->Broadcast(
-            CreatePacket(MSG_CHAT_MESSAGE, message)
-        );
+        ENetPacket* packet = CreatePacket(MSG_CHAT_MESSAGE, message);
+        m_server->Broadcast(packet);
     }
 };
