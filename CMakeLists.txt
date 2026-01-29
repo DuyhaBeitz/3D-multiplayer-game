@@ -36,6 +36,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/DuyhaBeitz/RaylibRetainedGUI.git
     GIT_TAG master
     UPDATE_COMMAND ""
+    GIT_TAG 0.0.1
 )
 FetchContent_MakeAvailable(RaylibRetainedGUI)
 
