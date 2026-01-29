@@ -42,21 +42,7 @@ private:
     std::string m_name_buffer{};
     std::shared_ptr<UIStringButton> m_name_input_box;
 
-public:
-
-    std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
-
-    GameClient() {
-        Rendering::Init();
-        InitGame(m_self_game_state);
-        InitGame(m_others_game_state);
-
-        m_client = std::make_shared<EasyNetClient>();
-        m_client->CreateClient();
-        m_client->SetOnReceive([this](ENetEvent event){OnReceive(event);});
-        m_client->SetOnConnect([this](ENetEvent){m_connected = true;});
-        m_client->SetOnDisconnect([this](ENetEvent){m_connected = false;});
-
+    void SetupChat() {
         m_ui_screen = std::make_shared<UIScreen>();
         m_chat_ui = std::make_shared<UIElement>();
         
@@ -74,6 +60,24 @@ public:
         auto split_v = std::make_shared<UISplit>(m_text_input_box, split_h1, 0.9, UI_FULL_RECT, Orientation::Vertical);
 
         m_chat_ui->AddChild(split_v);
+    }
+
+public:
+
+    std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
+
+    GameClient() {
+        Rendering::Init();
+        InitGame(m_self_game_state);
+        InitGame(m_others_game_state);
+
+        m_client = std::make_shared<EasyNetClient>();
+        m_client->CreateClient();
+        m_client->SetOnReceive([this](ENetEvent event){OnReceive(event);});
+        m_client->SetOnConnect([this](ENetEvent){m_connected = true;});
+        m_client->SetOnDisconnect([this](ENetEvent){m_connected = false;});
+
+        SetupChat();
     }
 
     void CloseChat() {

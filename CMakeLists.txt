@@ -68,6 +68,8 @@ add_executable(client
     src/Physics.cpp
     src/Resources.cpp
     src/Rendering.cpp
+    src/MenusUI.cpp
+    src/Settings.cpp
 )
 target_link_libraries(client PUBLIC
     EasyNet
@@ -84,6 +86,8 @@ add_executable(standalone
     src/Physics.cpp
     src/Resources.cpp
     src/Rendering.cpp
+    src/MenusUI.cpp
+    src/Settings.cpp
 )
 target_link_libraries(standalone PUBLIC
     raylib
