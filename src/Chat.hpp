@@ -24,10 +24,6 @@ public:
     Chat() = default;
 
     void AddMessage(const ChatMessage& message) {
-        if (m_messages.size() == max_chat_messages) {
-            m_messages.pop_front();
-        }
-
         if (!m_messages.empty()) {
             ChatMessage& last = m_messages.back();
 
@@ -49,6 +45,10 @@ public:
         }
 
         m_messages.push_back(message);
+
+        while (m_messages.size() > max_chat_messages) {
+            m_messages.pop_front();
+        }
     }
 
 
@@ -82,7 +82,8 @@ public:
             wrapped_texts.push_back(std::move(lines));
         }
 
-        DrawRectangle(0, 0, max_width, total_height, Fade(BLACK, 0.5f));
+        Vector2 offset{GetScreenWidth() - max_width, GetScreenHeight()/2};
+        DrawRectangle(offset.x, offset.y, max_width, total_height, Fade(BLACK, 0.5f));
 
         float y = 0.0f;
         for (int i = 0; i < m_messages.size(); i++) {
@@ -91,12 +92,12 @@ public:
             Color name_clr = GOLD;
             if (strcmp(msg.name, server_chat_name) == 0) name_clr = RED;
 
-            DrawLineV({0, y}, {max_width, y}, name_clr);
-            DrawTextEx(font, msg.name, Vector2{0, y}, font_size, spacing, name_clr);
+            DrawLineV(Vector2{0, y}+offset, Vector2{max_width, y}+offset, name_clr);
+            DrawTextEx(font, msg.name, Vector2{0, y}+offset, font_size, spacing, name_clr);
             y += font_size;
 
             for (auto& line : wrapped_texts[i]) {
-                DrawTextEx(font, line.c_str(), Vector2{0, y}, font_size, spacing, LIGHTGRAY);
+                DrawTextEx(font, line.c_str(), Vector2{0, y}+offset, font_size, spacing, LIGHTGRAY);
                 y += font_size;
             }
         }

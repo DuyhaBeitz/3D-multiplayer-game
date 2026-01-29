@@ -18,7 +18,7 @@ constexpr uint32_t max_lateness = server_lateness+tick_period+receive_tick_perio
 
 constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
 
-constexpr size_t max_chat_messages = 10;
+constexpr size_t max_chat_messages = 3;
 
 using ActorKey = uint16_t;
 

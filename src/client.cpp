@@ -71,7 +71,7 @@ void Init() {
     EasyNetInit();
     
     SetTraceLogLevel(raylib_log_level);
-    InitWindow(1920/2, 1080, "Client");
+    InitWindow(1920, 1080*2, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
     
@@ -90,12 +90,12 @@ void Init() {
     Rectangle rect = SizeRect(1, 1.0f/elems);
 
     auto ip_text = std::make_shared<UIText>("IP  ");    
-    auto server_ip_button = std::make_shared<UIStringButton>(&server_ip, rect);
-    auto split_ip = std::make_shared<UISplit>(ip_text, server_ip_button, 0.3, rect);
+    auto server_ip_button = std::make_shared<UIStringButton>(&server_ip);
+    auto split_ip = std::make_shared<UISplit>(ip_text, server_ip_button, 0.3f, rect);
 
     auto port_text = std::make_shared<UIText>("PORT");
-    auto server_port_button = std::make_shared<UIIntButton>(&server_port, rect);
-    auto split_port = std::make_shared<UISplit>(port_text, server_port_button, 0.3, rect);
+    auto server_port_button = std::make_shared<UIIntButton>(&server_port);
+    auto split_port = std::make_shared<UISplit>(port_text, server_port_button, 0.3f, rect);
 
     connect_button = std::make_shared<UIFuncButton>("Connect", rect);
 

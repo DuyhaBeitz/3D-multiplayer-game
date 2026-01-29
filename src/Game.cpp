@@ -26,6 +26,8 @@ void GameState::Draw(GameDrawingData &drawing_data) const {
 }
 
 void Game::InitNewPlayer(GameState &state, uint32_t id) {
+    int player_count = state.players.size();
+
     BodyData body_data;
     CollisionShape sphere(SphereData{13});
     body_data.shapes.push_back(sphere);
@@ -33,12 +35,12 @@ void Game::InitNewPlayer(GameState &state, uint32_t id) {
     
     actor_data.render_data.offset = {0, -12, 0};
 
-    actor_data.body.position = Vector3{0, 10, 0};
+    actor_data.body.position = Vector3{10.0f*player_count, 10, 0};
 
     PlayerData player_data;
     player_data.actor_key = state.world_data.AddActor(actor_data);
     
-    m_game_metadata.SetPlayerName(id, TextFormat("player_%d", state.players.size()));
+    m_game_metadata.SetPlayerName(id, TextFormat("player_%d", player_count));
 
     state.players[id] = player_data;
 }
@@ -169,7 +171,7 @@ void Game::InitGame(GameState &state) {
     state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
     }
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 1; i < 10; i++) {
         SphereData sphere_data;
         sphere_data.radius = 10;
 

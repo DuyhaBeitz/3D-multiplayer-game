@@ -71,7 +71,7 @@ public:
         });
 
         auto split_h1 = std::make_shared<UISplit>(apply_button, m_name_input_box, 0.25);
-        auto split_v = std::make_shared<UISplit>(split_h1, m_text_input_box, 0.1, UI_FULL_RECT, false);
+        auto split_v = std::make_shared<UISplit>(split_h1, m_text_input_box, 0.1, UI_FULL_RECT, Orientation::Vertical);
 
         m_chat_ui->AddChild(split_v);
     }
