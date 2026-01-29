@@ -82,7 +82,7 @@ public:
             wrapped_texts.push_back(std::move(lines));
         }
 
-        Vector2 offset{GetScreenWidth() - max_width, GetScreenHeight()/2};
+        Vector2 offset{GetScreenWidth() - max_width, GetScreenHeight() / 2.0f -total_height};
         DrawRectangle(offset.x, offset.y, max_width, total_height, Fade(BLACK, 0.5f));
 
         float y = 0.0f;

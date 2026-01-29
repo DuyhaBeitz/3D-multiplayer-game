@@ -71,7 +71,7 @@ public:
         });
 
         auto split_h1 = std::make_shared<UISplit>(apply_button, m_name_input_box, 0.25);
-        auto split_v = std::make_shared<UISplit>(split_h1, m_text_input_box, 0.1, UI_FULL_RECT, Orientation::Vertical);
+        auto split_v = std::make_shared<UISplit>(m_text_input_box, split_h1, 0.9, UI_FULL_RECT, Orientation::Vertical);
 
         m_chat_ui->AddChild(split_v);
     }
@@ -178,7 +178,7 @@ public:
         Rendering::Get().DisableCameraBasic();
         m_ui_screen->Draw();
         //DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
-        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, GetScreenHeight()-128, 64, WHITE);
+        DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 128, 64, WHITE);
         m_chat.Draw();      
         DrawFPS(100, 100);
     }
