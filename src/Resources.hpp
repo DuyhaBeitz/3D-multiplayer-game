@@ -53,12 +53,13 @@ public:
         m_animated  = true;
 
         std::cout << "Loading model animated: " << filename << std::endl;
+        std::cout << "With " << num_aliases << " aliases" << std::endl;
         if (num_aliases < 0) {
             std::cerr << "Loading AnimatedModelAlias, but num_aliases is < 0" << std::endl;
             throw std::logic_error("Attemting to load non animated model as animated?");
             return;
         }
-        m_anim_players.reserve(num_aliases);
+        m_anim_players.resize(num_aliases);
 
         const char* s = filename.c_str();
         {
@@ -82,6 +83,11 @@ public:
 
         PrintDebug();
         
+        if (m_anim_players.size() != num_aliases) {
+            throw std::runtime_error("m_anim_players.size() != num_aliases");
+            return;
+        }
+
         std::cout << "Successfully loaded model " << filename << '\n' << std::endl;
     }
 
@@ -95,16 +101,19 @@ public:
         }        
         R3D_SetAnimationWeight(&m_anim_players[m_current_alias], anim_id, 1.f);
 
-        R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);        
+        R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);
     }
 
     void Draw(Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
         Quaternion q = QuaternionFromAxisAngle(rotationAxis, rotationAngle);
         if (IsAnimated()) {
-            R3D_DrawAnimatedModelEx(m_model, m_anim_players[m_current_alias], position+m_offset, q, scale*m_scale_multiplier);    
             if (m_anim_players.size() > 0) {
+                R3D_DrawAnimatedModelEx(m_model, m_anim_players[m_current_alias], position+m_offset, q, scale*m_scale_multiplier);    
                 m_current_alias++;
                 m_current_alias = m_current_alias % m_anim_players.size();
+            }
+            else {
+                std::cout << "m_anim_players.size() <= 0" << std::endl;
             }
         }
         else {
@@ -187,7 +196,7 @@ private:
 
     Resources() {
         AddModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
-        AddModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 100);
+        AddModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 10);
         m_models[R_MODEL_PLAYER].SetScale(1.5f);
         AddModelNonAnimated(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb");
         AddModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
