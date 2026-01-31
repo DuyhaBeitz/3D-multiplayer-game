@@ -1,5 +1,15 @@
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/shared.cmake)
 
+set(RAYLIB_GIT_TAG master CACHE STRING "Git tag/branch for raylib")
+message(STATUS "Downloading and configuring raylib...")
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG ${RAYLIB_GIT_TAG}
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(raylib)
+
 add_executable(server
     src/World.cpp
     src/Game.cpp
