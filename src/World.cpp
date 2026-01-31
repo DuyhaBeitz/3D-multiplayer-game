@@ -1,11 +1,13 @@
 #include "World.hpp"
 #include "GameMetadata.hpp"
 
+#ifdef WITH_RENDER
 void WorldData::Draw(GameDrawingData &drawing_data) const {
     for (const auto& [key, actor_data] : actors) {
         if (drawing_data.actors_except.find(key) == drawing_data.actors_except.end()) actor_data.Draw(drawing_data);
     }
 }
+#endif
 
 void WorldData::Update(float delta_time, const GameMetadata& game_metadata){
     constexpr int phys_iters = 10;

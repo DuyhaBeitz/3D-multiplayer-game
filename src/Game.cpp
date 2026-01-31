@@ -2,6 +2,7 @@
 
 #include "GameDrawingData.hpp"
 
+#ifdef WITH_RENDER
 void GameState::Draw(GameDrawingData &drawing_data) const {
     world_data.Draw(drawing_data);
 
@@ -24,6 +25,7 @@ void GameState::Draw(GameDrawingData &drawing_data) const {
         }
     }
 }
+#endif
 
 void Game::InitNewPlayer(GameState &state, uint32_t id) {
     int player_count = state.players.size();
@@ -70,8 +72,10 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
 }
 
 void Game::Draw(const GameState &state, GameDrawingData &drawing_data) {
+    #ifdef WITH_RENDER
     state.Draw(drawing_data);
     drawing_data.game_metadata.Draw();
+    #endif
 }
 
 GameState Game::Lerp(const GameState &state1, const GameState &state2, float alpha, const void *data) {

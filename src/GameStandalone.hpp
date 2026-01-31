@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Game.hpp"
 #include "Rendering.hpp"
 

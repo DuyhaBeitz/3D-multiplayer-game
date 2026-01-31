@@ -34,10 +34,12 @@ private:
 public:
     GameMetadata() = default;
 
+#ifdef WITH_RENDER
     void Draw() const {
         //m_heightmap.Draw();
         Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());
     }
+#endif
 
     const char* GetPlayerName(uint32_t id) {
         return m_players[id].name;

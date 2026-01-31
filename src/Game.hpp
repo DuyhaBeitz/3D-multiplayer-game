@@ -123,7 +123,9 @@ struct GameState {
     std::map<uint32_t, PlayerData> players{};
     WorldData world_data{};
 
+#ifdef WITH_RENDER
     void Draw(GameDrawingData &drawing_data) const;
+#endif
 
     bool PlayerExists(uint32_t id) const {
         return players.find(id) != players.end();

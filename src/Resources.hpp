@@ -4,25 +4,15 @@
 #include <raymath.h>
 #include <unordered_map>
 #include <iostream>
-#include <cstdint>
 #include <vector>
 
 #include <r3d/r3d.h>
 #include "Constants.hpp"
 
-using ModelKey = uint16_t;
-using FontKey = uint16_t;
+#include "ResourceData.hpp"
 
 std::vector<int> CodepointsFromStr(const char* chars);
 Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
-
-constexpr ModelKey R_MODEL_DEFAULT = 0;
-constexpr ModelKey R_MODEL_PLAYER = 1;
-constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
-constexpr ModelKey R_MODEL_HEIGHTMAP0 = 3;
-constexpr ModelKey R_MODEL_FOOTBALL = 4;
-
-constexpr FontKey R_FONT_DEFAULT = 0;
 
 /*
 Unlike other resources, Images can be loaded without window being initialized,
@@ -32,7 +22,6 @@ So in order to load images, without initializing resources,
 we store path to images, not images themselves
 */
 
-#define P_HIEGHTMAP0_IMAGE_PATH "assets/Heightmap_01_Mountain.png"
 
 class ModelAliased {
 private:

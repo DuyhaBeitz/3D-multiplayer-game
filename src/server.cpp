@@ -3,7 +3,7 @@
 #include "GameServer.hpp"
 #include <thread>
 
-//#define VIS 1
+//#define WITH_RENDER 1
 
 std::unique_ptr<GameServer> game_server;
 bool running = true;
@@ -12,7 +12,7 @@ int main(){
     EasyNetInit();
     game_server = std::make_unique<GameServer>();
 
-    #ifdef VIS
+    #ifdef WITH_RENDER
     InitWindow(1000, 1000, "Server");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);

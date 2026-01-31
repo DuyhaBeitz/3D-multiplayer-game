@@ -5,7 +5,11 @@
 
 #include <cmath>
 #include "Constants.hpp"
+
+#include "ResourceData.hpp"
+#ifdef WITH_RENDER
 #include "Resources.hpp"
+#endif
 
 #include "TextHelper.hpp"
 
@@ -51,7 +55,7 @@ public:
         }
     }
 
-
+#ifdef WITH_RENDER
     Vector2 Measure(const char* text) {
         return MeasureTextEx(
             Resources::Get().FontFromKey(R_FONT_DEFAULT),
@@ -102,4 +106,5 @@ public:
             }
         }
     }
+#endif
 };

@@ -2,7 +2,6 @@
 
 #include <raylib.h>
 #include <raymath.h>
-#include "Rendering.hpp"
 #include <vector>
 #include <stdint.h>
 #include <variant>
@@ -11,11 +10,16 @@
 
 #include "Serialization.hpp"
 
+#ifdef WITH_RENDER
+#include "Rendering.hpp"
+#endif
+
 constexpr float gravity = 220;
 //constexpr float floor_lvl = 0;
 constexpr float hor_speed = 160;
 constexpr float jump_impulse = 120;
 /*****************************************/
+
 struct SphereData {
     float radius = 1.0f;
     Vector3 center{};
@@ -32,9 +36,12 @@ struct SphereData {
         ar(radius, center);
     }
 
+#ifdef WITH_RENDER
     void Draw() const {
         Rendering::Get().RenderPrimitiveSphere(center, radius);
     }
+#endif
+
 };
 
 struct BoxData {
@@ -52,9 +59,11 @@ struct BoxData {
         ar(half_extents, center);
     }
 
+#ifdef WITH_RENDER
     void Draw() const {
         Rendering::Get().RenderPrimitiveCube(center, half_extents);
     }
+#endif
 };
 /*****************************************/
 struct CollisionShape {
@@ -168,12 +177,14 @@ struct BodyData {
         return max_res; 
     }
 
+#ifdef WITH_RENDER
     void DrawShapes() const {
         for (const CollisionShape& shape : shapes) {
             if (shape.IsSphere()) shape.AsSphere()->Draw();
             else if (shape.IsBox()) shape.AsBox()->Draw();
         }
     }
+#endif
 
     template <class Archive>
     void serialize(Archive& ar) {

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Physics.hpp"
-#include "Rendering.hpp"
-#include "ActorRender.hpp"
 #include <iostream>
 #include "GameDrawingData.hpp"
+#include "ActorRender.hpp"
 
 struct ActorData {
     BodyData body{};
@@ -12,6 +11,7 @@ struct ActorData {
     float pitch = 0.0f;
     
     ActorRenderData render_data;
+    
     ActorData() = default;
     ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT)
     {
@@ -31,12 +31,14 @@ struct ActorData {
         body.Update(delta_time);
     }
 
+#ifdef WITH_RENDER
     void Draw(GameDrawingData& drawing_data) const {
         Vector2 hor_vel = {body.velocity.x, body.velocity.z};
         bool running = Vector2Length(hor_vel) > 20;
         render_data.Draw(running, body, yaw, pitch);        
         if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
     }
+#endif
 
     Vector3 VForward() const {
         return Vector3{cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)};

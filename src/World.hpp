@@ -2,7 +2,11 @@
 
 #include <raylib.h>
 #include <raymath.h>
+
+#include "ResourceData.hpp"
+#ifdef WITH_RENDER
 #include "Resources.hpp"
+#endif
 #include <map>
 
 #include "Actor.hpp"
@@ -28,7 +32,9 @@ struct WorldData {
         */        
     }
 
+#ifdef WITH_RENDER
     void Draw(GameDrawingData &drawing_data) const;
+#endif
 
     void Update(float delta_time, const GameMetadata& game_metadata);
 

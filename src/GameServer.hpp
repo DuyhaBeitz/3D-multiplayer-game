@@ -112,6 +112,24 @@ public:
         }
     }
 
+    void BroadcastMetadata() {
+        SerializedGameMetadata serialized = m_game_metadata.Serialize();
+        ENetPacket* packet = CreatePacket(MSG_GAME_METADATA, serialized);
+        m_server->Broadcast(packet);
+    }
+
+    void AddAndSyncChatMessage(const char* name, const char* text) {
+        ChatMessage message;
+        std::snprintf(message.name, max_player_name_len, "%s", name);
+        std::snprintf(message.text, max_string_len, "%s", text);
+
+        m_chat.AddMessage(message);
+
+        ENetPacket* packet = CreatePacket(MSG_CHAT_MESSAGE, message);
+        m_server->Broadcast(packet);
+    }
+
+#ifdef WITH_RENDER
     void DrawGame() {
         float r = 200;
         Rendering::Get().SetCamera(
@@ -135,21 +153,5 @@ public:
 
         DrawText(("tick: " + std::to_string(m_tick)).c_str(), 100, 128+64, 64, WHITE);
     }
-
-    void BroadcastMetadata() {
-        SerializedGameMetadata serialized = m_game_metadata.Serialize();
-        ENetPacket* packet = CreatePacket(MSG_GAME_METADATA, serialized);
-        m_server->Broadcast(packet);
-    }
-
-    void AddAndSyncChatMessage(const char* name, const char* text) {
-        ChatMessage message;
-        std::snprintf(message.name, max_player_name_len, "%s", name);
-        std::snprintf(message.text, max_string_len, "%s", text);
-
-        m_chat.AddMessage(message);
-
-        ENetPacket* packet = CreatePacket(MSG_CHAT_MESSAGE, message);
-        m_server->Broadcast(packet);
-    }
+#endif
 };

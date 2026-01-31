@@ -1,6 +1,12 @@
 #pragma once
 
+#include <raylib.h>
+#include "ResourceData.hpp"
+#include "Physics.hpp"
+
+#ifdef WITH_RENDER
 #include "Rendering.hpp"
+#endif
 
 struct ActorRenderData {
     ModelKey model_key{};
@@ -8,6 +14,7 @@ struct ActorRenderData {
     ActorRenderData() = default;
     ActorRenderData(ModelKey model_key_, Vector3 offset_ = Vector3{0, 0, 0}) : model_key(model_key_), offset(offset_) {}
 
+#ifdef WITH_RENDER
     void Draw(bool running, const BodyData& body, const float yaw, const float pitch) const {
         
         ModelAliased& model_aliased = Resources::Get().ModelFromKey(model_key);
@@ -26,6 +33,7 @@ struct ActorRenderData {
             );
         }
     }    
+#endif
 
     template <class Archive>
     void serialize(Archive& ar) {
