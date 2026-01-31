@@ -12,7 +12,7 @@ void GameState::Draw(GameDrawingData &drawing_data) const {
             if (world_data.ActorExists(player_data.actor_key)) {
                 const ActorData actor_data = world_data.GetActor(player_data.actor_key);
 
-                constexpr float font_size = 16;
+                constexpr float font_size = 8;
                 const Vector3 draw_pos = {
                     actor_data.body.position.x,
                     actor_data.body.Max().y+font_size,

@@ -17,7 +17,7 @@ private:
 
     // SETTINGS
     std::shared_ptr<UIScreen> m_settings_screen = nullptr;
-    std::shared_ptr<UIBar> m_settings_bar = nullptr;
+    std::shared_ptr<UIScrollable> m_settings_bar = nullptr;
 
     std::function<void()> m_on_resume = 0;
     

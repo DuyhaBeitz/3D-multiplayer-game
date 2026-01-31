@@ -28,8 +28,9 @@ void MenusScreen::SetupPauseScreen() {
 
 void MenusScreen::SetupSettingsScreen() {
     m_settings_screen = std::make_shared<UIScreen>();
-    m_settings_bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
-    int elems = 6;
+    m_settings_bar = std::make_shared<UIScrollable>(Rectangle{0.6, 0.0, 0.4, 1.0});    
+
+    int elems = 10;
     Rectangle rect = SizeRect(1, 1.0f/elems);
 
     auto title = std::make_shared<UIText>("Settings", rect);    
@@ -46,6 +47,42 @@ void MenusScreen::SetupSettingsScreen() {
         rect
     );
 
+    auto dof_enabled_text = std::make_shared<UIText>("Dof enabled");
+    auto dof_enabled_button = std::make_shared<UIBoolButton>(Settings::Get().GetDofEnabledPtr());
+    auto dof_enabled_split = std::make_shared<UISplit>(
+        dof_enabled_text,
+        dof_enabled_button,
+        0.5f,
+        rect
+    );
+
+    auto dof_focus_point_text = std::make_shared<UIText>("Dof focus point");
+    auto dof_focus_point_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofFocusPointPtr());
+    auto dof_focus_point_split = std::make_shared<UISplit>(
+        dof_focus_point_text,
+        dof_focus_point_button,
+        0.5f,
+        rect
+    );
+
+    auto dof_focus_scale_text = std::make_shared<UIText>("Dof focus scale");
+    auto dof_focus_scale_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofFocusScalePtr());
+    auto dof_focus_scale_split = std::make_shared<UISplit>(
+        dof_focus_scale_text,
+        dof_focus_scale_button,
+        0.5f,
+        rect
+    );
+
+    auto dof_max_blur_text = std::make_shared<UIText>("Dof max blur");
+    auto dof_max_blur_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofMaxBlurPtr());
+    auto dof_max_blur_split = std::make_shared<UISplit>(
+        dof_max_blur_text,
+        dof_max_blur_button,
+        0.5f,
+        rect
+    );
+
     auto back_button = std::make_shared<UIFuncButton>("Back", rect);
 
     back_button->BindOnReleased(
@@ -54,6 +91,10 @@ void MenusScreen::SetupSettingsScreen() {
     
     //m_settings_bar->AddChild(title);
     m_settings_bar->AddChild(resolution_scale_split);
+    m_settings_bar->AddChild(dof_enabled_split);
+    m_settings_bar->AddChild(dof_focus_point_split);
+    m_settings_bar->AddChild(dof_focus_scale_split);
+    m_settings_bar->AddChild(dof_max_blur_split);
     m_settings_bar->AddChild(back_button);
 
     m_settings_screen->AddChild(m_settings_bar);

@@ -52,12 +52,6 @@ Rendering::Rendering() {
     // R3D_SetSSAORadius(4.0f);
     // R3D_SetBloomMode(R3D_BLOOM_MIX);
     // R3D_SetTonemapMode(R3D_TONEMAP_ACES);
-
-    // R3D_SetDofMode(R3D_DOF_ENABLED);
-    // R3D_SetDofFocusPoint(12.0f);
-    // R3D_SetDofFocusScale(3.0f);
-    // R3D_SetDofMaxBlurSize(10.0f);
-    // R3D_SetDofDebugMode(0);
     
     { // For some reason need with the newer version of r3d
     BeginDrawing();
