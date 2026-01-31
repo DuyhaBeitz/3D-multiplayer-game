@@ -24,6 +24,7 @@ int main(){
         game_server->DrawGame();
         EndDrawing();
     }
+    R3D_Close();
     CloseWindow();
     #else
     auto next_tick = std::chrono::steady_clock::now();

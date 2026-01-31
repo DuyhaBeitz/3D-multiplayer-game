@@ -10,11 +10,11 @@ struct ActorRenderData {
 
     void Draw(bool running, const BodyData& body, const float yaw, const float pitch) const {
         
-        AnimatedModelAlias& model_aliased = Resources::Get().ModelFromKey(model_key);
-        if (model_aliased.m_anim_count > 0) {
+        ModelAliased& model_aliased = Resources::Get().ModelFromKey(model_key);
+        if (model_aliased.IsAnimated()) {
             int anim_id = running ? 5 : 15;            
             model_aliased.SetAnim(anim_id);
-            model_aliased.IncAnimFrame();            
+            model_aliased.Update(dt);
         }
 
         if (model_key != R_MODEL_DEFAULT) {

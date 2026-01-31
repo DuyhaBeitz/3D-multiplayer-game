@@ -76,6 +76,7 @@ int main() {
     }
     net_client->RequestDisconnectFromServer();
     net_client->Update();
+    R3D_Close();
     CloseWindow();
     return 0;
 }
@@ -90,7 +91,7 @@ void Init() {
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
     
-    Resources::Init();
+    Rendering::Init();
 
     game_client = std::make_unique<GameClient>();
     net_client = game_client->GetNetClient();

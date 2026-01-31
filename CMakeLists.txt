@@ -26,10 +26,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EasyNet)
 
-set(R3D_ASSIMP_VENDORED ON CACHE BOOL "" FORCE)
-set(R3D_RAYLIB_VENDORED ON CACHE BOOL "" FORCE)
-add_subdirectory(external/r3d)
-
+include(r3d.cmake)
 
 FetchContent_Declare(
     RaylibRetainedGUI
@@ -39,12 +36,6 @@ FetchContent_Declare(
     GIT_TAG 0.0.1
 )
 FetchContent_MakeAvailable(RaylibRetainedGUI)
-
-include_directories(
-    src
-    "${CMAKE_SOURCE_DIR}/external/r3d/include"
-)
-
 
 add_executable(server
     src/World.cpp
@@ -71,14 +62,6 @@ add_executable(client
     src/MenusUI.cpp
     src/Settings.cpp
 )
-target_link_libraries(client PUBLIC
-    EasyNet
-    fmt::fmt
-    raylib
-    RaylibRetainedGUI
-    r3d
-)
-
 add_executable(standalone 
     src/World.cpp
     src/Game.cpp
@@ -89,12 +72,6 @@ add_executable(standalone
     src/MenusUI.cpp
     src/Settings.cpp
 )
-target_link_libraries(standalone PUBLIC
-    raylib
-    RaylibRetainedGUI
-    r3d
-)
-
 add_executable(test
     src/World.cpp
     src/Game.cpp
@@ -103,7 +80,61 @@ add_executable(test
     src/Resources.cpp
     src/Rendering.cpp
 )
-target_link_libraries(test PUBLIC
+
+# r3d doesn't currently expose its public headers via target properties,
+# so add its include directory explicitly for the application target.
+if(NOT r3d_SOURCE_DIR)
+    FetchContent_GetProperties(r3d)
+endif()
+
+if(NOT raylib_SOURCE_DIR)
+    FetchContent_GetProperties(raylib)
+endif()
+
+target_include_directories(server
+    PRIVATE
+        src
+        ${r3d_SOURCE_DIR}/include
+        ${raylib_SOURCE_DIR}/include
+)
+
+target_include_directories(client
+    PRIVATE
+        src
+        ${r3d_SOURCE_DIR}/include
+        ${raylib_SOURCE_DIR}/include
+)
+
+target_include_directories(standalone
+    PRIVATE
+        src
+        ${r3d_SOURCE_DIR}/include
+        ${raylib_SOURCE_DIR}/include
+)
+
+target_include_directories(test
+    PRIVATE
+        src
+        ${r3d_SOURCE_DIR}/include
+        ${raylib_SOURCE_DIR}/include
+)
+
+target_link_libraries(client PRIVATE
+    EasyNet
+    fmt::fmt
+    raylib
+    RaylibRetainedGUI
+    r3d
+)
+
+
+target_link_libraries(standalone PRIVATE
+    raylib
+    RaylibRetainedGUI
+    r3d
+)
+
+target_link_libraries(test PRIVATE
     raylib
     RaylibRetainedGUI
     r3d

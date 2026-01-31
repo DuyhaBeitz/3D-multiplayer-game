@@ -59,6 +59,8 @@ void Init() {
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
 
+    Rendering::Init();
+
     game = std::make_unique<GameStandalone>(); 
 
 
