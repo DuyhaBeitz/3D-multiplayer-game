@@ -47,6 +47,7 @@ public:
         }
         if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
             BroadcastMetadata();
+            m_server->Broadcast(CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
         }
 
         m_tick++;
@@ -131,6 +132,8 @@ public:
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
         m_chat.Draw();
+
+        DrawText(("tick: " + std::to_string(m_tick)).c_str(), 100, 128+64, 64, WHITE);
     }
 
     void BroadcastMetadata() {

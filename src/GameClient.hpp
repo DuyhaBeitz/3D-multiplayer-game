@@ -183,6 +183,7 @@ public:
         m_ui_screen->Draw();
         //DrawText(std::to_string(m_tick).c_str(), 100, 100, 64, WHITE);
         DrawText(("roundtrip: " + std::to_string(m_client->GetPeer()->roundTripTime) + "ms").c_str(), 100, 128, 64, WHITE);
+        DrawText(("tick: " + std::to_string(m_tick)).c_str(), 100, 128+64, 64, WHITE);
         m_chat.Draw();      
         DrawFPS(100, 100);
     }
