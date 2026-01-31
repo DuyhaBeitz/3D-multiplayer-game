@@ -85,6 +85,10 @@ public:
 
         for (int i = 0; i < num_aliases; i++) {
             m_anim_players[i] = R3D_LoadAnimationPlayer(m_model.skeleton, m_anim_lib);
+
+            for (int j = 0; j < m_anim_lib.count; j++) {
+                R3D_SetAnimationLoop(&m_anim_players[i], j, true);
+            }
         }
 
         PrintDebug();
@@ -97,7 +101,12 @@ public:
     }
 
     void SetAnim(int anim_id) {
-        R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);
+        for (int j = 0; j < m_anim_lib.count; j++) { // can be improved by storing previous anim
+            R3D_SetAnimationWeight(&m_anim_players[m_current_alias],  j, 0.f);
+        }        
+        R3D_SetAnimationWeight(&m_anim_players[m_current_alias], anim_id, 1.f);
+
+        R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);        
     }
 
     void Draw(Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
