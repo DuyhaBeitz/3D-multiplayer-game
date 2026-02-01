@@ -55,6 +55,7 @@
 #endif
 #include <iostream>
 #include <vector>
+#include "WindowGlobal.hpp"
 
 int main(void)
 {
@@ -121,7 +122,7 @@ int main(void)
 
 
     // Main loop
-    while (!WindowShouldClose())
+    while (WindowGlobal::Get().IsRunning())
     {
         float delta = GetFrameTime();
         //UpdateCamera(&camera, CAMERA_ORBITAL);

@@ -39,7 +39,7 @@ int main() {
 
     float accumulator = 0.0f;
 
-    while (!WindowShouldClose()) {
+    while (WindowGlobal::Get().IsRunning()) {
         net_client->Update();
 
         if (!game_client->IsConnected()) {
@@ -57,7 +57,7 @@ int main() {
                     game_client->DrawGame();
                     EndDrawing();
 
-                    if (IsKeyReleased(KEY_P)) {
+                    if (IsKeyReleased(KEY_ESCAPE)) {
                         current_screen = MENUS;
                         EnableCursor();
                     }
@@ -72,6 +72,7 @@ int main() {
                     EndDrawing();
             }
         }
+        WindowGlobal::Get().Update();
         Settings::Get().Update();
     }
     net_client->RequestDisconnectFromServer();
@@ -90,6 +91,7 @@ void Init() {
     InitWindow(1920/2, 1080, "Client");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
+    SetExitKey(KEY_NULL);
     
     Rendering::Init();
 

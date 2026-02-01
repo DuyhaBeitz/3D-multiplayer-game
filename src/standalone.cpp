@@ -17,7 +17,7 @@ void Init();
 int main() {
     Init();
 
-    while (!WindowShouldClose()) {
+    while (WindowGlobal::Get().IsRunning()) {
 
         switch (current_screen) {
             case PLAYING:
@@ -29,7 +29,7 @@ int main() {
                     game->DrawGame();
                     EndDrawing();
 
-                    if (IsKeyReleased(KEY_P)) {
+                    if (IsKeyReleased(KEY_ESCAPE)) {
                         current_screen = MENUS;
                         EnableCursor();
                     }
@@ -45,7 +45,7 @@ int main() {
                 menus_screen->Draw();
                 EndDrawing();
         }
-        
+        WindowGlobal::Get().Update();
         Settings::Get().Update();
     }
     CloseWindow();
@@ -58,6 +58,7 @@ void Init() {
     InitWindow(1000, 1000, "Standalone");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
+    SetExitKey(KEY_NULL);
 
     Rendering::Init();
 

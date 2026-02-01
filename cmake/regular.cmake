@@ -7,9 +7,8 @@ add_compile_definitions(WITH_RENDER)
 FetchContent_Declare(
     RaylibRetainedGUI
     GIT_REPOSITORY https://github.com/DuyhaBeitz/RaylibRetainedGUI.git
-    GIT_TAG master
+    GIT_TAG 0.0.2
     UPDATE_COMMAND ""
-    GIT_TAG 0.0.1
 )
 FetchContent_MakeAvailable(RaylibRetainedGUI)
 
@@ -20,6 +19,7 @@ add_executable(server
     src/Physics.cpp
     src/Resources.cpp
     src/Rendering.cpp
+    src/WindowGlobal.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet
@@ -37,6 +37,7 @@ add_executable(client
     src/Rendering.cpp
     src/MenusUI.cpp
     src/Settings.cpp
+    src/WindowGlobal.cpp
 )
 add_executable(standalone 
     src/World.cpp
@@ -47,6 +48,7 @@ add_executable(standalone
     src/Rendering.cpp
     src/MenusUI.cpp
     src/Settings.cpp
+    src/WindowGlobal.cpp
 )
 add_executable(test
     src/World.cpp
@@ -55,6 +57,7 @@ add_executable(test
     src/Physics.cpp
     src/Resources.cpp
     src/Rendering.cpp
+    src/WindowGlobal.cpp
 )
 
 # r3d doesn't currently expose its public headers via target properties,

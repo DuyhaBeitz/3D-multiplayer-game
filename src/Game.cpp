@@ -210,24 +210,3 @@ Camera GetCameraFromActor(const ActorData &actor_data) {
     
     return GetCameraFromPos(position, target);
 }
-
-void ToggleWindow() {
-    bool cursor_was_hidden = IsCursorHidden();
-
-    EnableCursor();
-    ToggleBorderlessWindowed();
-    BeginDrawing();
-    EndDrawing();
-    if (cursor_was_hidden) DisableCursor();
-    BeginDrawing();
-    EndDrawing();  
-}
-
-void ToggleCursor() {
-    if (IsCursorHidden()){
-        EnableCursor();
-    }
-    else {
-        DisableCursor();
-    }
-}

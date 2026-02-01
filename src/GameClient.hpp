@@ -4,6 +4,7 @@
 #include "shared.hpp"
 #include "Rendering.hpp"
 #include "Chat.hpp"
+#include "WindowGlobal.hpp"
 
 #include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
 
@@ -101,9 +102,6 @@ public:
     }
 
     void Update(GameInput input) {
-        if (input.ui_input.toggle_window_pressed) {
-            ToggleWindow();
-        }
         if (input.ui_input.toggle_chat_pressed) {
             ToggleChat();
         }
@@ -118,7 +116,7 @@ public:
         }
         if (input.ui_input.toggle_cursor_pressed){
             if (!m_chat_entering) {
-                ToggleCursor();
+                WindowGlobal::Get().ToggleCursor();
             }
         }
         if (input.ui_input.disconnect_pressed) {

@@ -1,9 +1,12 @@
 #include "FixWinConflicts.hpp"
-
 #include "GameServer.hpp"
 #include <thread>
 
 //#define WITH_RENDER 1
+
+#ifdef WITH_RENDER
+#include "WindowGlobal.hpp"
+#endif
 
 std::unique_ptr<GameServer> game_server;
 bool running = true;
@@ -18,7 +21,7 @@ int main(){
     SetTargetFPS(iters_per_sec);
     Rendering::Init();
 
-    while (!WindowShouldClose()) {
+    while (WindowGlobal::Get().IsRunning()) {
         game_server->Update();
         BeginDrawing();
         game_server->DrawGame();

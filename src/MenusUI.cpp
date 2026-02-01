@@ -1,5 +1,6 @@
 #include "MenusUI.hpp"
 #include "Settings.hpp"
+#include "WindowGlobal.hpp"
 
 void MenusScreen::SetupPauseScreen() {
     m_pause_screen = std::make_shared<UIScreen>();
@@ -9,7 +10,7 @@ void MenusScreen::SetupPauseScreen() {
 
     auto title = std::make_shared<UIText>("Pause", rect);    
     auto resume_button = std::make_shared<UIFuncButton>("Resume", rect);
-    auto settings_button = std::make_shared<UIFuncButton>("settings", rect);
+    auto settings_button = std::make_shared<UIFuncButton>("Settings", rect);
 
     resume_button->BindOnReleased(
         [this](){if (m_on_resume) m_on_resume(); }
@@ -19,9 +20,15 @@ void MenusScreen::SetupPauseScreen() {
         [this](){m_current_menu = MENU_SETTINGS;}
     );
     
+    auto close_button = std::make_shared<UIFuncButton>("Close game", rect);
+    close_button->BindOnReleased(
+        [](){ WindowGlobal::Get().SetRunning(false); }
+    );
+
     //m_pause_bar->AddChild(title);
     m_pause_bar->AddChild(resume_button);
     m_pause_bar->AddChild(settings_button);
+    m_pause_bar->AddChild(close_button);
 
     m_pause_screen->AddChild(m_pause_bar);
 }
@@ -96,6 +103,7 @@ void MenusScreen::SetupSettingsScreen() {
     m_settings_bar->AddChild(dof_focus_scale_split);
     m_settings_bar->AddChild(dof_max_blur_split);
     m_settings_bar->AddChild(back_button);
+    
 
     m_settings_screen->AddChild(m_settings_bar);
 }

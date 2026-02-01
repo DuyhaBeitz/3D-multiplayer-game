@@ -2,6 +2,7 @@
 
 #include "Game.hpp"
 #include "Rendering.hpp"
+#include "WindowGlobal.hpp"
 
 // placeholder for net id, for standalone there's one player
 constexpr int player_id = 0;
@@ -24,11 +25,8 @@ public:
     }
 
     void Update(GameInput input) {
-        if (input.ui_input.toggle_window_pressed) {
-            ToggleWindow();
-        }
         if (input.ui_input.toggle_cursor_pressed){
-            ToggleCursor();   
+            WindowGlobal::Get().ToggleCursor();   
         }
 
         if (!input.player_input.IsEmpty()) {
