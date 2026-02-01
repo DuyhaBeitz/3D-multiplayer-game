@@ -175,7 +175,7 @@ public:
         
 
         Rendering::Get().EnableCameraBasic();
-        //Rendering::Get().DrawPrimitives();
+        Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
         m_ui_screen->Draw();

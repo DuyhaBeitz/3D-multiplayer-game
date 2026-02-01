@@ -4,7 +4,7 @@
 #include <raymath.h>
 
 #include "ResourceData.hpp"
-#ifdef WITH_RENDER
+#if WITH_RENDER
 #include "Resources.hpp"
 #endif
 #include <map>
@@ -32,7 +32,7 @@ struct WorldData {
         */        
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw(GameDrawingData &drawing_data) const;
 #endif
 

@@ -34,7 +34,7 @@ private:
 public:
     GameMetadata() = default;
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw() const {
         //m_heightmap.Draw();
         Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());

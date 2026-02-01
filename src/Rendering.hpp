@@ -104,12 +104,13 @@ public:
     void DrawPrimitives() {
         DrawGrid(100, 10);
         m_current_color = 0;
+
         for (auto& [center, half_size] : m_cubes_to_render) {
-            DrawCube(center, half_size.x*2, half_size.y*2, half_size.z*2, m_colors[m_current_color]);
+            DrawCubeWiresV(center, half_size*2.0f, m_colors[m_current_color]);
             m_current_color = (m_current_color+1) % m_colors.size();
         }
         for (auto& [center, radius] : m_spheres_to_render) {
-            DrawSphere(center, radius, m_colors[m_current_color]);
+            DrawSphereWires(center, radius, 20, 20, m_colors[m_current_color]);
             m_current_color = (m_current_color+1) % m_colors.size();
         }
         m_cubes_to_render.clear();

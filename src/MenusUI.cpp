@@ -64,7 +64,7 @@ void MenusScreen::SetupSettingsScreen() {
     );
 
     auto dof_focus_point_text = std::make_shared<UIText>("Dof focus point");
-    auto dof_focus_point_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofFocusPointPtr());
+    auto dof_focus_point_button = std::make_shared<UISlider>(Orientation::Horizontal, Settings::Get().GetDofFocusPointPtr());
     auto dof_focus_point_split = std::make_shared<UISplit>(
         dof_focus_point_text,
         dof_focus_point_button,

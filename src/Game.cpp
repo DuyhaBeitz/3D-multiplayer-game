@@ -2,7 +2,7 @@
 
 #include "GameDrawingData.hpp"
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
 void GameState::Draw(GameDrawingData &drawing_data) const {
     world_data.Draw(drawing_data);
 
@@ -72,7 +72,7 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
 }
 
 void Game::Draw(const GameState &state, GameDrawingData &drawing_data) {
-    #ifdef WITH_RENDER
+    #if WITH_RENDER
     state.Draw(drawing_data);
     drawing_data.game_metadata.Draw();
     #endif
@@ -187,6 +187,15 @@ void Game::InitGame(GameState &state) {
         ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
         state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_FOOTBALL;
     }
+
+    {
+    BodyData body_data;
+    body_data.position = Vector3{0, 20, 40};
+    body_data.inverse_mass = 0;
+
+    ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_TREE;
+    }
 }
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
@@ -202,6 +211,9 @@ Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
 
 Camera GetCameraFromActor(const ActorData &actor_data) {
     Vector3 cam_offset = {0, 10, 0};
+    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+        cam_offset.y = 0;
+    }
     Vector3 position = actor_data.body.position + cam_offset;
     Vector3 target =  position + actor_data.VForward();
 

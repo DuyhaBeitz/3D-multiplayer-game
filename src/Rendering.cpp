@@ -26,13 +26,13 @@ Rendering::Rendering() {
     R3D_Cubemap cubemap = R3D_LoadCubemap("assets/skybox_1.png", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
     R3D_ENVIRONMENT_SET(background.skyBlur, 0.0f);
 
-    R3D_ENVIRONMENT_SET(background.energy, 0.5f);
+    R3D_ENVIRONMENT_SET(background.energy, 0.7f);
     R3D_ENVIRONMENT_SET(background.sky, cubemap);
 
     // Setup environment ambient
     R3D_AmbientMap ambientMap = R3D_GenAmbientMap(cubemap, R3D_AMBIENT_ILLUMINATION);
     R3D_ENVIRONMENT_SET(ambient.map, ambientMap);
-    R3D_ENVIRONMENT_SET(ambient.energy, 0.1f);
+    R3D_ENVIRONMENT_SET(ambient.energy, 0.3f);
 
     // Setup tonemapping
     R3D_ENVIRONMENT_SET(tonemap.mode, R3D_TONEMAP_FILMIC);
@@ -46,13 +46,24 @@ Rendering::Rendering() {
     R3D_SetLightRange(light, 1000.0f);
     R3D_SetShadowSoftness(light, 2.0f);
     R3D_SetShadowDepthBias(light, 0.01f);
-    R3D_EnableShadow(light);
-
-    // R3D_SetSSAO(true);
-    // R3D_SetSSAORadius(4.0f);
-    // R3D_SetBloomMode(R3D_BLOOM_MIX);
-    // R3D_SetTonemapMode(R3D_TONEMAP_ACES);
+    R3D_EnableShadow(light);    
     
+    // FOG
+    R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
+    R3D_ENVIRONMENT_SET(fog.color, GRAY);
+    R3D_ENVIRONMENT_SET(fog.start, 3.0f);
+    R3D_ENVIRONMENT_SET(fog.end, 50.0f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.01f);
+    R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
+
+    // BLOOM
+    // R3D_ENVIRONMENT_SET(bloom.mode, R3D_BLOOM_ADDITIVE);
+    // R3D_ENVIRONMENT_SET(bloom.levels, 0.5f);
+    // R3D_ENVIRONMENT_SET(bloom.intensity, 0.05f);
+    // R3D_ENVIRONMENT_SET(bloom.threshold, 0.0f);
+    // R3D_ENVIRONMENT_SET(bloom.softThreshold, 0.5f);
+    // R3D_ENVIRONMENT_SET(bloom.filterRadius, 1.0f);
+
     { // For some reason need with the newer version of r3d
     BeginDrawing();
     Camera3D cam {};

@@ -200,9 +200,11 @@ private:
         m_models[R_MODEL_PLAYER].SetScale(1.5f);
         AddModelNonAnimated(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb");
         AddModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
-        float s = 9.1f;
-        m_models[R_MODEL_FOOTBALL].SetScale(s);
+        m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
         //m_models[R_MODEL_CUBE_EXCLAMATION].m_offset = Vector3{0, -1, 0}*s/2;
+
+        AddModelNonAnimated(R_MODEL_TREE, "assets/tree.glb");
+        m_models[R_MODEL_TREE].SetScale(0.15);
 
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
 

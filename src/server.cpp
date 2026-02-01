@@ -2,9 +2,9 @@
 #include "GameServer.hpp"
 #include <thread>
 
-//#define WITH_RENDER 1
+#define WITH_RENDER 0
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
 #include "WindowGlobal.hpp"
 #endif
 
@@ -15,7 +15,7 @@ int main(){
     EasyNetInit();
     game_server = std::make_unique<GameServer>();
 
-    #ifdef WITH_RENDER
+    #if WITH_RENDER
     InitWindow(1000, 1000, "Server");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);

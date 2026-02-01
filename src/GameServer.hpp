@@ -129,7 +129,7 @@ public:
         m_server->Broadcast(packet);
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void DrawGame() {
         float r = 200;
         Rendering::Get().SetCamera(

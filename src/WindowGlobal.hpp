@@ -8,6 +8,7 @@ private:
     }
 
     bool m_running = true;
+    bool m_debug_render = false;
 
 public:
     WindowGlobal(const WindowGlobal&) = delete;
@@ -31,4 +32,6 @@ public:
 
     void SetRunning(bool running) { m_running = running; }
     bool IsRunning();
+
+    bool IsDebugRenderEnabled() { return m_debug_render;}
 };

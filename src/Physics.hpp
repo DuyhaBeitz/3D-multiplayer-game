@@ -10,7 +10,7 @@
 
 #include "Serialization.hpp"
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
 #include "Rendering.hpp"
 #endif
 
@@ -36,7 +36,7 @@ struct SphereData {
         ar(radius, center);
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw() const {
         Rendering::Get().RenderPrimitiveSphere(center, radius);
     }
@@ -59,7 +59,7 @@ struct BoxData {
         ar(half_extents, center);
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw() const {
         Rendering::Get().RenderPrimitiveCube(center, half_extents);
     }
@@ -177,7 +177,7 @@ struct BodyData {
         return max_res; 
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void DrawShapes() const {
         for (const CollisionShape& shape : shapes) {
             if (shape.IsSphere()) shape.AsSphere()->Draw();

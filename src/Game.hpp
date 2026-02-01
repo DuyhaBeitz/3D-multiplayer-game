@@ -120,7 +120,7 @@ struct GameState {
     std::map<uint32_t, PlayerData> players{};
     WorldData world_data{};
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw(GameDrawingData &drawing_data) const;
 #endif
 

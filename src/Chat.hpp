@@ -7,7 +7,7 @@
 #include "Constants.hpp"
 
 #include "ResourceData.hpp"
-#ifdef WITH_RENDER
+#if WITH_RENDER
 #include "Resources.hpp"
 #endif
 
@@ -55,7 +55,7 @@ public:
         }
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     Vector2 Measure(const char* text) {
         return MeasureTextEx(
             Resources::Get().FontFromKey(R_FONT_DEFAULT),

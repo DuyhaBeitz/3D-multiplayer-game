@@ -4,6 +4,7 @@
 #include <iostream>
 #include "GameDrawingData.hpp"
 #include "ActorRender.hpp"
+#include "WindowGlobal.hpp"
 
 struct ActorData {
     BodyData body{};
@@ -31,12 +32,15 @@ struct ActorData {
         body.Update(delta_time);
     }
 
-#ifdef WITH_RENDER
+#if WITH_RENDER
     void Draw(GameDrawingData& drawing_data) const {
         Vector2 hor_vel = {body.velocity.x, body.velocity.z};
         bool running = Vector2Length(hor_vel) > 20;
         render_data.Draw(running, body, yaw, pitch);        
-        if (render_data.model_key == R_MODEL_DEFAULT) body.DrawShapes();
+        if (
+            render_data.model_key == R_MODEL_DEFAULT
+            || WindowGlobal::Get().IsDebugRenderEnabled()
+        ) body.DrawShapes();
     }
 #endif
 
