@@ -20,48 +20,75 @@ constexpr float hor_speed = 160;
 constexpr float jump_impulse = 120;
 /*****************************************/
 
-struct SphereData {
-    float radius = 1.0f;
-    Vector3 center{};
+class SphereData {
+private:
+    float m_radius = 1.0f;
+    Vector3 m_center{};
+    Vector3 m_offset{}; // relative to parent body
+public:
+    SphereData() = default;
+    SphereData(float radius, Vector3 offset = Vector3{0.0f, 0.0f, 0.0f}) :
+    m_radius(radius), m_offset(offset) {}
 
     Vector3 Min() const {
-        return center - Vector3{radius, radius, radius};
+        return GetCenter() - Vector3{m_radius, m_radius, m_radius};
     }
     Vector3 Max() const {
-        return center + Vector3{radius, radius, radius};
+        return GetCenter() + Vector3{m_radius, m_radius, m_radius};
     }
 
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(radius, center);
+        ar(m_radius, m_offset);
     }
+
+    void SetRadius(float radius) {m_radius = radius;}
+
+    float GetRadius() const {return m_radius;}
+    Vector3 GetCenter() const {return m_center;}
+
+    void UpdateCenter(Vector3 parent_pos) { m_center = parent_pos + m_offset; }
 
 #if WITH_RENDER
     void Draw() const {
-        Rendering::Get().RenderPrimitiveSphere(center, radius);
+        Rendering::Get().RenderPrimitiveSphere(GetCenter(), m_radius);
     }
 #endif
 
 };
 
-struct BoxData {
-    Vector3 half_extents{};
-    Vector3 center{};
+class BoxData {
+private:
+    Vector3 m_half_extents{};
+    Vector3 m_center{};
+    Vector3 m_offset{}; // relative to parent body
+public:
+    BoxData() = default;
+    BoxData(Vector3 half_extents, Vector3 offset = Vector3{0.0f, 0.0f, 0.0f}) :
+    m_half_extents(half_extents), m_offset(offset) {}
+
     Vector3 Min() const {
-        return center - half_extents;
+        return GetCenter() - m_half_extents;
     }
     Vector3 Max() const {
-        return center + half_extents;
+        return GetCenter() + m_half_extents;
     }
+
+    void SetHalfExtends(Vector3 half_extents) {m_half_extents = half_extents;}
+
+    Vector3 GetHalfExtends() const {return m_half_extents;}
+    Vector3 GetCenter() const {return m_center;}
 
     template <class Archive>
     void serialize(Archive& ar) {
-        ar(half_extents, center);
+        ar(m_half_extents, m_offset);
     }
+
+    void UpdateCenter(Vector3 parent_pos) { m_center = parent_pos + m_offset; }
 
 #if WITH_RENDER
     void Draw() const {
-        Rendering::Get().RenderPrimitiveCube(center, half_extents);
+        Rendering::Get().RenderPrimitiveCube(GetCenter(), GetHalfExtends());
     }
 #endif
 };
@@ -136,8 +163,8 @@ struct BodyData {
 
     void UpdateShapePositions() {
         for (CollisionShape& shape : shapes) {
-            if (shape.IsSphere()) shape.AsSphere()->center = position;
-            else if (shape.IsBox()) shape.AsBox()->center = position;
+            if (shape.IsSphere()) shape.AsSphere()->UpdateCenter(position);
+            else if (shape.IsBox()) shape.AsBox()->UpdateCenter(position);
         }
     }
 
@@ -189,6 +216,7 @@ struct BodyData {
     template <class Archive>
     void serialize(Archive& ar) {
         ar(position, velocity, acceleration, on_ground, inverse_mass, restitution, shapes);
+        UpdateShapePositions();
     }
 
     Vector3 Max() const {

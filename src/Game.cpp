@@ -31,8 +31,20 @@ void Game::InitNewPlayer(GameState &state, uint32_t id) {
     int player_count = state.players.size();
 
     BodyData body_data;
-    CollisionShape sphere(SphereData{13});
+    float r = 13.0f / 2;
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
     body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+
     ActorData actor_data(body_data, R_MODEL_PLAYER);
     
     actor_data.render_data.offset = {0, -12, 0};
@@ -165,7 +177,7 @@ void Game::InitGame(GameState &state) {
     {
     BoxData box_data;
     float a = 10;
-    box_data.half_extents = Vector3{a, a, a};
+    box_data.SetHalfExtends(Vector3{a, a, a});
 
     BodyData body_data;
     body_data.position = Vector3{0, 20, 40};
@@ -177,7 +189,7 @@ void Game::InitGame(GameState &state) {
 
     for (int i = 1; i < 10; i++) {
         SphereData sphere_data;
-        sphere_data.radius = 10;
+        sphere_data.SetRadius(10.0f);
 
         BodyData body_data;
         body_data.restitution = 2;

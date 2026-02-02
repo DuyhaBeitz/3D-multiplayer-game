@@ -2,9 +2,9 @@
 #include <assert.h>
 
 CollisionResult CollideSphereSphere(const SphereData &a, const SphereData &b) {
-    Vector3 diff = Vector3Subtract(a.center, b.center);
+    Vector3 diff = Vector3Subtract(a.GetCenter(), b.GetCenter());
     float dist = Vector3Length(diff);
-    float rsum = a.radius + b.radius;
+    float rsum = a.GetRadius() + b.GetRadius();
 
     CollisionResult res;
     res.penetration = rsum - dist;
@@ -15,16 +15,16 @@ CollisionResult CollideSphereSphere(const SphereData &a, const SphereData &b) {
 
 CollisionResult CollideSphereBox(const SphereData &s, const BoxData &b) {
     Vector3 closest = {
-        Clamp(s.center.x, b.Min().x, b.Max().x),
-        Clamp(s.center.y, b.Min().y, b.Max().y),
-        Clamp(s.center.z, b.Min().z, b.Max().z)
+        Clamp(s.GetCenter().x, b.Min().x, b.Max().x),
+        Clamp(s.GetCenter().y, b.Min().y, b.Max().y),
+        Clamp(s.GetCenter().z, b.Min().z, b.Max().z)
     };
     
-    Vector3 diff = Vector3Subtract(s.center, closest);
+    Vector3 diff = Vector3Subtract(s.GetCenter(), closest);
     float dist = Vector3Length(diff);
 
     CollisionResult res;
-    res.penetration = s.radius - dist;
+    res.penetration = s.GetRadius() - dist;
     res.normal = Vector3Normalize(diff);
 
     return res;
