@@ -222,7 +222,7 @@ Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
 }
 
 Camera GetCameraFromActor(const ActorData &actor_data) {
-    Vector3 cam_offset = {0, 10, 0};
+    Vector3 cam_offset = {0, 13, 0};
     if (IsKeyDown(KEY_LEFT_CONTROL)) {
         cam_offset.y = 0;
     }

@@ -154,19 +154,19 @@ public:
     }
 };
 
-inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal) {
+inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f) {
     R3D_Material mat = R3D_Material();
     mat.albedo.texture = albedo;
     mat.albedo.color = WHITE;
 
     mat.normal.texture = normal;
-    mat.normal.scale = 1;
+    mat.normal.scale = normal_scale;
     
     mat.orm.metalness = 0;
     mat.orm.roughness = 0.7;
     mat.orm.occlusion = 0;
 
-    mat.uvScale = {10, 10};
+    mat.uvScale = Vector2{uv_scale, uv_scale};
 
     return mat;
 }
@@ -210,8 +210,10 @@ private:
 
         m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
             CreateMaterial(
-                LoadTexture("assets/grass/GroundSand005_COL_1K.jpg"),
-                LoadTexture("assets/grass/GroundSand005_NRM_1K.jpg")
+                LoadTexture("assets/sand/GroundSand005_COL_1K.jpg"),
+                LoadTexture("assets/sand/GroundSand005_NRM_1K.jpg"),
+                1.0f,
+                10.0f
             )
         );
         

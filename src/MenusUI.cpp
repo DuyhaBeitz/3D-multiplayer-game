@@ -33,6 +33,33 @@ void MenusScreen::SetupPauseScreen() {
     m_pause_screen->AddChild(m_pause_bar);
 }
 
+#define ADD_SETTING(name, ptr, UI_CLASS) \
+    auto name##_text = std::make_shared<UIText>(#name); \
+    auto name##_button = std::make_shared<UI_CLASS>(ptr); \
+    auto name##_split = std::make_shared<UISplit>( \
+        name##_text, \
+        name##_button, \
+        0.5f, \
+        rect \
+    ); \
+    m_settings_bar->AddChild(name##_split); \
+
+#define ADD_SETTING_WTIH_PRE_PARAMS(name, ptr, UI_CLASS, ParamsPre) \
+    auto name##_text = std::make_shared<UIText>(#name); \
+    auto name##_button = std::make_shared<UI_CLASS>(ParamsPre, ptr); \
+    auto name##_split = std::make_shared<UISplit>( \
+        name##_text, \
+        name##_button, \
+        0.5f, \
+        rect \
+    ); \
+    m_settings_bar->AddChild(name##_split); \
+
+#define ADD_SETTING_BOOL(name, bool_ptr) ADD_SETTING(name, bool_ptr, UIBoolButton)
+#define ADD_SETTING_SLIDER(name, float_ptr) ADD_SETTING_WTIH_PRE_PARAMS(name, float_ptr, UISlider, Orientation::Horizontal)
+#define ADD_SETTING_FLOAT(name, float_ptr) ADD_SETTING(name, float_ptr, UIFloatButton)
+
+
 void MenusScreen::SetupSettingsScreen() {
     m_settings_screen = std::make_shared<UIScreen>();
     m_settings_bar = std::make_shared<UIScrollable>(Rectangle{0.6, 0.0, 0.4, 1.0});    
@@ -42,66 +69,17 @@ void MenusScreen::SetupSettingsScreen() {
 
     auto title = std::make_shared<UIText>("Settings", rect);    
     
-    auto resolution_scale_text = std::make_shared<UIText>("Resolution scale");
-    auto resolution_scale_slider = std::make_shared<UISlider>(
-        Orientation::Horizontal,
-        Settings::Get().GetResolutionScalePtr()
-    );
-    auto resolution_scale_split = std::make_shared<UISplit>(
-        resolution_scale_text,
-        resolution_scale_slider,
-        0.5f,
-        rect
-    );
-
-    auto dof_enabled_text = std::make_shared<UIText>("Dof enabled");
-    auto dof_enabled_button = std::make_shared<UIBoolButton>(Settings::Get().GetDofEnabledPtr());
-    auto dof_enabled_split = std::make_shared<UISplit>(
-        dof_enabled_text,
-        dof_enabled_button,
-        0.5f,
-        rect
-    );
-
-    auto dof_focus_point_text = std::make_shared<UIText>("Dof focus point");
-    auto dof_focus_point_button = std::make_shared<UISlider>(Orientation::Horizontal, Settings::Get().GetDofFocusPointPtr());
-    auto dof_focus_point_split = std::make_shared<UISplit>(
-        dof_focus_point_text,
-        dof_focus_point_button,
-        0.5f,
-        rect
-    );
-
-    auto dof_focus_scale_text = std::make_shared<UIText>("Dof focus scale");
-    auto dof_focus_scale_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofFocusScalePtr());
-    auto dof_focus_scale_split = std::make_shared<UISplit>(
-        dof_focus_scale_text,
-        dof_focus_scale_button,
-        0.5f,
-        rect
-    );
-
-    auto dof_max_blur_text = std::make_shared<UIText>("Dof max blur");
-    auto dof_max_blur_button = std::make_shared<UIFloatButton>(Settings::Get().GetDofMaxBlurPtr());
-    auto dof_max_blur_split = std::make_shared<UISplit>(
-        dof_max_blur_text,
-        dof_max_blur_button,
-        0.5f,
-        rect
-    );
+    ADD_SETTING_SLIDER(Resolution_scale, Settings::Get().GetResolutionScalePtr())
+    ADD_SETTING_BOOL(Dof_enabled, Settings::Get().GetDofEnabledPtr())
+    ADD_SETTING_SLIDER(Dof_focus_point, Settings::Get().GetDofFocusPointPtr())
+    ADD_SETTING_FLOAT(Dof_focus_scale, Settings::Get().GetDofFocusScalePtr())
+    ADD_SETTING_FLOAT(Dof_max_blur, Settings::Get().GetDofMaxBlurPtr())
 
     auto back_button = std::make_shared<UIFuncButton>("Back", rect);
-
     back_button->BindOnReleased(
         [this](){m_current_menu = MENU_PAUSE;}
     );
     
-    //m_settings_bar->AddChild(title);
-    m_settings_bar->AddChild(resolution_scale_split);
-    m_settings_bar->AddChild(dof_enabled_split);
-    m_settings_bar->AddChild(dof_focus_point_split);
-    m_settings_bar->AddChild(dof_focus_scale_split);
-    m_settings_bar->AddChild(dof_max_blur_split);
     m_settings_bar->AddChild(back_button);
     
 
