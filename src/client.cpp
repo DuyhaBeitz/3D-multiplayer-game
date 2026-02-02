@@ -158,7 +158,7 @@ void UpdateGame(float& accumulator) {
     game_client->Update(input);
     input.ClearNonContinuous();
 
-    for (int j = 1; i < i; j++) {
+    for (int j = 1; j < i; j++) {
         game_client->Update(input);
     }
 }
