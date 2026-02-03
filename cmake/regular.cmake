@@ -104,6 +104,7 @@ target_link_libraries(client PRIVATE
     raylib
     RaylibRetainedGUI
     r3d
+    configparser
 )
 
 

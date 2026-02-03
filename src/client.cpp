@@ -6,6 +6,8 @@
 #include "MenusUI.hpp"
 #include "GameClient.hpp"
 
+#include "configparser/configparser.hpp"
+
 std::shared_ptr<UIScreen> connect_screen = nullptr;
 std::shared_ptr<UIBar> connect_bar = nullptr;
 std::shared_ptr<UIFuncButton> connect_button = nullptr;
@@ -17,12 +19,7 @@ std::shared_ptr<EasyNetClient> net_client = nullptr;
 
 std::string server_ip = "127.0.0.1"; // buffer for ui ip input
 
-constexpr int server_count = 3;
-const char* servers[server_count] = {
-    "127.0.0.1",
-    "45.159.79.84",
-    "185.245.34.7"
-};
+std::vector<std::string> servers{};
 
 void Init();
 void UpdateGame(float& accumulator);
@@ -98,13 +95,19 @@ void Init() {
     game_client = std::make_unique<GameClient>();
     net_client = game_client->GetNetClient();
 
+    /********** Load config **********/
+    // if the file doesn't exist, the vector just will be empty
+    std::string config_path = "client_config.ini";
+    ConfigParser parser = ConfigParser(config_path);
+    servers = parser.aConfigVec<std::string>("Client", "server_ips");
+
     /********** UI **********/
 
     UIElement::SetDefaultStyle(std::make_shared<UIStyle>(Resources::Get().FontFromKey(R_FONT_DEFAULT)));
 
     connect_screen = std::make_shared<UIScreen>();
     connect_bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
-    int elems = 6;
+    int elems = 3 + servers.size();
     Rectangle rect = SizeRect(1, 1.0f/elems);
 
     auto ip_text = std::make_shared<UIText>("IP  ");    
@@ -122,7 +125,7 @@ void Init() {
     connect_bar->AddChild(connect_button);
     
     // Will be removed
-    for (int i = 0; i < server_count; i++) {
+    for (int i = 0; i < servers.size(); i++) {
         auto button = std::make_shared<UIFuncButton>(TextFormat("Server%d", i), rect);
         
         button->BindOnReleased([i](){
