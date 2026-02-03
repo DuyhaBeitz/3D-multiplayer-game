@@ -26,7 +26,6 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(ambient.energy, 0.3f);
 
     // Setup tonemapping
-    R3D_ENVIRONMENT_SET(tonemap.mode, R3D_TONEMAP_FILMIC);
     R3D_ENVIRONMENT_SET(tonemap.exposure, 1.0f);
 
     //Create directional light with shadows
@@ -44,7 +43,7 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(fog.color, BEIGE);
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.0005f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.0008f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     // BLOOM

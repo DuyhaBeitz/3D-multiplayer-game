@@ -13,6 +13,8 @@ private:
     float m_dof_focus_point = 2.0f;
     float m_dof_focus_scale = 3.0;
     float m_dof_max_blur = 20.0;
+
+    int m_tonemap_mode = 3;
     
 public:
     Settings(const Settings&) = delete;
@@ -35,4 +37,6 @@ public:
     float* GetDofFocusPointPtr() { return &m_dof_focus_point; }
     float* GetDofFocusScalePtr() { return &m_dof_focus_scale; }
     float* GetDofMaxBlurPtr() { return &m_dof_max_blur; }
+
+    int* GetTonemapModePtr() { return &m_tonemap_mode; }
 };

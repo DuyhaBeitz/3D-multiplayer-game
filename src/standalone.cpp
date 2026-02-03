@@ -13,9 +13,12 @@ enum GameScreens {
 GameScreens current_screen = PLAYING;
 
 void Init();
+void UpdateGame(float& accumulator, GameInput input);
 
 int main() {
     Init();
+
+    float accumulator = 0.0f;
 
     while (WindowGlobal::Get().IsRunning()) {
 
@@ -24,7 +27,7 @@ int main() {
                 {
                     GameInput input;
                     input.Detect();
-                    game->Update(input);    
+                    UpdateGame(accumulator, input);
                     BeginDrawing();
                     game->DrawGame();
                     EndDrawing();
@@ -37,7 +40,7 @@ int main() {
 
                 break;
             case MENUS:
-                game->Update({}); // empty input
+                UpdateGame(accumulator, {}); // empty input
                 
                 menus_screen->Update();
                 BeginDrawing();
@@ -69,4 +72,22 @@ void Init() {
 
     menus_screen = std::make_unique<MenusScreen>();
     menus_screen->BindOnResume([](){ current_screen = PLAYING; DisableCursor(); });
+}
+
+void UpdateGame(float& accumulator, GameInput input) {
+    accumulator += GetFrameTime();
+
+    int i = 0;
+    while (accumulator >= dt) {
+        accumulator -= dt;
+        i++;
+    }
+    input.Divide(i);
+
+    game->Update(input);
+    input.ClearNonContinuous();
+
+    for (int j = 1; j < i; j++) {
+        game->Update(input);
+    }
 }

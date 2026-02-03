@@ -20,4 +20,6 @@ void Settings::Update() {
     else {
         R3D_ENVIRONMENT_SET(dof.mode, R3D_DOF_DISABLED);
     }
+
+    R3D_ENVIRONMENT_SET(tonemap.mode, R3D_Tonemap(m_tonemap_mode));
 }

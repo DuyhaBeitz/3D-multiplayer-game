@@ -7,7 +7,7 @@ add_compile_definitions(WITH_RENDER)
 FetchContent_Declare(
     RaylibRetainedGUI
     GIT_REPOSITORY https://github.com/DuyhaBeitz/RaylibRetainedGUI.git
-    GIT_TAG 0.0.2
+    GIT_TAG 0.0.4
     UPDATE_COMMAND ""
 )
 FetchContent_MakeAvailable(RaylibRetainedGUI)

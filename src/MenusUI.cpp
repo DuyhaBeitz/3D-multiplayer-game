@@ -59,6 +59,11 @@ void MenusScreen::SetupPauseScreen() {
 #define ADD_SETTING_SLIDER(name, float_ptr) ADD_SETTING_WTIH_PRE_PARAMS(name, float_ptr, UISlider, Orientation::Horizontal)
 #define ADD_SETTING_FLOAT(name, float_ptr) ADD_SETTING(name, float_ptr, UIFloatButton)
 
+#define ADD_SETTING_ENUM(name, int_ptr, names_vector) ADD_SETTING(name, int_ptr, UIEnum) \
+    for (int k = 0; k < names_vector.size(); k++) { \
+        name##_button->AddItem(names_vector[k]);    \
+    }\
+
 
 void MenusScreen::SetupSettingsScreen() {
     m_settings_screen = std::make_shared<UIScreen>();
@@ -74,6 +79,15 @@ void MenusScreen::SetupSettingsScreen() {
     ADD_SETTING_SLIDER(Dof_focus_point, Settings::Get().GetDofFocusPointPtr())
     ADD_SETTING_FLOAT(Dof_focus_scale, Settings::Get().GetDofFocusScalePtr())
     ADD_SETTING_FLOAT(Dof_max_blur, Settings::Get().GetDofMaxBlurPtr())
+
+    std::vector<std::string> tonemap_modes = {
+        "LINEAR",
+        "REINHARD",   
+        "FILMIC",
+        "ACES",
+        "AGX",
+    };
+    ADD_SETTING_ENUM(Tonemap_mode, Settings::Get().GetTonemapModePtr(), tonemap_modes)
 
     auto back_button = std::make_shared<UIFuncButton>("Back", rect);
     back_button->BindOnReleased(
