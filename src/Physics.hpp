@@ -172,7 +172,7 @@ struct BodyData {
         acceleration += force * inverse_mass;
     }
 
-    void ApplyImulse(Vector3 impulse){
+    void ApplyImpulse(Vector3 impulse){
         velocity += impulse * inverse_mass;
         if (Vector3Length(impulse) > 0.01 && Vector3DotProduct(impulse, {0, 1, 0})/Vector3Length(impulse) > 0.5) {
             on_ground = true;

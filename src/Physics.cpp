@@ -55,6 +55,28 @@ CollisionResult CollideBoxBox(const BoxData &a, const BoxData &b) {
     return res;
 }
 
+Vector3 GetFrictionImpulse(Vector3 coll_impulse, Vector3 normal, Vector3 relative_velocity, float m1, float m2, float friction_coefficient) {
+
+    if (friction_coefficient < 0.001f) return Vector3{0.0f, 0.0f, 0.0f};
+    
+    Vector3 tangent = relative_velocity - normal * Vector3DotProduct(normal, relative_velocity);
+    float tangent_length = Vector3Length(tangent);
+
+    if (tangent_length < 0.001f) return Vector3{0.0f, 0.0f, 0.0f};
+    tangent = tangent / tangent_length;
+
+    float tangent_velocity = Vector3DotProduct(relative_velocity, tangent);
+    
+    // Friction impulse magnitude (Coulomb's law)
+    // Clamped to not exceed maximum static friction
+    float j_tangent_max = friction_coefficient * fabs(Vector3Length(coll_impulse));
+    float j_tangent = -tangent_velocity / (m1 + m2);
+    j_tangent = Clamp(j_tangent, -j_tangent_max, j_tangent_max);
+    
+    Vector3 impulse_friction = tangent * j_tangent;
+    return impulse_friction;
+}
+
 void SolveCollision(BodyData &bA, BodyData &bB, const CollisionResult &collision_result) {
     const Vector3& normal = collision_result.normal;
 
@@ -75,8 +97,13 @@ void SolveCollision(BodyData &bA, BodyData &bB, const CollisionResult &collision
     
     Vector3 impulse = normal*j;
     
-    bA.ApplyImulse(impulse);
-    bB.ApplyImulse(impulse * -1);   
+    bA.ApplyImpulse(impulse);
+    bB.ApplyImpulse(impulse * -1);   
+
+    float friction_coefficient = 0.1f;
+    Vector3 impulse_friction = GetFrictionImpulse(impulse, normal, relative_velocity, m1, m2, friction_coefficient);
+    bA.ApplyImpulse(impulse_friction);
+    bB.ApplyImpulse(impulse_friction * -1.f);
 }
 
 
@@ -225,7 +252,11 @@ void HeightmapData::SolveCollisionWith(BodyData &other) const{
             
             Vector3 impulse = normal*j;
         
-            other.ApplyImulse(impulse);  
+            other.ApplyImpulse(impulse);  
+
+            float friction_coefficient = 0.15f;
+            Vector3 impulse_friction = GetFrictionImpulse(impulse, normal, relative_velocity, 0, m2, friction_coefficient);
+            other.ApplyImpulse(impulse_friction);
         }
     }
 }
