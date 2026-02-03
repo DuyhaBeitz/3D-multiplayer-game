@@ -307,7 +307,7 @@ private:
         m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
         //m_models[R_MODEL_CUBE_EXCLAMATION].m_offset = Vector3{0, -1, 0}*s/2;
 
-        AddInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 500);
+        AddInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 250);
         AddInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
 
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);

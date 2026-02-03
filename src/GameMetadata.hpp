@@ -115,7 +115,7 @@ public:
         auto data = Resources::Get().ModelFromKey(R_MODEL_TREE).GetInstancesData();
         std::vector<Vector3> positions{};
         std::vector<Vector3> scales{};
-        float density = 0.0005f;
+        float density = 0.00015f;
         for (int i = 0; i < data->GetCount(); i++) {
             float x = float(int(i / density) % grid_cells) / grid_cells * scale.x + corner.x;
             float z = float(int(i / density) / grid_cells) / grid_cells * scale.z + corner.z;

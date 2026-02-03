@@ -41,10 +41,10 @@ Rendering::Rendering() {
     
     // FOG
     R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
-    R3D_ENVIRONMENT_SET(fog.color, GRAY);
+    R3D_ENVIRONMENT_SET(fog.color, BEIGE);
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.001f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.0005f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     // BLOOM

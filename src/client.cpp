@@ -56,7 +56,7 @@ int main() {
                     BeginDrawing();
                     game_client->DrawGame();
                     EndDrawing();
-
+                    
                     if (IsKeyReleased(KEY_ESCAPE)) {
                         current_screen = MENUS;
                         EnableCursor();
@@ -126,7 +126,7 @@ void Init() {
         auto button = std::make_shared<UIFuncButton>(TextFormat("Server%d", i), rect);
         
         button->BindOnReleased([i](){
-                net_client->RequestConnectToServer(servers[i], 7777);
+                net_client->ConnectToServer(servers[i], 7777);
             }
         );
         connect_bar->AddChild(button);
@@ -135,7 +135,7 @@ void Init() {
     connect_screen->AddChild(connect_bar);
 
     connect_button->BindOnReleased([](){
-            net_client->RequestConnectToServer(server_ip, server_port);
+            net_client->ConnectToServer(server_ip, server_port);
         }
     );
 
