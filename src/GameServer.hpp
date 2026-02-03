@@ -142,7 +142,7 @@ public:
         };
         Rendering::Get().BeginRendering();
             ClearBackground(DARKGRAY);
-            Draw(m_game_state, drawing_data);        
+            Draw(m_game_state, drawing_data);
         Rendering::Get().EndRendering();
 
         Rendering::Get().EnableCameraBasic();

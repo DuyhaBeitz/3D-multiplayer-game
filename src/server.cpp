@@ -2,8 +2,6 @@
 #include "GameServer.hpp"
 #include <thread>
 
-#define WITH_RENDER 0
-
 #if WITH_RENDER
 #include "WindowGlobal.hpp"
 #endif
@@ -13,13 +11,13 @@ bool running = true;
 
 int main(){
     EasyNetInit();
-    game_server = std::make_unique<GameServer>();
 
     #if WITH_RENDER
     InitWindow(1000, 1000, "Server");
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
     Rendering::Init();
+    game_server = std::make_unique<GameServer>();
 
     while (WindowGlobal::Get().IsRunning()) {
         game_server->Update();
@@ -30,6 +28,7 @@ int main(){
     R3D_Close();
     CloseWindow();
     #else
+    game_server = std::make_unique<GameServer>();
     auto next_tick = std::chrono::steady_clock::now();
     while (running) {
         auto now = std::chrono::steady_clock::now();

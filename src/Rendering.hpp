@@ -74,6 +74,7 @@ public:
 
 
     void RenderModel(ModelKey model_key, Vector3 position, Vector3 rotationAxis = {0, 1, 0}, float rotationAngle = 0, Vector3 scale = {1, 1, 1});
+    void RenderInstancedModel(ModelKey model_key);
 
     void SetCamera(const Camera3D& camera) { m_camera = camera; }
     const Camera3D& GetCamera() { return m_camera; }

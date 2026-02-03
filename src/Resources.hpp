@@ -22,6 +22,87 @@ So in order to load images, without initializing resources,
 we store path to images, not images themselves
 */
 
+class InstancesData {
+private:
+    R3D_InstanceBuffer m_instances{};
+    int m_instance_count = 0;
+
+    Vector3* m_positions = nullptr;
+    Quaternion* m_rotations = nullptr;
+    Vector3* m_scales = nullptr;
+    Color* m_colors = nullptr;
+
+public:
+    InstancesData() = default;
+    InstancesData(int instance_count) : m_instance_count(instance_count) {
+        m_instances = R3D_LoadInstanceBuffer(m_instance_count, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+        m_positions = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION));
+        m_rotations = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION));
+        m_scales = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE));
+        m_colors = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR));
+
+        for (int i = 0; i < instance_count; i++)
+        {
+            m_positions[i] = (Vector3) {
+                (float)GetRandomValue(-50000, 50000) / 100,
+                (float)GetRandomValue(-50000, 50000) / 100,
+                (float)GetRandomValue(-50000, 50000) / 100
+            };
+            m_rotations[i] = QuaternionFromEuler(
+                0.0f, //(float)GetRandomValue(-314000, 314000) / 1000,
+                (float)GetRandomValue(-314000, 314000) / 1000,
+                0.0f //(float)GetRandomValue(-314000, 314000) / 1000
+            );
+            m_scales[i] = (Vector3) {1.f, 1.f, 1.f};
+            m_colors[i] = WHITE;
+        }
+
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+    }
+  
+    R3D_InstanceBuffer GetBuffer() { return m_instances; }
+    int GetCount() { return m_instance_count; }
+    Vector3* GetPositions() { return m_positions; }
+    Quaternion* GetRotations() { return m_rotations; }
+    Vector3* GetScales() { return m_scales; }
+    Color* GetColors() { return m_colors; }
+
+    void SetPositions(std::vector<Vector3> positions) {
+        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION));
+        if (positions.size() != m_instance_count) throw std::logic_error("SetPositions for instanced model received wrong number of positions");
+        for (int i = 0; i < m_instance_count; i++) {
+            mapped[i] = positions[i];
+        }
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+    }
+
+    void SetRotations(std::vector<Quaternion> rotations) {
+        Quaternion* mapped = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION));
+        if (rotations.size() != m_instance_count) throw std::logic_error("SetRotations for instanced model received wrong number of rotations");
+        for (int i = 0; i < m_instance_count; i++) {
+            mapped[i] = rotations[i];
+        }
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+    }
+
+    void SetScales(std::vector<Vector3> scales) {
+        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE));
+        if (scales.size() != m_instance_count) throw std::logic_error("SetScales for instanced model received wrong number of scales");
+        for (int i = 0; i < m_instance_count; i++) {
+            mapped[i] = scales[i];
+        }
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+    }
+
+    void SetColors(std::vector<Color> colors) {
+        Color* mapped = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR));
+        if (colors.size() != m_instance_count) throw std::logic_error("SetColors for instanced model received wrong number of colors");
+        for (int i = 0; i < m_instance_count; i++) {
+            mapped[i] = colors[i];
+        }
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+    }
+};
 
 class ModelAliased {
 private:
@@ -35,6 +116,8 @@ private:
     int m_current_alias = 0;
     bool m_animated = false;
 
+    InstancesData m_instances_data{};
+
 public:
     ModelAliased() = default;
 
@@ -43,27 +126,42 @@ public:
         m_model = R3D_LoadModelFromMesh(mesh);
     }
 
+    void LoadInstanced(std::string filename, int instance_count) {
+        m_animated = false;
+        m_instances_data = InstancesData(instance_count);
+
+        std::cout << "Loading model instanced: " << filename << std::endl;
+        if (instance_count < 0) {
+            std::cerr << "Loading model with instances, but instance_count is < 0" << std::endl;
+            throw std::logic_error("Loading < 0 instanes");
+            return;
+        }
+        std::cout << "With " << instance_count << " instances" << std::endl;
+
+        m_model = R3D_LoadModel(filename.c_str());
+    }
+
     void LoadNonAnimated(std::string filename) {
+        m_animated = false;
         std::cout << "Loading model non-animated: " << filename << std::endl;
         m_model = R3D_LoadModel(filename.c_str());
-        m_animated = false;
+        std::cout << "Successfully loaded model" << std::endl;
     }
 
     void LoadAnimated(std::string filename, int num_aliases) {
         m_animated  = true;
 
         std::cout << "Loading model animated: " << filename << std::endl;
-        std::cout << "With " << num_aliases << " aliases" << std::endl;
         if (num_aliases < 0) {
             std::cerr << "Loading AnimatedModelAlias, but num_aliases is < 0" << std::endl;
             throw std::logic_error("Attemting to load non animated model as animated?");
             return;
         }
+        std::cout << "With " << num_aliases << " aliases" << std::endl;
         m_anim_players.resize(num_aliases);
 
         const char* s = filename.c_str();
         {
-        // Load model, anims into temp pointer, write temp pointer into model
         m_model = R3D_LoadModel(s);
         m_anim_lib = R3D_LoadAnimationLib(s);
         if (m_anim_lib.count == 0 || !m_anim_lib.animations) {
@@ -102,6 +200,10 @@ public:
         R3D_SetAnimationWeight(&m_anim_players[m_current_alias], anim_id, 1.f);
 
         R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);
+    }
+
+    void DrawInstanced() {
+        R3D_DrawModelInstanced(m_model, m_instances_data.GetBuffer(), m_instances_data.GetCount());
     }
 
     void Draw(Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
@@ -152,6 +254,8 @@ public:
     void SetCurrentAlias(int current_alias) {
         m_current_alias = current_alias;
     }
+
+    InstancesData* GetInstancesData() { return &m_instances_data; }
 };
 
 inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f) {
@@ -203,8 +307,8 @@ private:
         m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
         //m_models[R_MODEL_CUBE_EXCLAMATION].m_offset = Vector3{0, -1, 0}*s/2;
 
-        AddModelNonAnimated(R_MODEL_TREE, "assets/tree.glb");
-        m_models[R_MODEL_TREE].SetScale(0.15);
+        AddInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 500);
+        AddInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
 
         AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
 
@@ -231,6 +335,10 @@ private:
     std::unordered_map<ModelKey, ModelAliased> m_models;
     std::unordered_map<FontKey, Font> m_fonts;
 
+    void AddInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
+        m_models[model_key].LoadInstanced(filename, num_instances);
+    }
+
     void AddModelNonAnimated(ModelKey model_key, std::string filename) {
         m_models[model_key].LoadNonAnimated(filename);
     }
@@ -244,8 +352,6 @@ private:
         R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale);
 
         m_models[model_key].FromMeshNonAnimated(mesh);
-        //m_models[model_key].aliases[0].materials->albedo.texture = LoadTextureFromImage(img);
-        //m_models[model_key].aliases[0].materials->albedo.color = GREEN;
         UnloadImage(img);
     }
 

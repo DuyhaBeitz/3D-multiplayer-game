@@ -15,6 +15,7 @@ constexpr ModelKey R_MODEL_CUBE_EXCLAMATION = 2;
 constexpr ModelKey R_MODEL_HEIGHTMAP0 = 3;
 constexpr ModelKey R_MODEL_FOOTBALL = 4;
 constexpr ModelKey R_MODEL_TREE = 5;
+constexpr ModelKey R_MODEL_GRASS = 6;
 
 constexpr FontKey R_FONT_DEFAULT = 0;
 

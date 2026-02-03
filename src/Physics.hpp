@@ -257,7 +257,7 @@ class HeightmapData {
 private:
     std::vector<float> m_heights = {};
     Vector3 m_scale = {};
-    Vector3 m_position = {};
+    Vector3 m_position = {}; // corner
     int m_samples = 0; // m_heights.size() = m_samples^2
 
     Vector3 Min() const {
@@ -282,7 +282,20 @@ public:
 
     void SolveCollisionWith(BodyData& other) const;
 
+    int GetSamplesPerSide() {
+        return m_samples;
+    }
+
     Vector3 GetBottomCenter() const {
         return Vector3{m_position.x+m_scale.x/2, m_position.y, m_position.z+m_scale.z/2};
+    }
+
+    // corner
+    Vector3 GetPosition() const {
+        return m_position;
+    }
+
+    Vector3 GetScale() const {
+        return m_scale;
     }
 };

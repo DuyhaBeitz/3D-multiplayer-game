@@ -11,15 +11,6 @@ bool SHOW_TEXT_BOUNDRY = false;
 Rendering::Rendering() {
     R3D_Init(GetScreenWidth(), GetScreenHeight());
     Resources::Init();
-
-    // R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
-    // {
-    //     R3D_SetLightDirection(light, (Vector3) { -1, -0.5, -1 });
-    //     R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_CONTINUOUS);
-    //     //R3D_SetShadowBias(light, 0.005f);
-    //     R3D_EnableShadow(light);
-    //     R3D_SetLightActive(light, true);
-    // }
     
     R3D_ShadowCastMode(R3D_SHADOW_CAST_FRONT_FACES);
 
@@ -41,10 +32,10 @@ Rendering::Rendering() {
     //Create directional light with shadows
     R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
     R3D_SetLightDirection(light, (Vector3){ -1, -0.5, -1 });
-    R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_CONTINUOUS);
+    R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_INTERVAL);
     R3D_SetLightActive(light, true);
-    R3D_SetLightRange(light, 1000.0f);
-    R3D_SetShadowSoftness(light, 2.0f);
+    R3D_SetLightRange(light, 500.0f);
+    R3D_SetShadowSoftness(light, 0.0f);
     R3D_SetShadowDepthBias(light, 0.01f);
     R3D_EnableShadow(light);    
     
@@ -53,7 +44,7 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(fog.color, GRAY);
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.01f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.001f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     // BLOOM
@@ -75,6 +66,10 @@ Rendering::Rendering() {
 
 void Rendering::RenderModel(ModelKey model_key, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
     Resources::Get().ModelFromKey(model_key).Draw(position, rotationAxis, rotationAngle, scale);
+}
+
+void Rendering::RenderInstancedModel(ModelKey model_key) {
+    Resources::Get().ModelFromKey(model_key).DrawInstanced();
 }
 
 // Draw codepoint at specified position in 3D space

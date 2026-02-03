@@ -199,15 +199,6 @@ void Game::InitGame(GameState &state) {
         ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
         state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_FOOTBALL;
     }
-
-    {
-    BodyData body_data;
-    body_data.position = Vector3{0, 20, 40};
-    body_data.inverse_mass = 0;
-
-    ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-    state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_TREE;
-    }
 }
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target) {
