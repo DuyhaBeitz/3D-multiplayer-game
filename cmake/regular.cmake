@@ -20,6 +20,7 @@ add_executable(server
     src/Resources.cpp
     src/Rendering.cpp
     src/WindowGlobal.cpp
+    src/GameMetadata.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet
@@ -38,6 +39,7 @@ add_executable(client
     src/MenusUI.cpp
     src/Settings.cpp
     src/WindowGlobal.cpp
+    src/GameMetadata.cpp
 )
 add_executable(standalone 
     src/World.cpp
@@ -49,6 +51,7 @@ add_executable(standalone
     src/MenusUI.cpp
     src/Settings.cpp
     src/WindowGlobal.cpp
+    src/GameMetadata.cpp
 )
 add_executable(test
     src/World.cpp
@@ -58,6 +61,7 @@ add_executable(test
     src/Resources.cpp
     src/Rendering.cpp
     src/WindowGlobal.cpp
+    src/GameMetadata.cpp
 )
 
 # r3d doesn't currently expose its public headers via target properties,

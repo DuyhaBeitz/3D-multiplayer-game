@@ -14,4 +14,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(EasyNet)
 
 add_library(configparser STATIC ${CMAKE_SOURCE_DIR}/src/configparser/configparser.cpp)
-target_include_directories(configparser PUBLIC ${CMAKE_SOURCE_DIR}/src/configparser/configparser.hpp)
+target_include_directories(configparser PUBLIC ${CMAKE_SOURCE_DIR}/src/configparser)

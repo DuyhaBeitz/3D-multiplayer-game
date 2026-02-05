@@ -43,16 +43,8 @@ public:
 
         for (int i = 0; i < instance_count; i++)
         {
-            m_positions[i] = (Vector3) {
-                (float)GetRandomValue(-50000, 50000) / 100,
-                (float)GetRandomValue(-50000, 50000) / 100,
-                (float)GetRandomValue(-50000, 50000) / 100
-            };
-            m_rotations[i] = QuaternionFromEuler(
-                0.0f, //(float)GetRandomValue(-314000, 314000) / 1000,
-                (float)GetRandomValue(-314000, 314000) / 1000,
-                0.0f //(float)GetRandomValue(-314000, 314000) / 1000
-            );
+            m_positions[i] = (Vector3) {0.0f, 0.0f, 0.0f};
+            m_rotations[i] = QuaternionFromEuler(0.0f, 0.0f, 0.0f);
             m_scales[i] = (Vector3) {1.f, 1.f, 1.f};
             m_colors[i] = WHITE;
         }

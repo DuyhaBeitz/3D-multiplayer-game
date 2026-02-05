@@ -15,6 +15,7 @@ add_executable(server
     src/Game.cpp
     src/server.cpp
     src/Physics.cpp
+    src/GameMetadata.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet

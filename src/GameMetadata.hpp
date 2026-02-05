@@ -30,15 +30,14 @@ private:
     std::map<uint32_t, PlayerMetadata> m_players{};
     HeightmapData m_heightmap{};
     ModelKey m_heightmap_model_key{};
+    unsigned int m_seed{};
 
 public:
     GameMetadata() = default;
 
 #if WITH_RENDER
     void Draw() const {
-        //m_heightmap.Draw();
         Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());
-
         Rendering::Get().RenderInstancedModel(R_MODEL_TREE);
         Rendering::Get().RenderInstancedModel(R_MODEL_GRASS);
     }
@@ -95,6 +94,10 @@ public:
         return m_heightmap;
     }
 
+#if WITH_RENDER
+    void LoadVisuals();
+#endif
+
     void Load() {
         std::cout << "Loading game metadata" << std::endl;
         Image image = LoadImage(P_HIEGHTMAP0_IMAGE_PATH);
@@ -107,65 +110,7 @@ public:
         UnloadImage(image);
 
 #if WITH_RENDER
-        int grid_cells = m_heightmap.GetSamplesPerSide();
-        Vector3 corner = m_heightmap.GetPosition();
-        Vector3 scale = m_heightmap.GetScale();
-
-        {//setup trees
-        auto data = Resources::Get().ModelFromKey(R_MODEL_TREE).GetInstancesData();
-        std::vector<Vector3> positions{};
-        std::vector<Vector3> scales{};
-        float density = 0.00015f;
-        for (int i = 0; i < data->GetCount(); i++) {
-            float x = float(int(i / density) % grid_cells) / grid_cells * scale.x + corner.x;
-            float z = float(int(i / density) / grid_cells) / grid_cells * scale.z + corner.z;
-
-            x += GetRandomValue(-100, 100) / 10.0f;
-            z += GetRandomValue(-100, 100) / 10.0f;
-
-            positions.push_back(
-                Vector3{
-                    x,
-                    m_heightmap.GetHeightAt(x, z) - 5,
-                    z
-                }
-            );
-            float s = GetRandomValue(50, 150) / 100.0f;
-            s *= 10.0f;
-            scales.push_back(Vector3{s, s, s});
-        }
-
-        data->SetPositions(positions);
-        data->SetScales(scales);
-        }
-
-        {//setup grass
-        auto data = Resources::Get().ModelFromKey(R_MODEL_GRASS).GetInstancesData();
-        std::vector<Vector3> positions{};
-        std::vector<Vector3> scales{};
-        float density = 0.001f;
-        for (int i = 0; i < data->GetCount(); i++) {
-            float x = float(int(i / density) % grid_cells) / grid_cells * scale.x + corner.x;
-            float z = float(int(i / density) / grid_cells) / grid_cells * scale.z + corner.z;
-
-            x += GetRandomValue(-1000, 1000) / 10.0f;
-            z += GetRandomValue(-1000, 1000) / 10.0f;
-
-            positions.push_back(
-                Vector3{
-                    x,
-                    m_heightmap.GetHeightAt(x, z) - 5,
-                    z
-                }
-            );
-            float s = GetRandomValue(50, 150) / 100.0f;
-            s *= 5.0f;
-            scales.push_back(Vector3{s, s, s});
-        }
-
-        data->SetPositions(positions);
-        data->SetScales(scales);
-        }
+        LoadVisuals();
 #endif
     }
 };
