@@ -74,6 +74,7 @@ int main() {
     }
     net_client->RequestDisconnectFromServer();
     net_client->Update();
+    Resources::Get().Unload();
     R3D_Close();
     CloseWindow();
     return 0;

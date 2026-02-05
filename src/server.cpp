@@ -25,6 +25,7 @@ int main(){
         game_server->DrawGame();
         EndDrawing();
     }
+    Resources::Get().Unload();
     R3D_Close();
     CloseWindow();
     #else

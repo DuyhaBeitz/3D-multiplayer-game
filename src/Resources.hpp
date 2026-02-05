@@ -52,6 +52,16 @@ public:
         R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
     }
   
+    void Unload() {
+        R3D_UnloadInstanceBuffer(m_instances);
+        m_instance_count = 0;
+
+        m_positions = nullptr;
+        m_rotations = nullptr;
+        m_scales = nullptr;
+        m_colors = nullptr;
+    }
+
     R3D_InstanceBuffer GetBuffer() { return m_instances; }
     int GetCount() { return m_instance_count; }
     Vector3* GetPositions() { return m_positions; }
@@ -107,19 +117,34 @@ private:
 
     int m_current_alias = 0;
     bool m_animated = false;
+    bool m_instanced = false;
 
     InstancesData m_instances_data{};
 
 public:
+    ~ModelAliased() { Unload(); }
     ModelAliased() = default;
 
+    void Unload() {
+        std::cout << "Unloading model aliased" << std::endl;
+        if (IsAnimated()) {
+            for (auto& anim_player : m_anim_players) {
+                R3D_UnloadAnimationPlayer(anim_player);
+            }
+            R3D_UnloadAnimationLib(m_anim_lib);
+        }
+        if (IsInstanced()) {
+            m_instances_data.Unload();
+        }
+        R3D_UnloadModel(m_model, true);
+    }
+
     void FromMeshNonAnimated(R3D_Mesh mesh) {
-        m_animated = false;
         m_model = R3D_LoadModelFromMesh(mesh);
     }
 
     void LoadInstanced(std::string filename, int instance_count) {
-        m_animated = false;
+        m_instanced = true;
         m_instances_data = InstancesData(instance_count);
 
         std::cout << "Loading model instanced: " << filename << std::endl;
@@ -134,7 +159,6 @@ public:
     }
 
     void LoadNonAnimated(std::string filename) {
-        m_animated = false;
         std::cout << "Loading model non-animated: " << filename << std::endl;
         m_model = R3D_LoadModel(filename.c_str());
         std::cout << "Successfully loaded model" << std::endl;
@@ -239,6 +263,10 @@ public:
         return m_animated;
     }
 
+    bool IsInstanced() {
+        return m_instanced;
+    }
+
     void SetScale(float scale) {
         m_scale_multiplier = scale;
     }
@@ -291,18 +319,17 @@ private:
     ;
 
     Resources() {
-        AddModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
-        AddModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 10);
+        SetModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
+        SetModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 10);
         m_models[R_MODEL_PLAYER].SetScale(1.5f);
-        AddModelNonAnimated(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb");
-        AddModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
+        SetModelNonAnimated(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb");
+        SetModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
         m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
-        //m_models[R_MODEL_CUBE_EXCLAMATION].m_offset = Vector3{0, -1, 0}*s/2;
 
-        AddInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 250);
-        AddInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
+        SetInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 250);
+        SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
 
-        AddHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
+        SetHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
 
         m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
             CreateMaterial(
@@ -313,9 +340,9 @@ private:
             )
         );
         
-        AddFont(R_FONT_DEFAULT,
+        SetFont(R_FONT_DEFAULT,
             LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
-        );     
+        );
         SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);        
 
         std::cout << "Successfully loaded resources" << std::endl;
@@ -327,19 +354,24 @@ private:
     std::unordered_map<ModelKey, ModelAliased> m_models;
     std::unordered_map<FontKey, Font> m_fonts;
 
-    void AddInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
+    void SetInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
+        if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadInstanced(filename, num_instances);
     }
 
-    void AddModelNonAnimated(ModelKey model_key, std::string filename) {
+    void SetModelNonAnimated(ModelKey model_key, std::string filename) {
+        if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadNonAnimated(filename);
     }
 
-    void AddModelAnimated(ModelKey model_key, std::string filename, int num_aliases) {
+    void SetModelAnimated(ModelKey model_key, std::string filename, int num_aliases) {
+        if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadAnimated(filename, num_aliases);
     }
 
-    void AddHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+    void SetHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+        if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
+
         Image img = LoadImage(filename.c_str());
         R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale);
 
@@ -347,11 +379,24 @@ private:
         UnloadImage(img);
     }
 
-    void AddFont(FontKey font_key, Font font) {
+    void SetFont(FontKey font_key, Font font) {
+        if (m_fonts.find(font_key) != m_fonts.end()) {
+            UnloadFont(m_fonts[font_key]);
+            m_fonts.erase(font_key);
+        }
         m_fonts[font_key] = font;
     }
 
 public:
+    void Unload() {
+        m_models.clear();
+
+        for (auto&& [key, font] : m_fonts) {
+            UnloadFont(font);
+        }
+        m_fonts.clear();
+    }
+
     Resources(const Resources&) = delete;
     Resources& operator=(const Resources&) = delete;
 
@@ -367,16 +412,14 @@ public:
     ModelAliased& ModelFromKey(ModelKey key) {
         if (m_models.find(key) != m_models.end()) return m_models.at(key); 
         else {
-            std::cerr << "No model found for key: " << key << std::endl;
-            return m_models[R_MODEL_DEFAULT];
+            throw std::range_error(TextFormat("model key is not found: %d", key));
         }
     }
 
     Font FontFromKey(FontKey key) {
         if (m_fonts.find(key) != m_fonts.end()) return m_fonts.at(key); 
         else {
-            std::cerr << "No font found for key: " << key << std::endl;
-            return GetFontDefault();
+            throw std::range_error(TextFormat("font key is not found: %d", key));
         }
     }
 

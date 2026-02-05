@@ -51,6 +51,8 @@ int main() {
         WindowGlobal::Get().Update();
         Settings::Get().Update();
     }
+
+    Resources::Get().Unload();
     CloseWindow();
     return 0;
 }
