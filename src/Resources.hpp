@@ -13,6 +13,7 @@
 
 std::vector<int> CodepointsFromStr(const char* chars);
 Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
+R3D_Model LoadR3DModelFromMesh(R3D_Mesh mesh);
 
 /*
 Unlike other resources, Images can be loaded without window being initialized,
@@ -140,7 +141,7 @@ public:
     }
 
     void FromMeshNonAnimated(R3D_Mesh mesh) {
-        m_model = R3D_LoadModelFromMesh(mesh);
+        m_model = LoadR3DModelFromMesh(mesh);
     }
 
     void LoadInstanced(std::string filename, int instance_count) {
@@ -210,10 +211,10 @@ public:
     }
 
     void SetAnim(int anim_id) {
-        for (int j = 0; j < m_anim_lib.count; j++) { // can be improved by storing previous anim
-            R3D_SetAnimationWeight(&m_anim_players[m_current_alias],  j, 0.f);
-        }        
-        R3D_SetAnimationWeight(&m_anim_players[m_current_alias], anim_id, 1.f);
+        // for (int j = 0; j < m_anim_lib.count; j++) { // can be improved by storing previous anim
+        //     R3D_SetAnimationWeight(&m_anim_players[m_current_alias],  j, 0.f);
+        // }        
+        // R3D_SetAnimationWeight(&m_anim_players[m_current_alias], anim_id, 1.f);
 
         R3D_PlayAnimation(&m_anim_players[m_current_alias], anim_id);
     }
@@ -279,7 +280,8 @@ public:
 };
 
 inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f) {
-    R3D_Material mat = R3D_Material();
+    R3D_Material mat = R3D_GetDefaultMaterial();
+    
     mat.albedo.texture = albedo;
     mat.albedo.color = WHITE;
 
@@ -330,6 +332,8 @@ private:
         SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
 
         SetHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
+
+        
 
         m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
             CreateMaterial(

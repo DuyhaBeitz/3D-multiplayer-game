@@ -34,8 +34,8 @@ Rendering::Rendering() {
     R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_INTERVAL);
     R3D_SetLightActive(light, true);
     R3D_SetLightRange(light, 500.0f);
-    R3D_SetShadowSoftness(light, 0.0f);
-    R3D_SetShadowDepthBias(light, 0.01f);
+    R3D_SetShadowSoftness(light, 3.2f);
+    R3D_SetShadowDepthBias(light, 0.001f);
     R3D_EnableShadow(light);    
     
     // FOG
@@ -43,7 +43,7 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(fog.color, BEIGE);
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.0008f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     // BLOOM

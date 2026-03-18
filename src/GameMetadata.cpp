@@ -19,16 +19,17 @@ void GameMetadata::LoadVisuals() {
         float x = dist_xz(engine) / 1000.0f * scale.x + corner.x;
         float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
 
-        positions.push_back(
-            Vector3{
-                x,
-                m_heightmap.GetHeightAt(x, z) - 5,
-                z
-            }
-        );
         float s = dist_scale(engine) / 100.0f;
         s *= 10.0f;
         scales.push_back(Vector3{s, s, s});
+
+        positions.push_back(
+            Vector3{
+                x,
+                m_heightmap.GetHeightAt(x, z) - s/2,
+                z
+            }
+        );
     }
 
     data->SetPositions(positions);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ResourceData.hpp"
 #include "Serialization.hpp"
 #include "Constants.hpp"
 #include "Physics.hpp"
