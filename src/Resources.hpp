@@ -330,8 +330,8 @@ private:
         SetModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
         m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
 
-        SetInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", 250);
-        SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
+        SetInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", trees_count);
+        SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", grass_count);
 
         SetHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
         m_models[R_MODEL_HEIGHTMAP0].SetMaterial(

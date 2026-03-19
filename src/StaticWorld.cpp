@@ -30,7 +30,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     #endif
     std::vector<Vector3> positions{};
     std::vector<Vector3> scales{};
-    for (int i = 0; i < data->GetCount(); i++) {
+    for (int i = 0; i < trees_count; i++) {
         float x = dist_xz(engine) / 1000.0f * scale.x + corner.x;
         float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
 
@@ -68,10 +68,12 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     std::uniform_int_distribution<int> dist_xz(0, 1000);
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
+    #ifdef WITH_RENDER
     auto data = Resources::Get().ModelFromKey(R_MODEL_GRASS).GetInstancesData();
+    #endif
     std::vector<Vector3> positions{};
     std::vector<Vector3> scales{};
-    for (int i = 0; i < data->GetCount(); i++) {
+    for (int i = 0; i < grass_count; i++) {
         float x = dist_xz(engine) / 1000.0f * scale.x + corner.x;
         float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
 
