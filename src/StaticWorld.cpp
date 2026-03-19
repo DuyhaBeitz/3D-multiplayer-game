@@ -3,8 +3,8 @@
 #include "Actor.hpp"
 #include <random>
 
-StaticWorld::StaticWorld() {
-    m_grid.SetHandlePairFunc(
+StaticWorld::StaticWorld() : m_partitioner(&m_static_actors) {
+    m_partitioner.GetGrid().SetHandlePairFunc(
         [](PartitionUnit* un1, PartitionUnit* un2){
             if (un1 && un2) {
                 BodyData* dynamic_body = reinterpret_cast<BodyData*>(un1->user_data);
@@ -56,8 +56,8 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
         body_data.position = positions[i];
         body_data.shapes.push_back(CollisionShape(box_data));
 
-        ActorData& actor = AddStaticActor(i, ActorData(body_data));
-        actor.render_data.model_key = R_MODEL_NONE;
+        m_static_actors[i] = ActorData(body_data);
+        m_static_actors[i].render_data.model_key = R_MODEL_NONE;
         }
     }
     #ifdef WITH_RENDER
@@ -94,6 +94,8 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     }
     #endif
 
+    m_partitioner.UpdateView();
+
     for (auto& [key, static_actor] : m_static_actors) {
         static_actor.Update(0);
     }
@@ -124,8 +126,8 @@ void StaticWorld::Draw(const GameDrawingData &drawing_data) const {
     }
 
     if (WindowGlobal::Get().IsDebugRenderEnabled()) {
-        int NUM_CELLS = m_grid.NUM_CELLS;
-        int CELL_SIZE = m_grid.CELL_SIZE;
+        int NUM_CELLS = m_partitioner.GetGrid().NUM_CELLS;
+        int CELL_SIZE = m_partitioner.GetGrid().CELL_SIZE;
         
         // Precompute the range of cell indices
         const float halfCell = CELL_SIZE * 0.5f;
@@ -134,8 +136,8 @@ void StaticWorld::Draw(const GameDrawingData &drawing_data) const {
         for (int ix = 0; ix < NUM_CELLS; ++ix) {
             for (int iz = 0; iz < NUM_CELLS; ++iz) {
                 // World position of this cell's center (X and Z only)
-                float worldX = m_grid.CellIntoCoord(ix);
-                float worldZ = m_grid.CellIntoCoord(iz);
+                float worldX = m_partitioner.GetGrid().CellIntoCoord(ix);
+                float worldZ = m_partitioner.GetGrid().CellIntoCoord(iz);
 
                 float thickness = 10.0f;
                 // Draw the cell at every requested height
@@ -153,16 +155,16 @@ void StaticWorld::SolveCollisionWith(BodyData &other) const {
 
     PartitionUnit unit(nullptr, other.position.x, other.position.z);
     unit.user_data = reinterpret_cast<void*>(&other);
-    m_grid.unit_with_grid(&unit, other.position.x, other.position.z);
+    m_partitioner.GetGrid().unit_with_grid(&unit, other.position.x, other.position.z);
 }
 
-ActorData& StaticWorld::AddStaticActor(ActorKey actor_key, ActorData static_actor) {
-    m_static_actors[actor_key] = static_actor;
+// ActorData& StaticWorld::AddStaticActor(ActorKey actor_key, ActorData static_actor) {
+//     m_static_actors[actor_key] = static_actor;
 
-    PartitionUnit unit(&m_grid, static_actor.body.position.x, static_actor.body.position.z);
-    unit.user_data = reinterpret_cast<void*>(&m_static_actors[actor_key].body);
-    m_units.push_back(unit);
-    m_grid.add(&m_units.back());
+//     PartitionUnit unit(&m_grid, static_actor.body.position.x, static_actor.body.position.z);
+//     unit.user_data = reinterpret_cast<void*>(&m_static_actors[actor_key].body);
+//     m_units.push_back(unit);
+//     m_grid.add(&m_units.back());
 
-    return m_static_actors[actor_key];
-}
+//     return m_static_actors[actor_key];
+// }

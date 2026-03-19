@@ -3,7 +3,7 @@
 #include "ResourceData.hpp"
 #include "Constants.hpp"
 #include "Physics.hpp"
-#include "SpacePartition.hpp"
+#include "SpaceActorPartitioner.hpp"
 
 #if WITH_RENDER
 #include "GameDrawingData.hpp"
@@ -26,8 +26,7 @@ private:
     ModelKey m_heightmap_model_key{};
 
     std::map<ActorKey, ActorData> m_static_actors{};
-    PartitionGrid m_grid{};
-    std::list<PartitionUnit> m_units{}; // vector copies objects on resize, which causes problems with pointers used in grid
+    ActorPartitioner m_partitioner;
 
     ActorData& AddStaticActor(ActorKey actor_key, ActorData static_actor);
 
@@ -48,12 +47,6 @@ public:
     }
 
     void SolveCollisionWith(BodyData &other) const;
-
-// #if WITH_RENDER
-//     void LoadVisuals(const GameMetadata& game_metadata);
-// #endif
-
     void SetupWorld(const GameMetadata& game_metadata);
     void Load(const GameMetadata& game_metadata);
-    
 };

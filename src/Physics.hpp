@@ -7,6 +7,7 @@
 #include <variant>
 #include <iostream>
 #include <rlgl.h>
+#include <functional>
 
 #include "Serialization.hpp"
 
@@ -155,6 +156,7 @@ struct BodyData {
     Vector3 velocity = {};
     Vector3 acceleration = {};
     bool on_ground = true;
+    std::function<void(Vector3)> on_update_pos = nullptr;
 
     // inverse so that we can have infinite mass, and connot have zero mass
     float inverse_mass = 1;
@@ -176,7 +178,7 @@ struct BodyData {
         velocity += impulse * inverse_mass;
         if (Vector3Length(impulse) > 0.01 && Vector3DotProduct(impulse, {0, 1, 0})/Vector3Length(impulse) > 0.5) {
             on_ground = true;
-        }        
+        }
     }
 
     void Update(float delta_time) {
@@ -186,6 +188,7 @@ struct BodyData {
         position += averageVelocity * delta_time;
         acceleration = {};
         UpdateShapePositions();
+        if (on_update_pos) on_update_pos(position);
     }
 
     CollisionResult CollideWith(const BodyData& other) const {
@@ -244,6 +247,8 @@ struct BodyData {
         }
         return min;
     }
+
+    void SetOnUpdatePos(std::function<void(Vector3)> func) { on_update_pos = func; }
 };
 
 void SolveCollision(BodyData& bA, BodyData& bB, const CollisionResult& collision_result);

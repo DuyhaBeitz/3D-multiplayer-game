@@ -20,16 +20,15 @@ public:
     }
 
     void add(PartitionUnit* unit);
-    //void iterate_cells() const;
+    
 
     void unit_with_grid(PartitionUnit* unit, float x, float y) const;
 
-    //void handle_cell(int x, int y) const;
+    void iterate_cells() const;
+    void handle_cell(int x, int y) const;
+    void move(PartitionUnit* unit, double x, double y);
 
     void handle_partition_unit(PartitionUnit* unit, PartitionUnit* other) const;
-
-    //void move(PartitionUnit* unit, double x, double y);
-
 
     static const int NUM_CELLS = 10;
     static const int CELL_SIZE = 100;
