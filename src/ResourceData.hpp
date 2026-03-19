@@ -17,6 +17,8 @@ constexpr ModelKey R_MODEL_FOOTBALL = 4;
 constexpr ModelKey R_MODEL_TREE = 5;
 constexpr ModelKey R_MODEL_GRASS = 6;
 
+constexpr ModelKey R_MODEL_TEST = 7;
+
 constexpr FontKey R_FONT_DEFAULT = 0;
 
 #define P_HIEGHTMAP0_IMAGE_PATH "assets/Heightmap_01_Mountain.png"

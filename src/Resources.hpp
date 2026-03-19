@@ -289,7 +289,7 @@ inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float nor
     mat.normal.scale = normal_scale;
     
     mat.orm.metalness = 0;
-    mat.orm.roughness = 0.7;
+    mat.orm.roughness = 1.0;
     mat.orm.occlusion = 0;
 
     mat.uvScale = Vector2{uv_scale, uv_scale};
@@ -332,17 +332,29 @@ private:
         SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", 500);
 
         SetHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
-
-        
-
         m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
             CreateMaterial(
                 LoadTexture("assets/sand/GroundSand005_COL_1K.jpg"),
                 LoadTexture("assets/sand/GroundSand005_NRM_1K.jpg"),
-                1.0f,
+                1.3f,
                 10.0f
             )
         );
+
+        {
+        R3D_Mesh mesh = R3D_GenMeshCube(2.0f, 2.0f, 2.0f);
+        m_models[R_MODEL_TEST].FromMeshNonAnimated(mesh);
+        R3D_Material mat = R3D_GetDefaultMaterial();
+        Color clr = RED;
+        
+        mat.albedo.color = clr;
+        mat.emission.color = clr;
+        mat.emission.energy = 0;
+        mat.orm.metalness = 0;
+        mat.orm.roughness = 1.0;
+        mat.orm.occlusion = 0;
+        m_models[R_MODEL_TEST].SetMaterial(mat);
+        }
         
         SetFont(R_FONT_DEFAULT,
             LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)

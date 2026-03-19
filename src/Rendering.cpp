@@ -44,7 +44,7 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
     R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
-    R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
+    R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);    
 
     // BLOOM
     // R3D_ENVIRONMENT_SET(bloom.mode, R3D_BLOOM_ADDITIVE);
@@ -54,7 +54,10 @@ Rendering::Rendering() {
     // R3D_ENVIRONMENT_SET(bloom.softThreshold, 0.5f);
     // R3D_ENVIRONMENT_SET(bloom.filterRadius, 1.0f);
 
-    { // For some reason need with the newer version of r3d
+    {
+    // For some reason need with the newer version of r3d
+    // update: this thing doesn't break EVERYTIHNG anymore
+    // but when deleted, some models disappear
     BeginDrawing();
     Camera3D cam {};
     R3D_Begin(cam);
