@@ -97,6 +97,8 @@
         "typeindex": "cpp",
         "flat_map": "cpp",
         "flat_set": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "r3d_skeleton.h": "c",
+        "r3d_importer_internal.h": "c"
     }
 }

@@ -188,7 +188,7 @@ struct BodyData {
         UpdateShapePositions();
     }
 
-    CollisionResult CollideWith(const BodyData& other) {
+    CollisionResult CollideWith(const BodyData& other) const {
         CollisionResult max_res;
         float max_penetration = 0.0f;
 
@@ -247,6 +247,7 @@ struct BodyData {
 };
 
 void SolveCollision(BodyData& bA, BodyData& bB, const CollisionResult& collision_result);
+void SolveCollisionOneWay(const BodyData& bA, BodyData& bB, const CollisionResult& collision_result);
 
 /*
 Following shapes are heavy, so they aren't supposed to be synced - they are static

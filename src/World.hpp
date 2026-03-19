@@ -20,6 +20,7 @@ struct PlayerData {
 };
 
 class GameMetadata;
+class StaticWorld;
 
 struct WorldData {
     ActorKey new_actor_key = 0;
@@ -33,10 +34,10 @@ struct WorldData {
     }
 
 #if WITH_RENDER
-    void Draw(GameDrawingData &drawing_data) const;
+    void Draw(const GameDrawingData &drawing_data) const;
 #endif
 
-    void Update(float delta_time, const GameMetadata& game_metadata);
+    void Update(float delta_time, const GameMetadata& game_metadata, const StaticWorld& static_world);
 
     bool ActorExists(ActorKey key) const {return actors.find(key) != actors.end();}
     

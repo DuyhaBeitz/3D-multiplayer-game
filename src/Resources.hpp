@@ -277,6 +277,8 @@ public:
     }
 
     InstancesData* GetInstancesData() { return &m_instances_data; }
+
+    R3D_Model GetModel() { return m_model; }
 };
 
 inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f) {

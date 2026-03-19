@@ -1,15 +1,16 @@
 #include "World.hpp"
 #include "GameMetadata.hpp"
+#include "StaticWorld.hpp"
 
 #if WITH_RENDER
-void WorldData::Draw(GameDrawingData &drawing_data) const {
+void WorldData::Draw(const GameDrawingData &drawing_data) const {
     for (const auto& [key, actor_data] : actors) {
         if (drawing_data.actors_except.find(key) == drawing_data.actors_except.end()) actor_data.Draw(drawing_data);
     }
 }
 #endif
 
-void WorldData::Update(float delta_time, const GameMetadata& game_metadata){
+void WorldData::Update(float delta_time, const GameMetadata& game_metadata, const StaticWorld& static_world){
     constexpr int phys_iters = 10;
     float sub_dt = delta_time / phys_iters;
     
@@ -39,7 +40,7 @@ void WorldData::Update(float delta_time, const GameMetadata& game_metadata){
         }
 
         for (auto& [actor_key, actor_data] : actors) {
-            game_metadata.GetHeightmap().SolveCollisionWith(actor_data.body);
+            static_world.SolveCollisionWith(actor_data.body);
         }        
         
         for (auto& [key, actor_data] : actors) {

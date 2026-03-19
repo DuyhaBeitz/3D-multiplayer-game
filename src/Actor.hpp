@@ -33,14 +33,11 @@ struct ActorData {
     }
 
 #if WITH_RENDER
-    void Draw(GameDrawingData& drawing_data) const {
+    void Draw(const GameDrawingData& drawing_data) const {
         Vector2 hor_vel = {body.velocity.x, body.velocity.z};
         bool running = Vector2Length(hor_vel) > 20;
-        render_data.Draw(running, body, yaw, pitch);        
-        if (
-            render_data.model_key == R_MODEL_DEFAULT
-            || WindowGlobal::Get().IsDebugRenderEnabled()
-        ) body.DrawShapes();
+        if (render_data.model_key != R_MODEL_NONE) render_data.Draw(running, body, yaw, pitch);        
+        if (WindowGlobal::Get().IsDebugRenderEnabled()) body.DrawShapes();
     }
 #endif
 

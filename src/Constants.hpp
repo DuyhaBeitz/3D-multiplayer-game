@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
+#include <raylib.h>
 
 constexpr int max_string_len = 2048;
 constexpr int max_player_name_len = 64;

@@ -3,7 +3,7 @@
 #include "GameDrawingData.hpp"
 
 #if WITH_RENDER
-void GameState::Draw(GameDrawingData &drawing_data) const {
+void GameState::Draw(const GameDrawingData &drawing_data) const {
     world_data.Draw(drawing_data);
 
     for (const auto& [id, player_data] : players) {
@@ -83,10 +83,11 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
     }
 }
 
-void Game::Draw(const GameState &state, GameDrawingData &drawing_data) {
+void Game::Draw(const GameState &state, const GameDrawingData &drawing_data) {
     #if WITH_RENDER
     state.Draw(drawing_data);
-    drawing_data.game_metadata.Draw();
+    //drawing_data.game_metadata.Draw();
+    m_static_world.Draw(drawing_data);
     #endif
 }
 
@@ -148,7 +149,8 @@ GameState Game::Deserialize(SerializedGameState data) {
 }
 
 void Game::InitGame(GameState &state) {
-    m_game_metadata.Load();
+    //m_game_metadata.Load();
+    m_static_world.Load(m_game_metadata);
 
     // { // floor
     // BoxData box_data;

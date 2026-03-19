@@ -3,12 +3,11 @@
 #include "ResourceData.hpp"
 #include "Serialization.hpp"
 #include "Constants.hpp"
-#include "Physics.hpp"
 
 /*
 Information that doesn't get synced every frame
 Like player's name etc.
-Isn't supposed to be used in game logic, which is replayed a lot because of reconciliation
+Isn't supposed to be member of game state, which is replayed a lot because of reconciliation
 It's for drawing, chat etc.
 */
 
@@ -29,20 +28,10 @@ struct SerializedGameMetadata {
 class GameMetadata {
 private:
     std::map<uint32_t, PlayerMetadata> m_players{};
-    HeightmapData m_heightmap{};
-    ModelKey m_heightmap_model_key{};
     unsigned int m_seed{};
 
 public:
     GameMetadata() = default;
-
-#if WITH_RENDER
-    void Draw() const {
-        Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());
-        Rendering::Get().RenderInstancedModel(R_MODEL_TREE);
-        Rendering::Get().RenderInstancedModel(R_MODEL_GRASS);
-    }
-#endif
 
     const char* GetPlayerName(uint32_t id) {
         return m_players[id].name;
@@ -87,31 +76,5 @@ public:
         ar(m_players);
     }
 
-    HeightmapData& GetHeightmap() {
-        return m_heightmap;
-    }
-
-    const HeightmapData& GetHeightmap() const {
-        return m_heightmap;
-    }
-
-#if WITH_RENDER
-    void LoadVisuals();
-#endif
-
-    void Load() {
-        std::cout << "Loading game metadata" << std::endl;
-        Image image = LoadImage(P_HIEGHTMAP0_IMAGE_PATH);
-        m_heightmap.Load(
-            image,
-            {0, 0, 0},
-            heightmap0_scale
-        );
-        m_heightmap_model_key = R_MODEL_HEIGHTMAP0;
-        UnloadImage(image);
-
-#if WITH_RENDER
-        LoadVisuals();
-#endif
-    }
+    unsigned int GetSeed() const { return m_seed; }
 };

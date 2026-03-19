@@ -106,7 +106,34 @@ void SolveCollision(BodyData &bA, BodyData &bB, const CollisionResult &collision
     bB.ApplyImpulse(impulse_friction * -1.f);
 }
 
+void SolveCollisionOneWay(const BodyData &bA, BodyData &bB, const CollisionResult &collision_result) {
+    const Vector3& normal = collision_result.normal;
 
+    const float m1 = 0;
+    const float m2 = bB.inverse_mass;
+
+    //bA.position += normal*collision_result.penetration * (m1)/(m1+m2);
+    bB.position -= normal*collision_result.penetration * (m2)/(m1+m2);
+
+    Vector3 relative_velocity = bA.velocity - bB.velocity;
+    float dot = Vector3DotProduct(relative_velocity, normal);
+    if (dot > 0.f) return;
+
+    float e = fmin(bA.restitution, bB.restitution);
+
+    float j = -(1.f + e) * dot;
+    j /= m2 + m1;
+    
+    Vector3 impulse = normal*j;
+    
+    //bA.ApplyImpulse(impulse);
+    bB.ApplyImpulse(impulse * -1);   
+
+    float friction_coefficient = 0.1f;
+    Vector3 impulse_friction = GetFrictionImpulse(impulse, normal, relative_velocity, m1, m2, friction_coefficient);
+    //bA.ApplyImpulse(impulse_friction);
+    bB.ApplyImpulse(impulse_friction * -1.f);
+}
 
 void HeightmapData::Load(Image heightmap_image, Vector3 center, Vector3 scale) {
     m_position = center-scale/2;
