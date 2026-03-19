@@ -9,9 +9,10 @@ ActorData &ActorPartitioner::AddActor(ActorKey actor_key) {
 
     m_known_keys.emplace(actor_key);
     
+    int s = m_units.size();
     actor.body.SetOnUpdatePos(
-        [this, &unit](Vector3 new_pos){
-            m_grid.move(&unit, new_pos.x, new_pos.z);
+        [this, s](Vector3){
+            m_marked_units.emplace(&(m_units[s-1]));
         }
     );
 
@@ -23,5 +24,12 @@ void ActorPartitioner::UpdateView() {
         if (m_known_keys.find(actor_key) == m_known_keys.end()) {
             AddActor(actor_key);
         }
-    }    
+    }
+
+    for (auto unit_ptr : m_marked_units) {
+        BodyData* body = reinterpret_cast<BodyData*>(unit_ptr->user_data);
+        unit_ptr->move(body->position.x, body->position.z);
+    }
+
+    m_marked_units.clear();
 }

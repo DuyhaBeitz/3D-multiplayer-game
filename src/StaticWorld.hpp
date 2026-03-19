@@ -28,8 +28,6 @@ private:
     std::map<ActorKey, ActorData> m_static_actors{};
     ActorPartitioner m_partitioner;
 
-    ActorData& AddStaticActor(ActorKey actor_key, ActorData static_actor);
-
 public:
     StaticWorld();
 

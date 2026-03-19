@@ -66,10 +66,9 @@ public:
     {
     }
 
-
-    // void move(double x, double y) {
-    //     grid->move(this, x, y);
-    // }
+    void move(double x, double y) {
+        grid->move(this, x, y);
+    }
 
     void* user_data;
 
