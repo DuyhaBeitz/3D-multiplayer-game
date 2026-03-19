@@ -21,15 +21,19 @@ set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
 set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
 
-# Fetch raylib
-message(STATUS "Downloading and configuring raylib...")
-FetchContent_Declare(
-    raylib
-    GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG ${RAYLIB_GIT_TAG}
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(raylib)
+set(R3D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(R3D_RAYLIB_VENDORED ON CACHE BOOL "" FORCE)
+set(R3D_ASSIMP_VENDORED ON CACHE BOOL "" FORCE)
+
+# # Fetch raylib
+# message(STATUS "Downloading and configuring raylib...")
+# FetchContent_Declare(
+#     raylib
+#     GIT_REPOSITORY https://github.com/raysan5/raylib.git
+#     GIT_TAG ${RAYLIB_GIT_TAG}
+#     GIT_SHALLOW TRUE
+# )
+# FetchContent_MakeAvailable(raylib)
 
 # # Fetch assimp
 # message(STATUS "Downloading and configuring assimp...")
@@ -42,9 +46,6 @@ FetchContent_MakeAvailable(raylib)
 # FetchContent_MakeAvailable(assimp)
 
 # Configure r3d to use the just-built raylib/assimp instead of its vendored copies
-set(R3D_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(R3D_RAYLIB_VENDORED OFF CACHE BOOL "" FORCE)
-set(R3D_ASSIMP_VENDORED ON CACHE BOOL "" FORCE)
 
 # r3d requires Python for shader/asset embedding
 if(NOT DEFINED PYTHON_EXECUTABLE)
@@ -59,6 +60,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/Bigfoot71/r3d.git
     GIT_TAG ${R3D_GIT_TAG}
     GIT_SHALLOW TRUE
+    PATCH_COMMAND
+        ${CMAKE_COMMAND}
+            -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/r3d-src
+            -DPATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/raylib_assert.patch
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/r3d_patch.cmake
 )
 FetchContent_MakeAvailable(r3d)
 
