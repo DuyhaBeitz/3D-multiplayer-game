@@ -3,10 +3,13 @@
 #include "ResourceData.hpp"
 #include "Constants.hpp"
 #include "Physics.hpp"
+#include "SpacePartition.hpp"
 
 #if WITH_RENDER
 #include "GameDrawingData.hpp"
 #endif
+
+#include <list>
 
 /*
 Static objects, like terrain, don't need to be synced
@@ -23,9 +26,13 @@ private:
     ModelKey m_heightmap_model_key{};
 
     std::map<ActorKey, ActorData> m_static_actors{};
+    PartitionGrid m_grid{};
+    std::list<PartitionUnit> m_units{}; // vector copies objects on resize, which causes problems with pointers used in grid
+
+    ActorData& AddStaticActor(ActorKey actor_key, ActorData static_actor);
 
 public:
-    StaticWorld() = default;
+    StaticWorld();
 
 #if WITH_RENDER
     void Draw(const GameDrawingData &drawing_data) const;
@@ -42,9 +49,11 @@ public:
 
     void SolveCollisionWith(BodyData &other) const;
 
-#if WITH_RENDER
-    void LoadVisuals(const GameMetadata& game_metadata);
-#endif
+// #if WITH_RENDER
+//     void LoadVisuals(const GameMetadata& game_metadata);
+// #endif
 
+    void SetupWorld(const GameMetadata& game_metadata);
     void Load(const GameMetadata& game_metadata);
+    
 };

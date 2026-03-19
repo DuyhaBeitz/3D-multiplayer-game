@@ -3,18 +3,31 @@
 #include "Actor.hpp"
 #include <random>
 
-#if WITH_RENDER
-void StaticWorld::LoadVisuals(const GameMetadata &game_metadata) {
+StaticWorld::StaticWorld() {
+    m_grid.SetHandlePairFunc(
+        [](PartitionUnit* un1, PartitionUnit* un2){
+            if (un1 && un2) {
+                BodyData* dynamic_body = reinterpret_cast<BodyData*>(un1->user_data);
+                BodyData* static_body = reinterpret_cast<BodyData*>(un2->user_data);
+                SolveCollisionOneWay(*static_body, *dynamic_body, static_body->CollideWith(*dynamic_body));
+            }
+        }
+    );
+}
+
+void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     int grid_cells = m_heightmap.GetSamplesPerSide();
     Vector3 corner = m_heightmap.GetPosition();
     Vector3 scale = m_heightmap.GetScale();
 
     std::mt19937 engine(game_metadata.GetSeed()); 
-    {//setup trees
+    //setup trees
     std::uniform_int_distribution<int> dist_xz(0, 1000);
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
+    #ifdef WITH_RENDER
     auto data = Resources::Get().ModelFromKey(R_MODEL_TREE).GetInstancesData();
+    #endif
     std::vector<Vector3> positions{};
     std::vector<Vector3> scales{};
     for (int i = 0; i < data->GetCount(); i++) {
@@ -36,18 +49,18 @@ void StaticWorld::LoadVisuals(const GameMetadata &game_metadata) {
         // create collisions for trees
         {
         BoxData box_data;
-        Vector3 half_size = Vector3{0.1, 4.0, 0.1} * s;        
+        Vector3 half_size = Vector3{0.1, 5, 0.1} * s;        
         box_data.SetHalfExtends(half_size);
 
         BodyData body_data;
-        body_data.position = positions[i] + Vector3{0, s, 0};
+        body_data.position = positions[i];
         body_data.shapes.push_back(CollisionShape(box_data));
 
-        m_static_actors[i] = ActorData(body_data);
-        m_static_actors[i].render_data.model_key = R_MODEL_NONE;
+        ActorData& actor = AddStaticActor(i, ActorData(body_data));
+        actor.render_data.model_key = R_MODEL_NONE;
         }
     }
-
+    #ifdef WITH_RENDER
     data->SetPositions(positions);
     data->SetScales(scales);
     
@@ -77,15 +90,14 @@ void StaticWorld::LoadVisuals(const GameMetadata &game_metadata) {
     data->SetPositions(positions);
     data->SetScales(scales);
     }
+    #endif
 
     for (auto& [key, static_actor] : m_static_actors) {
         static_actor.Update(0);
     }
-    }
 }
-#endif
 
-void StaticWorld::Load(const GameMetadata& game_metadata) {
+void StaticWorld::Load(const GameMetadata &game_metadata) {
     std::cout << "Loading static world" << std::endl;
     Image image = LoadImage(P_HIEGHTMAP0_IMAGE_PATH);
     m_heightmap.Load(
@@ -96,14 +108,11 @@ void StaticWorld::Load(const GameMetadata& game_metadata) {
     m_heightmap_model_key = R_MODEL_HEIGHTMAP0;
     UnloadImage(image);
 
-#if WITH_RENDER
-    LoadVisuals(game_metadata);
-#endif
+    SetupWorld(game_metadata);
 }
 
-
 #if WITH_RENDER
-void StaticWorld::Draw(const GameDrawingData &drawing_data) const  {
+void StaticWorld::Draw(const GameDrawingData &drawing_data) const {
     Rendering::Get().RenderModel(m_heightmap_model_key, m_heightmap.GetBottomCenter());
     Rendering::Get().RenderInstancedModel(R_MODEL_TREE);
     Rendering::Get().RenderInstancedModel(R_MODEL_GRASS);
@@ -111,14 +120,47 @@ void StaticWorld::Draw(const GameDrawingData &drawing_data) const  {
     for (auto& [key, static_actor] : m_static_actors) {
         static_actor.Draw(drawing_data);
     }
+
+    if (WindowGlobal::Get().IsDebugRenderEnabled()) {
+        int NUM_CELLS = m_grid.NUM_CELLS;
+        int CELL_SIZE = m_grid.CELL_SIZE;
+        
+        // Precompute the range of cell indices
+        const float halfCell = CELL_SIZE * 0.5f;
+
+        // Loop over all cell indices in X and Z
+        for (int ix = 0; ix < NUM_CELLS; ++ix) {
+            for (int iz = 0; iz < NUM_CELLS; ++iz) {
+                // World position of this cell's center (X and Z only)
+                float worldX = m_grid.CellIntoCoord(ix);
+                float worldZ = m_grid.CellIntoCoord(iz);
+
+                float thickness = 10.0f;
+                // Draw the cell at every requested height
+                for (float h = 0; h < 100; h+=thickness) {
+                    Rendering::Get().RenderPrimitiveCube({ worldX+halfCell, h, worldZ+halfCell }, { halfCell, thickness, halfCell });
+                }
+            }
+        }
+    }
 }
 #endif
 
-void StaticWorld::SolveCollisionWith(BodyData &other) const
-{
+void StaticWorld::SolveCollisionWith(BodyData &other) const {
     m_heightmap.SolveCollisionWith(other);
 
-    for (auto& [key, static_actor] : m_static_actors) {
-        SolveCollisionOneWay(static_actor.body, other, static_actor.body.CollideWith(other));
-    }
+    PartitionUnit unit(nullptr, other.position.x, other.position.z);
+    unit.user_data = reinterpret_cast<void*>(&other);
+    m_grid.unit_with_grid(&unit, other.position.x, other.position.z);
+}
+
+ActorData& StaticWorld::AddStaticActor(ActorKey actor_key, ActorData static_actor) {
+    m_static_actors[actor_key] = static_actor;
+
+    PartitionUnit unit(&m_grid, static_actor.body.position.x, static_actor.body.position.z);
+    unit.user_data = reinterpret_cast<void*>(&m_static_actors[actor_key].body);
+    m_units.push_back(unit);
+    m_grid.add(&m_units.back());
+
+    return m_static_actors[actor_key];
 }

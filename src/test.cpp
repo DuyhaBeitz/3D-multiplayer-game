@@ -1,4 +1,52 @@
-int main() {};
+#include <iostream>
+
+const int NUM_CELLS = 10;
+const int CELL_SIZE = 100;
+const int min = -NUM_CELLS/2;
+const int max = NUM_CELLS/2 - 1;
+
+int CoordIntoCell_(float coord) {
+    int cell = (int)(coord / CELL_SIZE);
+    if (cell < min) cell = min;
+    if (cell > max) cell = max;
+    cell += NUM_CELLS/2;
+    return cell;
+}
+int CoordIntoCellCapped_(float coord) {
+    int cell = CoordIntoCell_(coord);
+    cell %= NUM_CELLS;
+    return cell;
+}
+float CellIntoCoord_(int cell) {
+    return CELL_SIZE * (cell - NUM_CELLS/2);
+}
+
+int main() {
+    for (int ix = 0; ix < NUM_CELLS; ix++) {
+        std::cout << "ix=" << ix;
+        float x = CellIntoCoord_(ix);
+        float recon = CoordIntoCell_(x);
+        if (ix != recon) {
+            std::cout << " failed: " << " rec=" << recon;
+            return 0;
+        }
+        std::cout << std::endl;
+    }
+
+    for (float x = min*CELL_SIZE; x < max*CELL_SIZE; x+=0.1) {
+        std::cout << "x=" << x;
+        int ix = CoordIntoCell_(x);
+        float xx = CellIntoCoord_(ix);
+        int recon = CoordIntoCell_(xx);
+        if (ix != recon) {
+            std::cout << " failed: " << " rec=" << recon;
+            return 0;
+        }
+        std::cout << std::endl;
+    }
+};
+
+
 // // #include "Game.hpp"
 // // #include "Serialization.hpp"
 
