@@ -82,6 +82,7 @@ void SolveCollision(BodyData &bA, BodyData &bB, const CollisionResult &collision
 
     const float m1 = bA.inverse_mass;
     const float m2 = bB.inverse_mass;
+    if (m1 + m2 < EPSILON) return;
 
     bA.position += normal*collision_result.penetration * (m1)/(m1+m2);
     bB.position -= normal*collision_result.penetration * (m2)/(m1+m2);
@@ -111,6 +112,7 @@ void SolveCollisionOneWay(const BodyData &bA, BodyData &bB, const CollisionResul
 
     const float m1 = 0;
     const float m2 = bB.inverse_mass;
+    if (m1 + m2 < EPSILON) return;
 
     //bA.position += normal*collision_result.penetration * (m1)/(m1+m2);
     bB.position -= normal*collision_result.penetration * (m2)/(m1+m2);
