@@ -1,12 +1,16 @@
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/shared.cmake)
 
-FetchContent_Declare(
-    raylib
-    GIT_REPOSITORY https://github.com/raysan5/raylib.git
-    GIT_TAG 5.5
-    GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(raylib)
+find_package(raylib 5.5 QUIET)
+
+if(NOT raylib_FOUND)
+    FetchContent_Declare(
+        raylib
+        GIT_REPOSITORY https://github.com/raysan5/raylib.git
+        GIT_TAG 5.5
+        GIT_SHALLOW TRUE
+    )
+    FetchContent_MakeAvailable(raylib)
+endif()
 
 add_executable(server
     src/World.cpp
