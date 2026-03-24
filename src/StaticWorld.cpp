@@ -26,7 +26,8 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
     #ifdef WITH_RENDER
-    auto data = Resources::Get().ModelFromKey(R_MODEL_TREE).GetInstancesData();
+    auto& model = Resources::Get().ModelFromKey(R_MODEL_TREE);
+    auto data = model.GetInstancesData();
     #endif
     std::vector<Vector3> positions{};
     std::vector<Vector3> scales{};
@@ -36,7 +37,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
 
         float s = dist_scale(engine) / 100.0f;
         s *= 10.0f;
-        scales.push_back(Vector3{s, s, s});
+        scales.push_back(Vector3{s, s, s} * model.GetScale());
 
         positions.push_back(
             Vector3{
@@ -69,7 +70,8 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
     #ifdef WITH_RENDER
-    auto data = Resources::Get().ModelFromKey(R_MODEL_GRASS).GetInstancesData();
+    auto& model = Resources::Get().ModelFromKey(R_MODEL_GRASS);
+    auto data = model.GetInstancesData();
     #endif
     std::vector<Vector3> positions{};
     std::vector<Vector3> scales{};
@@ -86,7 +88,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
         );
         float s = dist_scale(engine) / 100.0f;
         s *= 5.0f;
-        scales.push_back(Vector3{s, s, s});
+        scales.push_back(Vector3{s, s, s} * model.GetScale());
     }
 
     data->SetPositions(positions);

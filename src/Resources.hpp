@@ -271,6 +271,7 @@ public:
     void SetScale(float scale) {
         m_scale_multiplier = scale;
     }
+    float GetScale() const { return m_scale_multiplier; }
 
     void SetCurrentAlias(int current_alias) {
         m_current_alias = current_alias;

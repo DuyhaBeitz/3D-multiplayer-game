@@ -46,6 +46,10 @@ Rendering::Rendering() {
     R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);    
 
+    // R3D_ENVIRONMENT_SET(ssgi.enabled, true);
+    // R3D_ENVIRONMENT_SET(ssgi.intensity, 100);
+    // R3D_ENVIRONMENT_SET(ssgi.sampleCount, 100);
+
     // BLOOM
     // R3D_ENVIRONMENT_SET(bloom.mode, R3D_BLOOM_ADDITIVE);
     // R3D_ENVIRONMENT_SET(bloom.levels, 0.5f);
