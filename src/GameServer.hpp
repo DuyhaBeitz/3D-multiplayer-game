@@ -4,10 +4,27 @@
 #include "Chat.hpp"
 #include "shared.hpp"
 
+constexpr uint32_t tick_period = iters_per_sec/20; // broadcast game state every 100 ms
+constexpr uint32_t send_tick_period = tick_period; // sync client's tick with server's tick
+
+// the server runs in the present
+// but doesn't broadcast new world state right away, instead broadcasts late game state
+// it waits for late inputs and applies them retroactively
+// this variable is pretty much the maximum roundtrip (in ticks) that is still playable just fine
+// a bit more and none of the client packets will be applied
+// it's also how much players will see each other in the past
+// so there needs to be some balance, between allowing big ping and providing clients with not too old state
+constexpr uint32_t server_lateness = iters_per_sec/2;
+
+// ensuring that we're not substructing bigger uint32_t from the smaller one
+constexpr uint32_t max_lateness = tick_period+server_lateness;
+
+constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
+
 class GameServer : public Game{
 private:
     uint32_t m_tick = 0;
-    GameState m_late_game_state{};
+    GameState m_late_game_state{}; // is used to reconcile with late inputs from clients
     GameState m_game_state{};
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat{};
@@ -28,18 +45,24 @@ public:
     void Update() {
         m_server->Update();
 
+/*
+                                       'current_old_tick   'current_tick
+ticks: |---|---|---|---|---|---|---|---|---|---|---|---|---|
+           ^previous_old_tick  ^previous_tick
+*/
+
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
-            uint32_t current_tick = m_tick-server_lateness;
+            uint32_t current_tick = m_tick;
 
             uint32_t previous_tick = current_tick - tick_period;
-            uint32_t current_old_tick = current_tick - receive_tick_period;
-            uint32_t previous_old_tick = previous_tick - receive_tick_period;
+            uint32_t current_old_tick = current_tick - server_lateness;
+            uint32_t previous_old_tick = previous_tick - server_lateness;
 
             m_late_game_state = ApplyEvents(m_late_game_state, previous_old_tick, current_old_tick);
             m_game_state = ApplyEvents(m_late_game_state, current_old_tick, current_tick);
 
-            SerializedGameState data = Serialize(m_game_state);
-            data.tick = current_tick;
+            SerializedGameState data = Serialize(m_late_game_state);
+            data.tick = current_old_tick;
 
             ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
             m_server->Broadcast(packet); 
