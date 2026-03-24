@@ -37,7 +37,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
 
         float s = dist_scale(engine) / 100.0f;
         s *= 10.0f;
-        scales.push_back(Vector3{s, s, s} * model.GetScale());
+        scales.push_back(Vector3{s, s, s});
 
         positions.push_back(
             Vector3{
@@ -88,7 +88,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
         );
         float s = dist_scale(engine) / 100.0f;
         s *= 5.0f;
-        scales.push_back(Vector3{s, s, s} * model.GetScale());
+        scales.push_back(Vector3{s, s, s});
     }
 
     data->SetPositions(positions);
