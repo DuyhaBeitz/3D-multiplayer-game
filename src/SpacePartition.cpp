@@ -5,6 +5,9 @@ void PartitionGrid::add(PartitionUnit *unit) {
     int cellX = CoordIntoCellCapped(unit->x);
     int cellY = CoordIntoCellCapped(unit->y);
 
+    unit->curr_cell_x = cellX;
+    unit->curr_cell_y = cellY;
+
     // Add to the front of list for the cell it's in.
     unit->prev = nullptr;
     unit->next = m_cells[cellX][cellY];
@@ -12,6 +15,19 @@ void PartitionGrid::add(PartitionUnit *unit) {
 
     if (unit->next) {
         unit->next->prev = unit;
+    }
+}
+
+void PartitionGrid::remove(PartitionUnit *unit) {
+    // Unlink it from the list of its old cell.
+    if (unit->prev) unit->prev->next = unit->next;
+    if (unit->next) unit->next->prev = unit->prev;
+
+    int cellX = unit->curr_cell_x;
+    int cellY = unit->curr_cell_y;
+    // If it's the head of a list, remove it.
+    if (m_cells[cellX][cellY] == unit) {
+        m_cells[cellX][cellY] = unit->next;
     }
 }
 
@@ -77,28 +93,19 @@ void PartitionGrid::handle_partition_unit(PartitionUnit *unit, PartitionUnit *ot
 
 void PartitionGrid::move(PartitionUnit *unit, double x, double y) {
     // See which cell it was in.
-    int oldCellX = CoordIntoCellCapped(unit->x);
-    int oldCellY = CoordIntoCellCapped(unit->y);
+    int oldCellX = unit->curr_cell_x;
+    int oldCellY = unit->curr_cell_y;
 
     // See which cell it's moving to.
-    int cellX = CoordIntoCellCapped(unit->x);
-    int cellY = CoordIntoCellCapped(unit->y);
+    int cellX = CoordIntoCellCapped(x);
+    int cellY = CoordIntoCellCapped(y);
 
     unit->x = x;
     unit->y = y;
-
+    
     // If it didn't change cells, we're done.
     if (oldCellX == cellX && oldCellY == cellY) return;
 
-    // Unlink it from the list of its old cell.
-    if (unit->prev) unit->prev->next = unit->next;
-    if (unit->next) unit->next->prev = unit->prev;
-
-    // If it's the head of a list, remove it.
-    if (m_cells[oldCellX][oldCellY] == unit) {
-        m_cells[oldCellX][oldCellY] = unit->next;
-    }
-
-    // Add it back to the grid at its new cell.
+    remove(unit);
     add(unit);
 }

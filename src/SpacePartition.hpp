@@ -20,7 +20,7 @@ public:
     }
 
     void add(PartitionUnit* unit);
-    
+    void remove(PartitionUnit* unit);    
 
     void unit_with_grid(PartitionUnit* unit, float x, float y) const;
 
@@ -74,6 +74,9 @@ public:
 
     double x = 0;
     double y = 0;
+
+    int curr_cell_x = 0;
+    int curr_cell_y = 0;
 
     PartitionGrid* grid = nullptr;
     PartitionUnit* prev = nullptr;
