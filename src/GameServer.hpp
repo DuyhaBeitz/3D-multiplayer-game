@@ -33,7 +33,10 @@ public:
     }
 
     void Update() {
-        m_server->Update();
+        if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
+            BroadcastMetadata();
+            m_server->Broadcast(CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
+        }
 
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
@@ -53,10 +56,7 @@ public:
             m_server->Broadcast(packet); 
             DropEventHistory(current_tick-1);
         }
-        if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
-            BroadcastMetadata();
-            m_server->Broadcast(CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
-        }
+        m_server->Update();
 
         m_tick++;
     }
