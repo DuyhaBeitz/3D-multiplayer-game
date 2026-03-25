@@ -62,7 +62,7 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
     PATCH_COMMAND
         ${CMAKE_COMMAND}
-            -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/build/_deps/r3d-src
+            -DSOURCE_DIR=${CMAKE_BINARY_DIR}/_deps/r3d-src
             -DPATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/raylib_assert.patch
             -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/r3d_patch.cmake
 )
