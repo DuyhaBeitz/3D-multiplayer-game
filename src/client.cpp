@@ -130,7 +130,7 @@ void Init() {
         auto button = std::make_shared<UIFuncButton>(TextFormat("Server%d", i), rect);
         
         button->BindOnReleased([i](){
-                net_client->ConnectToServer(servers[i], 7777);
+                net_client->ConnectToServer(servers[i], 7777, 3000);
             }
         );
         connect_bar->AddChild(button);

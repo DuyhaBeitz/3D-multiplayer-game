@@ -4,10 +4,17 @@
 #include "Chat.hpp"
 #include "shared.hpp"
 
+constexpr uint32_t tick_period = 1; // broadcast game state every 100 ms
+constexpr uint32_t send_tick_period = 1; // sync client's tick with server's tick
+constexpr uint32_t server_lateness = iters_per_sec;
+// ensuring that we're not substructing bigger uint32_t from the smaller one
+constexpr uint32_t max_lateness = server_lateness+tick_period;
+
+constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
+
 class GameServer : public Game{
 private:
     uint32_t m_tick = 0;
-    GameState m_late_game_state{};
     GameState m_game_state{};
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat{};
@@ -15,7 +22,7 @@ private:
 public:
 
     GameServer() {
-        InitGame(m_late_game_state);
+        InitGame(m_game_state);
 
         m_server = std::make_shared<EasyNetServer>();
         m_server->CreateServer(server_port);
@@ -31,19 +38,20 @@ public:
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
 
-            uint32_t previous_tick = current_tick - tick_period;
-            uint32_t current_old_tick = current_tick - receive_tick_period;
-            uint32_t previous_old_tick = previous_tick - receive_tick_period;
+            // uint32_t previous_tick = current_tick - tick_period;
+            // uint32_t current_old_tick = current_tick - receive_tick_period;
+            // uint32_t previous_old_tick = previous_tick - receive_tick_period;
 
-            m_late_game_state = ApplyEvents(m_late_game_state, previous_old_tick, current_old_tick);
-            m_game_state = ApplyEvents(m_late_game_state, current_old_tick, current_tick);
+            uint32_t prev_tick = current_tick-tick_period;
+
+            m_game_state = ApplyEvents(m_game_state, prev_tick, current_tick);
 
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
 
             ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
             m_server->Broadcast(packet); 
-            DropEventHistory(previous_old_tick);
+            DropEventHistory(current_tick-1);
         }
         if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
             BroadcastMetadata();
@@ -83,6 +91,8 @@ public:
                 GameEvent game_event;
                 game_event.event_id = EV_PLAYER_INPUT;
                 game_event.data = received.input;
+                int d = m_tick - received.tick;
+                std::cout << "Received input. Delta tick: " << d << " ticks or " << d*dt << "s" << std::endl;
 
                 AddEvent(game_event, id, received.tick);
             }

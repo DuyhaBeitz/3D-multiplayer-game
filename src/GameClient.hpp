@@ -8,6 +8,8 @@
 
 #include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
 
+constexpr int history_size = iters_per_sec*3;
+
 class GameClient : public Game {
 private:
     uint32_t m_tick = 0;
@@ -26,7 +28,7 @@ private:
     GameState m_self_game_state{};
 
     uint32_t CalculateTickWinthPing(uint32_t tick) {
-        float delta_sec = m_client->GetPeer()->roundTripTime / 2 / 1000;
+        float delta_sec = m_client->GetPeer()->roundTripTime / 2.0 / 1000.0;
         uint32_t delta_tick = delta_sec * iters_per_sec;
         return tick + delta_tick;
     }
@@ -206,7 +208,7 @@ public:
             SerializedGameState data = ExtractData<SerializedGameState>(event.packet);
             auto rec_state = Deserialize(data);
             m_self_game_state = ApplyEvents(rec_state, data.tick, m_tick-1);
-            DropEventHistory(data.tick-max_lateness);
+            DropEventHistory(data.tick-history_size);
                         
             m_last_received_game = rec_state;
             m_last_received_game_tick = data.tick;       
