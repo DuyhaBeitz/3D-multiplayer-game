@@ -91,8 +91,6 @@ public:
                 GameEvent game_event;
                 game_event.event_id = EV_PLAYER_INPUT;
                 game_event.data = received.input;
-                int d = m_tick - received.tick;
-                std::cout << "Received input. Delta tick: " << d << " ticks or " << d*dt << "s" << std::endl;
 
                 AddEvent(game_event, id, received.tick);
             }
