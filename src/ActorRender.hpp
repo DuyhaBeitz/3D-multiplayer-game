@@ -24,14 +24,12 @@ struct ActorRenderData {
             model_aliased.Update(dt);
         }
 
-        if (model_key != R_MODEL_DEFAULT) {
-            Rendering::Get().RenderModel(
-                model_key,
-                body.position+offset, Vector3{0, 1, 0},
-                -yaw + PI/2,
-                Vector3{10, 10, 10}
-            );
-        }
+        Rendering::Get().RenderModel(
+            model_key,
+            body.position+offset, Vector3{0, 1, 0},
+            -yaw + PI/2,
+            Vector3{10, 10, 10}
+        );
     }    
 #endif
 

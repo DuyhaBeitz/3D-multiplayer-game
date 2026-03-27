@@ -64,5 +64,4 @@ public:
     virtual GameStateType Deserialize(SerializedGameStateType data) = 0;
 
     virtual GameStateType Lerp(const GameStateType& state1, const GameStateType& state2, float alpha, const void* data) = 0;
-    //virtual GameStateType ConditionalLerp(const GameStateType& state_0, const GameStateType& state1, const GameStateType& state2, float alpha, const void* data) = 0;
 };
