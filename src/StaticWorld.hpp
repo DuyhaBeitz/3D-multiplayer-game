@@ -24,6 +24,7 @@ class StaticWorld {
 private:
     HeightmapData m_heightmap{};
     ModelKey m_heightmap_model_key{};
+    unsigned int m_seed{};
 
     std::map<ActorKey, ActorData> m_static_actors{};
     ActorPartitioner m_partitioner;
@@ -47,4 +48,6 @@ public:
     void SolveCollisionWith(BodyData &other) const;
     void SetupWorld(const GameMetadata& game_metadata);
     void Load(const GameMetadata& game_metadata);
+
+    unsigned int GetSeed() const { return m_seed; }
 };

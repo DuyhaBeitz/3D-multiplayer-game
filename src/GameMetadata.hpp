@@ -28,7 +28,6 @@ struct SerializedGameMetadata {
 class GameMetadata {
 private:
     std::map<uint32_t, PlayerMetadata> m_players{};
-    unsigned int m_seed{};
 
 public:
     GameMetadata() = default;
@@ -76,5 +75,4 @@ public:
         ar(m_players);
     }
 
-    unsigned int GetSeed() const { return m_seed; }
 };

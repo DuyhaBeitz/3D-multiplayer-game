@@ -303,27 +303,32 @@ inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float nor
 class Resources {
 private:
     int max_font_size = 128; // any begger than that will be upscaled
-    const char* supported_font_chars = 
-    " `~!\"#$%&'()*+,-./0123456789:;<=>?@|_/\\^"
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    // Latin-1 Supplement (accents for Western European languages)
-    "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
-    "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
-    // Spanish extra letters
-    "¡¿"
-    // French extra letters
-    "Œœ"
-    // German extra letters
-    "ÄÖÜäöüß"
-    // Portuguese extra letters
-    "ÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇáéíóúàèìòùâêîôûãõç"
-    // Cyrillic (Russian, Ukrainian, etc.)
-    "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
-    "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-    ;
 
     Resources() {
+        std::cout << "Initializing resources" << std::endl;
+        const char* supported_font_chars = 
+        " `~!\"#$%&'()*+,-./0123456789:;<=>?@|_/\\^"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        // Latin-1 Supplement (accents for Western European languages)
+        "ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞß"
+        "àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ"
+        // Spanish extra letters
+        "¡¿"
+        // French extra letters
+        "Œœ"
+        // German extra letters
+        "ÄÖÜäöüß"
+        // Portuguese extra letters
+        "ÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕÇáéíóúàèìòùâêîôûãõç"
+        // Cyrillic (Russian, Ukrainian, etc.)
+        "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+        "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+        SetFont(R_FONT_DEFAULT,
+            LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
+        );
+        SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);      
+
         SetModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
         SetModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 10);
         m_models[R_MODEL_PLAYER].SetScale(1.5f);
@@ -358,11 +363,6 @@ private:
         mat.orm.occlusion = 0;
         m_models[R_MODEL_TEST].SetMaterial(mat);
         }
-        
-        SetFont(R_FONT_DEFAULT,
-            LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
-        );
-        SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);        
 
         std::cout << "Successfully loaded resources" << std::endl;
     }
@@ -373,6 +373,7 @@ private:
     std::unordered_map<ModelKey, ModelAliased> m_models;
     std::unordered_map<FontKey, Font> m_fonts;
 
+public:
     void SetInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadInstanced(filename, num_instances);
@@ -406,7 +407,6 @@ private:
         m_fonts[font_key] = font;
     }
 
-public:
     void Unload() {
         m_models.clear();
 

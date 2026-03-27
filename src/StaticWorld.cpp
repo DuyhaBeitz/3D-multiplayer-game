@@ -20,12 +20,12 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     Vector3 corner = m_heightmap.GetPosition();
     Vector3 scale = m_heightmap.GetScale();
 
-    std::mt19937 engine(game_metadata.GetSeed()); 
+    std::mt19937 engine(m_seed);
     //setup trees
     std::uniform_int_distribution<int> dist_xz(0, 1000);
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
-    #ifdef WITH_RENDER
+    #if WITH_RENDER
     auto& model = Resources::Get().ModelFromKey(R_MODEL_TREE);
     auto data = model.GetInstancesData();
     #endif
@@ -61,7 +61,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
         m_static_actors[i].render_data.model_key = R_MODEL_NONE;
         }
     }
-    #ifdef WITH_RENDER
+    #if WITH_RENDER
     data->SetPositions(positions);
     data->SetScales(scales);
     
@@ -69,7 +69,7 @@ void StaticWorld::SetupWorld(const GameMetadata &game_metadata) {
     std::uniform_int_distribution<int> dist_xz(0, 1000);
     std::uniform_int_distribution<int> dist_scale(50, 150);
 
-    #ifdef WITH_RENDER
+    #if WITH_RENDER
     auto& model = Resources::Get().ModelFromKey(R_MODEL_GRASS);
     auto data = model.GetInstancesData();
     #endif
