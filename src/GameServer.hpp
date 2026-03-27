@@ -40,11 +40,6 @@ public:
 
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
             uint32_t current_tick = m_tick-server_lateness;
-
-            // uint32_t previous_tick = current_tick - tick_period;
-            // uint32_t current_old_tick = current_tick - receive_tick_period;
-            // uint32_t previous_old_tick = previous_tick - receive_tick_period;
-
             uint32_t prev_tick = current_tick-tick_period;
 
             m_game_state = ApplyEvents(m_game_state, prev_tick, current_tick);
