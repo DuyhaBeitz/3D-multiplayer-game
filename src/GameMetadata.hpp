@@ -40,6 +40,16 @@ public:
         std::snprintf(m_players[id].name, max_player_name_len, "%s", name);
     }
 
+    std::map<uint32_t, PlayerMetadata>& GetPlayers() { return m_players; }
+
+    bool PlayerExists(uint32_t id) {
+        return m_players.find(id) != m_players.end();
+    }
+
+    void RemovePlayer(uint32_t id) {
+        m_players.erase(id);
+    }
+
     SerializedGameMetadata Serialize() {
         SerializedGameMetadata sgs{};
         

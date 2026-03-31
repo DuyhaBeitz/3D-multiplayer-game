@@ -34,6 +34,7 @@ public:
 
     void Update() {
         if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
+            UpdateMetadata();
             BroadcastMetadata();
             m_server->Broadcast(CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
         }
@@ -112,6 +113,19 @@ public:
             }
         default:
             break;
+        }
+    }
+
+    void UpdateMetadata() {
+        // only deletion, the addition is handled on connection
+        std::vector<uint32_t> player_ids_for_deletion{};
+        for (auto& [id, player_metadata] : m_game_metadata.GetPlayers()) {
+            if (m_game_state.players.find(id) == m_game_state.players.end()) {
+                player_ids_for_deletion.push_back(id);
+            }
+        }
+        for (auto& id : player_ids_for_deletion) {
+            m_game_metadata.RemovePlayer(id);
         }
     }
 

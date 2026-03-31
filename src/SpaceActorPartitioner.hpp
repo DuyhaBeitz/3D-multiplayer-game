@@ -1,7 +1,6 @@
 #pragma once
 #include "Actor.hpp"
 #include "SpacePartition.hpp"
-#include <deque>
 #include <unordered_map>
 
 class ActorPartitioner {

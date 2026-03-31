@@ -1,5 +1,5 @@
 #include "SpaceActorPartitioner.hpp"
-#include <unordered_set>
+#include <vector>
 
 ActorData &ActorPartitioner::AddActor(ActorKey actor_key) {
     ActorData& actor = (*m_actors).at(actor_key);
@@ -43,10 +43,10 @@ void ActorPartitioner::UpdateView() {
     m_marked_units.clear();
 
     // detect removed actors
-    std::unordered_set<ActorKey> for_deletion{};
+    std::vector<ActorKey> for_deletion{};
     for (auto& [actor_key, unit] : m_units) {
         if ((*m_actors).find(actor_key) == (*m_actors).end()) {
-            for_deletion.emplace(actor_key);
+            for_deletion.push_back(actor_key);
         }
     }    
     for (auto& actor_key : for_deletion) {
