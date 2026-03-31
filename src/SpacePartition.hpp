@@ -61,6 +61,7 @@ private:
 
 struct PartitionUnit {
 public:
+    PartitionUnit() = default;
     PartitionUnit(PartitionGrid* grid_, double x_, double y_)
     : grid(grid_), x(x_), y(y_), prev(nullptr), next(nullptr)
     {

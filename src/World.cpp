@@ -11,7 +11,7 @@ void WorldData::Draw(const GameDrawingData &drawing_data) const {
 #endif
 
 void WorldData::Update(float delta_time, const GameMetadata& game_metadata, const StaticWorld& static_world){
-    constexpr int phys_iters = 1;
+    constexpr int phys_iters = 10;
     float sub_dt = delta_time / phys_iters;
     
     m_partitioner.UpdateView();

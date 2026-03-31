@@ -67,6 +67,7 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
 
     case EV_PLAYER_LEAVE:
         state.world_data.RemoveActor(state.players.at(id).actor_key);
+        state.players.erase(id);
         break;
 
     case EV_PLAYER_INPUT:

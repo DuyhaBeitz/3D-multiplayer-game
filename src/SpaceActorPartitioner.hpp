@@ -2,14 +2,14 @@
 #include "Actor.hpp"
 #include "SpacePartition.hpp"
 #include <deque>
-#include <unordered_set>
+#include <unordered_map>
 
 class ActorPartitioner {
 private:
     std::map<ActorKey, ActorData>* m_actors = nullptr;
     PartitionGrid m_grid{};
-    std::deque<PartitionUnit> m_units{}; // vector copies objects on resize, which causes problems with pointers used in grid
-    std::unordered_set<ActorKey> m_known_keys{};
+
+    std::unordered_map<ActorKey, PartitionUnit> m_units{}; // vector copies objects on resize, which causes problems with pointers used in grid
 
     // cannot just update grid immediately on_actor_move,
     // so we first mark them, then on global update touch grid
@@ -22,6 +22,8 @@ private:
     std::unordered_set<PartitionUnit*> m_marked_units{};
 
     ActorData& AddActor(ActorKey actor_key);
+    void RemoveActor(ActorKey actor_key);
+
 public:
     void UpdateView();
     
