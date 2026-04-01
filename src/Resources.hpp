@@ -302,6 +302,9 @@ inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float nor
 
 class Resources {
 private:
+    std::unordered_map<ModelKey, ModelAliased> m_models;
+    std::unordered_map<FontKey, Font> m_fonts;
+
     int max_font_size = 128; // any begger than that will be upscaled
 
     Resources() {
@@ -329,67 +332,32 @@ private:
         );
         SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);      
 
-        SetModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
-        SetModelAnimated(R_MODEL_PLAYER, "assets/Solus_the_knight.gltf", 10);
-        m_models[R_MODEL_PLAYER].SetScale(1.5f);
-        SetModelNonAnimated(R_MODEL_CUBE_EXCLAMATION, "assets/box_crate.glb");
-        SetModelNonAnimated(R_MODEL_FOOTBALL, "assets/football_ball.glb");
-        m_models[R_MODEL_FOOTBALL].SetScale(9.1f);
-
-        SetInstancedModel(R_MODEL_TREE, "assets/palm_tree_realistic.glb", trees_count);
-        SetInstancedModel(R_MODEL_GRASS, "assets/grass.glb", grass_count);
-
-        SetHeightmapModel(R_MODEL_HEIGHTMAP0, P_HIEGHTMAP0_IMAGE_PATH, heightmap0_scale);
-        m_models[R_MODEL_HEIGHTMAP0].SetMaterial(
-            CreateMaterial(
-                LoadTexture("assets/sand/GroundSand005_COL_1K.jpg"),
-                LoadTexture("assets/sand/GroundSand005_NRM_1K.jpg"),
-                1.3f,
-                10.0f
-            )
-        );
-
-        {
-        R3D_Mesh mesh = R3D_GenMeshCube(2.0f, 2.0f, 2.0f);
-        m_models[R_MODEL_TEST].FromMeshNonAnimated(mesh);
-        R3D_Material mat = R3D_GetDefaultMaterial();
-        Color clr = RED;
-        
-        mat.albedo.color = clr;
-        mat.emission.color = clr;
-        mat.emission.energy = 0;
-        mat.orm.metalness = 0;
-        mat.orm.roughness = 1.0;
-        mat.orm.occlusion = 0;
-        m_models[R_MODEL_TEST].SetMaterial(mat);
-        }
-
         std::cout << "Successfully loaded resources" << std::endl;
     }
 
     ~Resources() {
     }
 
-    std::unordered_map<ModelKey, ModelAliased> m_models;
-    std::unordered_map<FontKey, Font> m_fonts;
-
 public:
-    void SetInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
+    ModelAliased& SetInstancedModel(ModelKey model_key, std::string filename, int num_instances) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadInstanced(filename, num_instances);
+        return m_models.at(model_key);
     }
 
-    void SetModelNonAnimated(ModelKey model_key, std::string filename) {
+    ModelAliased& SetModelNonAnimated(ModelKey model_key, std::string filename) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadNonAnimated(filename);
+        return m_models.at(model_key);
     }
 
-    void SetModelAnimated(ModelKey model_key, std::string filename, int num_aliases) {
+    ModelAliased& SetModelAnimated(ModelKey model_key, std::string filename, int num_aliases) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadAnimated(filename, num_aliases);
+        return m_models.at(model_key);
     }
 
-    void SetHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+    ModelAliased& SetHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
 
         Image img = LoadImage(filename.c_str());
@@ -397,14 +365,24 @@ public:
 
         m_models[model_key].FromMeshNonAnimated(mesh);
         UnloadImage(img);
+        return m_models.at(model_key);
     }
 
-    void SetFont(FontKey font_key, Font font) {
+    Font& SetFont(FontKey font_key, Font font) {
+        TryUnloadFont(font_key);
+        m_fonts[font_key] = font;
+        return m_fonts.at(font_key);
+    }
+
+    void TryUnloadModel(ModelKey model_key) {
+        m_models.erase(model_key);
+    }
+
+    void TryUnloadFont(FontKey font_key) {
         if (m_fonts.find(font_key) != m_fonts.end()) {
             UnloadFont(m_fonts[font_key]);
             m_fonts.erase(font_key);
         }
-        m_fonts[font_key] = font;
     }
 
     void Unload() {

@@ -27,42 +27,11 @@ void GameState::Draw(const GameDrawingData &drawing_data) const {
 }
 #endif
 
-void Game::InitNewPlayer(GameState &state, uint32_t id) {
-    int player_count = state.players.size();
-
-    BodyData body_data;
-    float r = 13.0f / 2;
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-
-    ActorData actor_data(body_data, R_MODEL_PLAYER);
-    
-    actor_data.render_data.offset = {0, -12, 0};
-
-    actor_data.body.position = Vector3{10.0f*player_count, 10, 0};
-
-    PlayerData player_data;
-    player_data.actor_key = state.world_data.AddActor(actor_data);
-    
-    m_game_metadata.SetPlayerName(id, TextFormat("player_%d", player_count));
-
-    state.players[id] = player_data;
-}
-
 void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
     switch (event.event_id) {
     case EV_PLAYER_JOIN:
-        InitNewPlayer(state, id);
+        m_scene_manager.GetScene()->InitNewPlayer(state, id);
+        m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", state.players.size()));
         break;
 
     case EV_PLAYER_LEAVE:
@@ -87,8 +56,7 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
 void Game::Draw(const GameState &state, const GameDrawingData &drawing_data) {
     #if WITH_RENDER
     state.Draw(drawing_data);
-    //drawing_data.game_metadata.Draw();
-    m_static_world.Draw(drawing_data);
+    m_scene_manager.GetScene()->Draw(drawing_data);
     #endif
 }
 
@@ -150,58 +118,8 @@ GameState Game::Deserialize(SerializedGameState data) {
 }
 
 void Game::InitGame(GameState &state) {
-    //m_game_metadata.Load();
-    m_static_world.Load(m_game_metadata);
-
-    // { // floor
-    // BoxData box_data;
-    // box_data.half_extents = Vector3{1000, 100, 1000};
-
-    // BodyData body_data;
-    // body_data.position = Vector3{0, -100, 0};
-    // body_data.velocity = Vector3{0, 0, 0};
-    // body_data.inverse_mass = 0;
-    // body_data.shapes.push_back(CollisionShape(box_data));
-
-    // state.world_data.AddActor(ActorData(body_data));
-    // }
-
-    // {
-    // BoxData box_data;
-    // box_data.half_extents = Vector3{30, 5, 30};
-
-    // BodyData body_data;
-    // body_data.position = Vector3{40, 20, 0};
-    // body_data.shapes.push_back(CollisionShape(box_data));
-
-    // state.world_data.AddActor(ActorData(body_data));
-    // }
-    
-    {
-    BoxData box_data;
-    float a = 10;
-    box_data.SetHalfExtends(Vector3{a, a, a});
-
-    BodyData body_data;
-    body_data.position = Vector3{0, 20, 40};
-    body_data.shapes.push_back(CollisionShape(box_data));
-
-    ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-    state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_CUBE_EXCLAMATION;
-    }
-
-    for (int i = 1; i < 10; i++) {
-        SphereData sphere_data;
-        sphere_data.SetRadius(10.0f);
-
-        BodyData body_data;
-        body_data.restitution = 2;
-        body_data.position = Vector3{40.f*(i%10), 30.f*i, 40.f*(i/10)};
-        body_data.shapes.push_back(CollisionShape(sphere_data));
-
-        ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-        state.world_data.GetActor(actor_key).render_data.model_key = R_MODEL_FOOTBALL;
-    }
+    m_scene_manager.GetScene()->Setup();
+    state = m_scene_manager.GetScene()->PopulateState(state);
 }
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target) {

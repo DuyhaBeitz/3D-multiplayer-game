@@ -21,9 +21,9 @@ add_executable(server
     src/Rendering.cpp
     src/WindowGlobal.cpp
     src/GameMetadata.cpp
-    src/StaticWorld.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/Scenes/Desert.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet
@@ -43,9 +43,9 @@ add_executable(client
     src/Settings.cpp
     src/WindowGlobal.cpp
     src/GameMetadata.cpp
-    src/StaticWorld.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/Scenes/Desert.cpp
 )
 add_executable(standalone 
     src/World.cpp
@@ -58,9 +58,9 @@ add_executable(standalone
     src/Settings.cpp
     src/WindowGlobal.cpp
     src/GameMetadata.cpp
-    src/StaticWorld.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/Scenes/Desert.cpp
 )
 add_executable(test
     src/World.cpp
@@ -71,9 +71,9 @@ add_executable(test
     src/Rendering.cpp
     src/WindowGlobal.cpp
     src/GameMetadata.cpp
-    src/StaticWorld.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/Scenes/Desert.cpp
 )
 
 # r3d doesn't currently expose its public headers via target properties,

@@ -18,9 +18,9 @@ add_executable(server
     src/server.cpp
     src/Physics.cpp
     src/GameMetadata.cpp
-    src/StaticWorld.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/Scenes/Desert.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet

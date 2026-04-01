@@ -1,6 +1,6 @@
 #include "World.hpp"
 #include "GameMetadata.hpp"
-#include "StaticWorld.hpp"
+#include "Scene.hpp"
 
 #if WITH_RENDER
 void WorldData::Draw(const GameDrawingData &drawing_data) const {
@@ -10,7 +10,7 @@ void WorldData::Draw(const GameDrawingData &drawing_data) const {
 }
 #endif
 
-void WorldData::Update(float delta_time, const GameMetadata& game_metadata, const StaticWorld& static_world){
+void WorldData::Update(float delta_time, const GameMetadata& game_metadata, const SceneBase* scene){
     constexpr int phys_iters = 10;
     float sub_dt = delta_time / phys_iters;
     
@@ -20,7 +20,7 @@ void WorldData::Update(float delta_time, const GameMetadata& game_metadata, cons
         m_partitioner.GetGrid().iterate_cells();
 
         for (auto& [actor_key, actor_data] : actors) {
-            static_world.SolveCollisionWith(actor_data.body);
+            scene->SolveCollisionWith(actor_data.body);
         }
         
         for (auto& [key, actor_data] : actors) {

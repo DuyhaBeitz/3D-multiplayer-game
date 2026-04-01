@@ -9,10 +9,11 @@
 #include <memory>
 
 #include "World.hpp"
-#include "StaticWorld.hpp"
 #include "Serialization.hpp"
 
 #include "Constants.hpp"
+
+#include "SceneManager.hpp"
 
 enum EventId {
     EV_PLAYER_JOIN = 0,
@@ -181,18 +182,16 @@ class GameDrawingData;
 
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 protected:
-    GameMetadata m_game_metadata;
-    StaticWorld m_static_world;
+    GameMetadata m_game_metadata{};
+    SceneManager m_scene_manager{};
 
 public:
-    void InitNewPlayer(GameState& state, uint32_t id);
-
     virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id);
 
     virtual void Draw(const GameState& state, const GameDrawingData& data);
 
     virtual void UpdateGameLogic(GameState& state) {
-        state.world_data.Update(dt, m_game_metadata, m_static_world);
+        state.world_data.Update(dt, m_game_metadata, m_scene_manager.GetScene());
     }
 
     virtual GameState Lerp(const GameState& state1, const GameState& state2, float alpha, const void* data);

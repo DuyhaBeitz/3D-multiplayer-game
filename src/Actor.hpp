@@ -14,7 +14,7 @@ struct ActorData {
     ActorRenderData render_data;
     
     ActorData() = default;
-    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_DEFAULT)
+    ActorData(const BodyData& body_) : body(body_), yaw(0.0f), pitch(0.0f), render_data(R_MODEL_NONE)
     {
     }
 
