@@ -7,7 +7,7 @@ private:
     ~Settings() {
     }
 
-    float m_resolution_scale = 0.5f;
+    float m_resolution_scale = 0.3f;
 
     bool m_dof_enabled = false;
     float m_dof_focus_point = 2.0f;

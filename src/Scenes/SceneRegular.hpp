@@ -30,7 +30,6 @@ public:
     SceneRegular(std::string heightmap_image_path, uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count);
 
     virtual void Setup();
-    virtual void InitNewPlayer(GameState &state, uint32_t id); 
     virtual void SolveCollisionWith(BodyData &other) const;
     //virtual void Update(WorldData& world);
 };

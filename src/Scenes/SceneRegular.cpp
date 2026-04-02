@@ -135,37 +135,6 @@ void SceneRegular::Setup() {
     std::cout << "Successfully set up scene" << std::endl;
 }
 
-void SceneRegular::InitNewPlayer(GameState &state, uint32_t id) {
-    int player_count = state.players.size();
-
-    BodyData body_data;
-    float r = 13.0f / 2;
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-
-    ActorData actor_data(body_data, Models::Player);
-    
-    actor_data.render_data.offset = {0, -12, 0};
-
-    actor_data.body.position = Vector3{10.0f*player_count, 10, 0};
-
-    PlayerData player_data;
-    player_data.actor_key = state.world_data.AddActor(actor_data);
-    
-
-    state.players[id] = player_data;
-}
-
 void SceneRegular::SolveCollisionWith(BodyData &other) const {
     m_heightmap.SolveCollisionWith(other);
 

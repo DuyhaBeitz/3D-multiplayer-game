@@ -71,6 +71,6 @@ public:
         Rendering::Get().DrawPrimitives();
         Rendering::Get().DrawTexts();
         Rendering::Get().DisableCameraBasic();
-        DrawFPS(100, 100);
+        //DrawFPS(100, 100);
     }
 };

@@ -29,7 +29,7 @@ constexpr int grass_count = 500;
 void Desert::PostSetup() {
     float x = -150.0f;
     float z = 150.0f;
-    m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z), z};
+    m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z) + 15, z};
 }
 
 Desert::Desert() : SceneRegular(P_HIEGHTMAP_IMAGE_PATH, 0, heightmap_scale, trees_count, grass_count)
@@ -227,4 +227,35 @@ Scenes Desert::CheckSceneChange(const GameState &state) {
     }
     if (players_ready) return Scenes::Green;
     return Scenes::None;
+}
+
+void Desert::InitNewPlayer(GameState &state, uint32_t id) {
+    int player_count = state.players.size();
+
+    BodyData body_data;
+    float r = 13.0f / 2;
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+
+    ActorData actor_data(body_data, Models::Player);
+    
+    actor_data.render_data.offset = {0, -12, 0};
+
+    actor_data.body.position = Vector3{10.0f*player_count, 10, 0};
+
+    PlayerData player_data;
+    player_data.actor_key = state.world_data.AddActor(actor_data);
+    
+
+    state.players[id] = player_data;
 }

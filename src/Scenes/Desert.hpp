@@ -40,6 +40,7 @@ public:
     virtual GameState PopulateState(const GameState &old_state);
 
     virtual Scenes CheckSceneChange(const GameState &state);
+    virtual void InitNewPlayer(GameState &state, uint32_t id); 
 
     //virtual void Update(WorldData& world);
 };

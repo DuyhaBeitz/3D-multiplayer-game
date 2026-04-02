@@ -28,9 +28,9 @@ constexpr int grass_count = 0;
 #define P_HIEGHTMAP_IMAGE_PATH "assets/heightmap_02.png"
 
 void Green::PostSetup() {
-    float x = 150.0f;
-    float z = 150.0f;
-    m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z), z};
+    float x = -150.0f;
+    float z = -150.0f;
+    m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z)+15, z};
 }
 
 Green::Green() : SceneRegular(P_HIEGHTMAP_IMAGE_PATH, 0, heightmap_scale, trees_count, grass_count)
@@ -129,7 +129,7 @@ void Green::Draw(const GameDrawingData &drawing_data) const {
 
                 float thickness = 10.0f;
                 // Draw the cell at every requested height
-                for (float h = 0; h < 100; h+=thickness) {
+                for (float h = 0; h < 1000; h+=thickness) {
                     Rendering::Get().RenderPrimitiveCube({ worldX+halfCell, h, worldZ+halfCell }, { halfCell, thickness, halfCell });
                 }
             }
@@ -184,18 +184,36 @@ void Green::Unload() {
 
 GameState Green::PopulateState(const GameState &old_state) {
     GameState state;
-    {
-    BoxData box_data;
-    float a = 10;
-    box_data.SetHalfExtends(Vector3{a, a, a});
+    // {
+    // BoxData box_data;
+    // float a = 10;
+    // box_data.SetHalfExtends(Vector3{a, a, a});
 
-    BodyData body_data;
-    body_data.position = Vector3{0, 20, 40};
-    body_data.shapes.push_back(CollisionShape(box_data));
+    // BodyData body_data;
+    // body_data.position = Vector3{0, 20, 40};
+    // body_data.shapes.push_back(CollisionShape(box_data));
 
-    ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-    state.world_data.GetActor(actor_key).render_data.model_key = Models::CubeExclamation;
-    }
+    // ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    // state.world_data.GetActor(actor_key).render_data.model_key = Models::CubeExclamation;
+    // }
+
+    // Vector3 corner = m_heightmap.GetPosition();
+    // Vector3 center = m_heightmap.GetBottomCenter();
+    // Vector3 diagonal = (center - corner)*2.0f;
+
+    // int N = 20;
+    // for (int i = 0; i < N*N; i++) {
+    //     SphereData sphere_data;
+    //     sphere_data.SetRadius(10.0f);
+
+    //     BodyData body_data;
+    //     body_data.restitution = 2;
+    //     body_data.position = Vector3{corner.x+diagonal.x/float(N)*(i%N), 500+10.f*(i%10), corner.z+diagonal.z/float(N)*(i/N)};
+    //     body_data.shapes.push_back(CollisionShape(sphere_data));
+
+    //     ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    //     state.world_data.GetActor(actor_key).render_data.model_key = Models::Football;
+    // }
 
     for (int i = 1; i < 10; i++) {
         SphereData sphere_data;
@@ -230,4 +248,36 @@ Scenes Green::CheckSceneChange(const GameState &state) {
     }
     if (players_ready) return Scenes::Desert;
     return Scenes::None;
+}
+
+
+void Green::InitNewPlayer(GameState &state, uint32_t id) {
+    int player_count = state.players.size();
+
+    BodyData body_data;
+    float r = 13.0f / 2;
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+    {
+    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
+    body_data.shapes.push_back(sphere);
+    }
+
+    ActorData actor_data(body_data, Models::Player);
+    
+    actor_data.render_data.offset = {0, -12, 0};
+
+    actor_data.body.position = Vector3{500+10.0f*player_count, 10, 500};
+
+    PlayerData player_data;
+    player_data.actor_key = state.world_data.AddActor(actor_data);
+    
+
+    state.players[id] = player_data;
 }
