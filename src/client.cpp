@@ -46,7 +46,7 @@ int main() {
             connect_screen->Draw();
             EndDrawing();
         }
-        else {
+        else if (game_client->InitialSyncComplete()) {
             switch (current_screen) {
                 case PLAYING:
                     UpdateGame(accumulator);

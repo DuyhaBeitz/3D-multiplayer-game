@@ -78,6 +78,10 @@ public:
         m_server->SendTo(id, CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
         m_server->SendTo(id, CreatePacket<uint32_t>(MSG_PLAYER_ID, id));
         AddAndSyncChatMessage(server_chat_name, TextFormat("Player joined"));
+
+        Scenes scene_id = m_scene_manager.GetSceneId();
+        ENetPacket* packet = CreatePacket<Scenes>(MSG_SCENE_INITIAL, scene_id, ENET_PACKET_FLAG_RELIABLE);
+        m_server->SendTo(id, packet);
     }
 
     void OnDisconnect(ENetEvent event) {

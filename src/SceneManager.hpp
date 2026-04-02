@@ -9,20 +9,17 @@
 class SceneManager {
 private:
     std::unique_ptr<SceneBase> m_scene;
-public:
+    Scenes m_scene_id;
 
+public:
     SceneManager() {
-        m_scene = std::make_unique<Desert>();
-        //m_scene = std::make_unique<Green>();
+        SetScene(default_scene);
     }
 
     SceneBase* GetScene() { return m_scene.get(); }
     const SceneBase* GetScene() const { return m_scene.get(); }
-    void ChangeScene(Scenes scene_id) {
-        if (scene_id == Scenes::None) return;
-        m_scene->Unload();
-        m_scene.reset();
 
+    void SetScene(Scenes scene_id) {
         switch (scene_id) {
         case Scenes::Desert:
             m_scene = std::make_unique<Desert>();
@@ -33,7 +30,18 @@ public:
             m_scene = std::make_unique<Green>();
             break;
         }
+        m_scene_id = scene_id;
+    }
+
+    void ChangeScene(Scenes scene_id) {
+        if (scene_id == Scenes::None) return;
+        m_scene->Unload();
+        m_scene.reset();
+
+        SetScene(scene_id);
         
         m_scene->Load();
     }
+
+    Scenes GetSceneId() { return m_scene_id; }
 };

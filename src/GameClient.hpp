@@ -65,7 +65,22 @@ private:
         m_chat_ui->AddChild(split_v);
     }
 
+    // initial sync
+    bool m_received_initial_scene = false;
+    Scenes m_initial_scene;
+
+    void TryToInit() {
+        if (InitialSyncComplete()) {
+            m_scene_manager.SetScene(m_initial_scene);
+            m_scene_manager.GetScene()->Load();
+            InitGame();
+        }
+    }
+
 public:
+    bool InitialSyncComplete() {
+        return m_received_initial_scene;
+    }
 
     virtual void InitGame() {
         m_scene_manager.GetScene()->Setup();
@@ -76,10 +91,6 @@ public:
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
 
     GameClient() {
-        Rendering::Init();
-        m_scene_manager.GetScene()->Load();
-        InitGame();
-
         m_client = std::make_shared<EasyNetClient>();
         m_client->CreateClient();
         m_client->SetOnReceive([this](ENetEvent event){OnReceive(event);});
@@ -238,11 +249,16 @@ public:
                 m_game_metadata.Deserialize(received);
             }
             break;
+        case MSG_SCENE_INITIAL:
+            m_initial_scene = ExtractData<Scenes>(event.packet);
+            m_received_initial_scene = true;
+            TryToInit();
+            break;
         case MSG_SCENE_CHANGE:
             {
-            Scenes scene_id = ExtractData<Scenes>(event.packet);
-            m_scene_manager.ChangeScene(scene_id);
-            InitGame();
+                Scenes scene_id = ExtractData<Scenes>(event.packet);
+                m_scene_manager.ChangeScene(scene_id);
+                InitGame();
             }
             break;
         default:
