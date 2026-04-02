@@ -18,7 +18,7 @@
 enum EventId {
     EV_PLAYER_JOIN = 0,
     EV_PLAYER_LEAVE,
-    EV_PLAYER_INPUT
+    EV_PLAYER_INPUT,
 };
 
 // Event data
@@ -199,7 +199,8 @@ public:
     virtual SerializedGameState Serialize(const GameState& state);
     GameState Deserialize(SerializedGameState data);
 
-    void InitGame(GameState& state);
+    virtual void InitGame() = 0;
+    void InitGameState(GameState& state);
 };
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target);

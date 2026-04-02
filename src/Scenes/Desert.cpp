@@ -3,6 +3,11 @@
 #include "Game.hpp"
 #include <random>
 
+#if WITH_RENDER
+#include "Resources.hpp"
+#include "Rendering.hpp"
+#endif
+
 enum Models : ModelKey {
     None = R_MODEL_NONE,
     Player,
@@ -21,24 +26,21 @@ constexpr int grass_count = 500;
 
 #define P_HIEGHTMAP_IMAGE_PATH "assets/Heightmap_01_Mountain.png"
 
-Desert::Desert() : m_partitioner(&m_static_actors) {
-    m_partitioner.GetGrid().SetHandlePairFunc(
-        [](PartitionUnit* un1, PartitionUnit* un2){
-            if (un1 && un2) {
-                BodyData* dynamic_body = reinterpret_cast<BodyData*>(un1->user_data);
-                BodyData* static_body = reinterpret_cast<BodyData*>(un2->user_data);
-                SolveCollisionOneWay(*static_body, *dynamic_body, static_body->CollideWith(*dynamic_body));
-            }
-        }
-    );
+void Desert::PostSetup() {
+    float x = -150.0f;
+    float z = 150.0f;
+    m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z), z};
+}
+
+Desert::Desert() : SceneRegular(P_HIEGHTMAP_IMAGE_PATH, 0, heightmap_scale, trees_count, grass_count)
+{
 }
 
 #if WITH_RENDER
-#include "Resources.hpp"
-#include "Rendering.hpp"
 
 void Desert::LoadResources() {
     std::cout << "Loading scene resources..." << std::endl;
+
     Resources& r = Resources::Get();
     //ModelAliased& p = SetModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
     ModelAliased& player = r.SetModelAnimated(Models::Player, "assets/Solus_the_knight.gltf", 10);
@@ -49,8 +51,12 @@ void Desert::LoadResources() {
     ModelAliased& football = r.SetModelNonAnimated(Models::Football, "assets/football_ball.glb");
     football.SetScale(9.1f);
 
-    ModelAliased& tree = r.SetInstancedModel(Models::Tree, "assets/palm_tree_realistic.glb", trees_count);
-    ModelAliased& grass = r.SetInstancedModel(Models::Grass, "assets/grass.glb", grass_count);
+    if (trees_count > 0) {
+        ModelAliased& tree = r.SetInstancedModel(Models::Tree, "assets/palm_tree_realistic.glb", trees_count);
+    }
+    if (grass_count > 0) {
+        ModelAliased& grass = r.SetInstancedModel(Models::Grass, "assets/grass.glb", grass_count);
+    }    
 
     ModelAliased& heightmap = r.SetHeightmapModel(Models::Heightmap, P_HIEGHTMAP_IMAGE_PATH, heightmap_scale);
     heightmap.SetMaterial(
@@ -92,12 +98,17 @@ void Desert::UnloadResources() {
 
 void Desert::Draw(const GameDrawingData &drawing_data) const {
     Rendering::Get().RenderModel(Models::Heightmap, m_heightmap.GetBottomCenter());
-    Rendering::Get().RenderInstancedModel(Models::Tree);
-    Rendering::Get().RenderInstancedModel(Models::Grass);
+    if (trees_count > 0) Rendering::Get().RenderInstancedModel(Models::Tree);
+    if (grass_count > 0) Rendering::Get().RenderInstancedModel(Models::Grass);
 
     for (auto& [key, static_actor] : m_static_actors) {
         static_actor.Draw(drawing_data);
     }
+
+    // draw door
+    for (float i = 0; i < 10; i+=0.5) {
+        Rendering::Get().RenderPrimitiveCube(m_door_position, {i, i, i});
+    }    
 
     if (WindowGlobal::Get().IsDebugRenderEnabled()) {
         int NUM_CELLS = m_partitioner.GetGrid().NUM_CELLS;
@@ -121,116 +132,52 @@ void Desert::Draw(const GameDrawingData &drawing_data) const {
             }
         }
     }    
-};
+}
 #endif
 
-void Desert::SetupStatic() {
-    Image image = LoadImage(P_HIEGHTMAP_IMAGE_PATH);
-    m_heightmap.Load(
-        image,
-        {0, 0, 0},
-        heightmap_scale
-    );
-    UnloadImage(image);
-
-
-    int grid_cells = m_heightmap.GetSamplesPerSide();
-    Vector3 corner = m_heightmap.GetPosition();
-    Vector3 scale = m_heightmap.GetScale();
-
-    std::mt19937 engine(0);
-    //setup trees
-    std::uniform_int_distribution<int> dist_xz(0, 1000);
-    std::uniform_int_distribution<int> dist_scale(50, 150);
-
+void Desert::Load() {
     #if WITH_RENDER
-    auto& model = Resources::Get().ModelFromKey(Models::Tree);
-    auto data = model.GetInstancesData();
-    #endif
-    std::vector<Vector3> positions{};
-    std::vector<Vector3> scales{};
-    for (int i = 0; i < trees_count; i++) {
-        float x = dist_xz(engine) / 1000.0f * scale.x + corner.x;
-        float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
 
-        float s = dist_scale(engine) / 100.0f;
-        s *= 10.0f;
-        scales.push_back(Vector3{s, s, s});
+    //Create directional light with shadows
+    m_light = R3D_CreateLight(R3D_LIGHT_DIR);
+    R3D_SetLightDirection(m_light, (Vector3){ -1, -0.5, -1 });
+    R3D_SetShadowUpdateMode(m_light, R3D_SHADOW_UPDATE_INTERVAL);
+    R3D_SetLightActive(m_light, true);
+    R3D_SetLightRange(m_light, 500.0f);
+    R3D_SetShadowSoftness(m_light, 3.2f);
+    R3D_SetShadowDepthBias(m_light, 0.001f);
+    R3D_EnableShadow(m_light);
 
-        positions.push_back(
-            Vector3{
-                x,
-                m_heightmap.GetHeightAt(x, z) - s/2,
-                z
-            }
-        );
+    m_cubemap = R3D_LoadCubemap("assets/skybox_1.png", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
+    R3D_ENVIRONMENT_SET(background.skyBlur, 0.0f);
+    R3D_ENVIRONMENT_SET(background.energy, 0.7f);
+    R3D_ENVIRONMENT_SET(background.sky, m_cubemap);
 
-        // create collisions for trees
-        {
-        BoxData box_data;
-        Vector3 half_size = Vector3{0.1, 5, 0.1} * s;        
-        box_data.SetHalfExtends(half_size);
+    // Setup environment ambient
+    m_ambient_map = R3D_GenAmbientMap(m_cubemap, R3D_AMBIENT_ILLUMINATION);
+    R3D_ENVIRONMENT_SET(ambient.map, m_ambient_map);
+    R3D_ENVIRONMENT_SET(ambient.energy, 0.4f);
 
-        BodyData body_data;
-        body_data.position = positions[i];
-        body_data.shapes.push_back(CollisionShape(box_data));
+    // FOG
+    R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
+    R3D_ENVIRONMENT_SET(fog.color, BEIGE);
+    R3D_ENVIRONMENT_SET(fog.start, 3.0f);
+    R3D_ENVIRONMENT_SET(fog.end, 50.0f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
+    R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
-        m_static_actors[i] = ActorData(body_data);
-        m_static_actors[i].render_data.model_key = R_MODEL_NONE;
-        }
-    }
-    #if WITH_RENDER
-    data->SetPositions(positions);
-    data->SetScales(scales);
-    
-    {//setup grass
-    std::uniform_int_distribution<int> dist_xz(0, 1000);
-    std::uniform_int_distribution<int> dist_scale(50, 150);
-
-    #if WITH_RENDER
-    auto& model = Resources::Get().ModelFromKey(Models::Grass);
-    auto data = model.GetInstancesData();
-    #endif
-    std::vector<Vector3> positions{};
-    std::vector<Vector3> scales{};
-    for (int i = 0; i < grass_count; i++) {
-        float x = dist_xz(engine) / 1000.0f * scale.x + corner.x;
-        float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
-
-        positions.push_back(
-            Vector3{
-                x,
-                m_heightmap.GetHeightAt(x, z) - 3,
-                z
-            }
-        );
-        float s = dist_scale(engine) / 100.0f;
-        s *= 5.0f;
-        scales.push_back(Vector3{s, s, s});
-    }
-
-    data->SetPositions(positions);
-    data->SetScales(scales);
-    }
-    #endif
-
-    m_partitioner.UpdateView();
-
-    for (auto& [key, static_actor] : m_static_actors) {
-        static_actor.Update(0);
-    }
-}
-
-void Desert::Setup() {
-    std::cout << "Setting up scene" << std::endl;
-
-    #if WITH_RENDER
     LoadResources();
     #endif
-
-    SetupStatic();
-    std::cout << "Successfully set up scene" << std::endl;
 }
+
+void Desert::Unload() {
+    #if WITH_RENDER
+    UnloadResources();
+    R3D_DestroyLight(m_light);
+    R3D_UnloadAmbientMap(m_ambient_map);
+    R3D_UnloadCubemap(m_cubemap);
+    #endif
+};
 
 GameState Desert::PopulateState(const GameState &old_state) {
     GameState state;
@@ -260,46 +207,24 @@ GameState Desert::PopulateState(const GameState &old_state) {
         state.world_data.GetActor(actor_key).render_data.model_key = Models::Football;
     }
 
-    // TODO: Iterate over players, so that when loading a new scene player actors are added right away
-
+    for (const auto& [id, player_data] : old_state.players) {
+        InitNewPlayer(state, id);
+    }
+    
     return state;
 }
 
-void Desert::InitNewPlayer(GameState &state, uint32_t id) {
-    int player_count = state.players.size();
+Scenes Desert::CheckSceneChange(const GameState &state) {
+    if (state.players.size() == 0) return Scenes::None;
 
-    BodyData body_data;
-    float r = 13.0f / 2;
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, -r, 0.0f}));
-    body_data.shapes.push_back(sphere);
+    bool players_ready = true;    
+    for (const auto& [id, player_data] : state.players) {
+        Vector3 p = state.GetActor(id).body.position;
+        if (Vector3Distance(p, m_door_position) > 30) {
+            players_ready = false;
+            break;
+        }
     }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, 0.0f, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-    {
-    CollisionShape sphere(SphereData(r, Vector3{0.0f, r, 0.0f}));
-    body_data.shapes.push_back(sphere);
-    }
-
-    ActorData actor_data(body_data, Models::Player);
-    
-    actor_data.render_data.offset = {0, -12, 0};
-
-    actor_data.body.position = Vector3{10.0f*player_count, 10, 0};
-
-    PlayerData player_data;
-    player_data.actor_key = state.world_data.AddActor(actor_data);
-    
-
-    state.players[id] = player_data;
-}
-
-void Desert::SolveCollisionWith(BodyData &other) const {
-    m_heightmap.SolveCollisionWith(other);
-
-    PartitionUnit unit(nullptr, other.position.x, other.position.z);
-    unit.user_data = reinterpret_cast<void*>(&other);
-    m_partitioner.GetGrid().unit_with_grid(&unit, other.position.x, other.position.z);
+    if (players_ready) return Scenes::Green;
+    return Scenes::None;
 }

@@ -11,40 +11,29 @@ bool SHOW_TEXT_BOUNDRY = false;
 Rendering::Rendering() {
     R3D_Init(GetScreenWidth(), GetScreenHeight());
     Resources::Init();
-    
+
     R3D_ShadowCastMode(R3D_SHADOW_CAST_FRONT_FACES);
-
-    R3D_Cubemap cubemap = R3D_LoadCubemap("assets/skybox_1.png", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
-    R3D_ENVIRONMENT_SET(background.skyBlur, 0.0f);
-
-    R3D_ENVIRONMENT_SET(background.energy, 0.7f);
-    R3D_ENVIRONMENT_SET(background.sky, cubemap);
-
-    // Setup environment ambient
-    R3D_AmbientMap ambientMap = R3D_GenAmbientMap(cubemap, R3D_AMBIENT_ILLUMINATION);
-    R3D_ENVIRONMENT_SET(ambient.map, ambientMap);
-    R3D_ENVIRONMENT_SET(ambient.energy, 0.3f);
 
     // Setup tonemapping
     R3D_ENVIRONMENT_SET(tonemap.exposure, 1.0f);
 
-    //Create directional light with shadows
-    R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
-    R3D_SetLightDirection(light, (Vector3){ -1, -0.5, -1 });
-    R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_INTERVAL);
-    R3D_SetLightActive(light, true);
-    R3D_SetLightRange(light, 500.0f);
-    R3D_SetShadowSoftness(light, 3.2f);
-    R3D_SetShadowDepthBias(light, 0.001f);
-    R3D_EnableShadow(light);    
-    
-    // FOG
-    R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
-    R3D_ENVIRONMENT_SET(fog.color, BEIGE);
-    R3D_ENVIRONMENT_SET(fog.start, 3.0f);
-    R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
-    R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);    
+    // //Create directional light with shadows
+    // m_light = R3D_CreateLight(R3D_LIGHT_DIR);
+    // R3D_SetLightDirection(m_light, (Vector3){ -1, -0.5, -1 });
+    // R3D_SetShadowUpdateMode(m_light, R3D_SHADOW_UPDATE_INTERVAL);
+    // R3D_SetLightActive(m_light, true);
+    // R3D_SetLightRange(m_light, 500.0f);
+    // R3D_SetShadowSoftness(m_light, 3.2f);
+    // R3D_SetShadowDepthBias(m_light, 0.001f);
+    // R3D_EnableShadow(m_light);
+
+    // // FOG
+    // R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
+    // R3D_ENVIRONMENT_SET(fog.color, BEIGE);
+    // R3D_ENVIRONMENT_SET(fog.start, 3.0f);
+    // R3D_ENVIRONMENT_SET(fog.end, 50.0f);
+    // R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
+    // R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);    
 
     // R3D_ENVIRONMENT_SET(ssgi.enabled, true);
     // R3D_ENVIRONMENT_SET(ssgi.intensity, 100);

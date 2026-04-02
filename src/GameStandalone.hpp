@@ -14,10 +14,15 @@ private:
     GameState m_game_state{};
     
 public:
+    virtual void InitGame() {
+        m_scene_manager.GetScene()->Setup();
+        InitGameState(m_game_state);
+    };
 
     GameStandalone() {
         Rendering::Init();
-        InitGame(m_game_state);
+        m_scene_manager.GetScene()->Load();
+        InitGame();
         
         GameEvent game_event;
         game_event.event_id = EV_PLAYER_JOIN;
@@ -38,6 +43,12 @@ public:
         
         m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1); 
         m_tick++;
+
+        Scenes scene = m_scene_manager.GetScene()->CheckSceneChange(m_game_state);
+        if (scene != Scenes::None) {
+            m_scene_manager.ChangeScene(scene);
+            InitGame();
+        }
     }
 
     void DrawGame() {

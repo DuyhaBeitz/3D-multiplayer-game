@@ -47,7 +47,6 @@ void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
             }
         }
         break;
-    
     default:
         break;
     }
@@ -117,8 +116,7 @@ GameState Game::Deserialize(SerializedGameState data) {
     return gs;
 }
 
-void Game::InitGame(GameState &state) {
-    m_scene_manager.GetScene()->Setup();
+void Game::InitGameState(GameState &state) {
     state = m_scene_manager.GetScene()->PopulateState(state);
 }
 

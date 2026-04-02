@@ -103,7 +103,7 @@ public:
     /*************************************************/
 
     void DrawPrimitives() {
-        DrawGrid(100, 10);
+        //DrawGrid(100, 10);
         m_current_color = 0;
 
         for (auto& [center, half_size] : m_cubes_to_render) {

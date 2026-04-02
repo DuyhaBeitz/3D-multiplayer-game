@@ -282,11 +282,11 @@ public:
     R3D_Model GetModel() { return m_model; }
 };
 
-inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f) {
+inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f, Color albedo_tint = WHITE) {
     R3D_Material mat = R3D_GetDefaultMaterial();
     
     mat.albedo.texture = albedo;
-    mat.albedo.color = WHITE;
+    mat.albedo.color = albedo_tint;
 
     mat.normal.texture = normal;
     mat.normal.scale = normal_scale;

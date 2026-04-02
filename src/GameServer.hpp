@@ -20,9 +20,14 @@ private:
     Chat m_chat{};
 
 public:
+    virtual void InitGame() {
+        m_scene_manager.GetScene()->Setup();
+        InitGameState(m_game_state);
+    };
 
     GameServer() {
-        InitGame(m_game_state);
+        m_scene_manager.GetScene()->Load();
+        InitGame();
 
         m_server = std::make_shared<EasyNetServer>();
         m_server->CreateServer(server_port);
@@ -53,6 +58,14 @@ public:
             DropEventHistory(current_tick-1);
         }
         m_server->Update();
+
+        Scenes scene = m_scene_manager.GetScene()->CheckSceneChange(m_game_state);
+        if (scene != Scenes::None) {
+            ENetPacket* packet = CreatePacket<Scenes>(MSG_SCENE_CHANGE, scene, ENET_PACKET_FLAG_RELIABLE);
+            m_server->Broadcast(packet); 
+            m_scene_manager.ChangeScene(scene);
+            InitGame();
+        }
 
         m_tick++;
     }

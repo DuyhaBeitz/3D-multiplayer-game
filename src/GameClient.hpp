@@ -67,12 +67,18 @@ private:
 
 public:
 
+    virtual void InitGame() {
+        m_scene_manager.GetScene()->Setup();
+        InitGameState(m_self_game_state);
+        InitGameState(m_others_game_state);
+    };
+
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
 
     GameClient() {
         Rendering::Init();
-        InitGame(m_self_game_state);
-        InitGame(m_others_game_state);
+        m_scene_manager.GetScene()->Load();
+        InitGame();
 
         m_client = std::make_shared<EasyNetClient>();
         m_client->CreateClient();
@@ -230,6 +236,13 @@ public:
             {
                 SerializedGameMetadata received = ExtractData<SerializedGameMetadata>(event.packet);
                 m_game_metadata.Deserialize(received);
+            }
+            break;
+        case MSG_SCENE_CHANGE:
+            {
+            Scenes scene_id = ExtractData<Scenes>(event.packet);
+            m_scene_manager.ChangeScene(scene_id);
+            InitGame();
             }
             break;
         default:

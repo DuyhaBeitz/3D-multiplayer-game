@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Scene.hpp>
+#include "SceneRegular.hpp"
 
 #include "ResourceData.hpp"
 #include "Constants.hpp"
@@ -11,27 +11,35 @@
 #include "GameDrawingData.hpp"
 #endif
 
-class Desert : public SceneBase {
+class Desert : public SceneRegular {
 private:
-    HeightmapData m_heightmap{};
-    std::map<ActorKey, ActorData> m_static_actors{};
-    ActorPartitioner m_partitioner;
 
-    void SetupStatic();
+    #if WITH_RENDER
+    void LoadResources();
+    void UnloadResources();
+
+    R3D_Light m_light;
+    R3D_Cubemap m_cubemap;
+    R3D_AmbientMap m_ambient_map;
+    #endif
+
+    Vector3 m_door_position{};
+
+    virtual void PostSetup() override; 
 
 public:
     Desert();
 
     #if WITH_RENDER
-    virtual void LoadResources();
-    virtual void UnloadResources();
     virtual void Draw(const GameDrawingData &drawing_data) const;
     #endif
 
-    virtual void Setup();
+    virtual void Load();
+    virtual void Unload();
+
     virtual GameState PopulateState(const GameState &old_state);
-        
-    virtual void InitNewPlayer(GameState &state, uint32_t id);
-    virtual void SolveCollisionWith(BodyData &other) const;
+
+    virtual Scenes CheckSceneChange(const GameState &state);
+
     //virtual void Update(WorldData& world);
 };

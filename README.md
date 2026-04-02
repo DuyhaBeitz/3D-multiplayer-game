@@ -5,6 +5,6 @@
 ## MAYBE?
 - delta compression?
 ## TODO
-- loading different scenes. Loading/unloading resources specific for scene
 ## DONE
+- loading different scenes. Loading/unloading resources specific for scene
 - spatial partitioning
