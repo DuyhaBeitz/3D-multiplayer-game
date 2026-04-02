@@ -5,12 +5,12 @@
 #include "shared.hpp"
 
 constexpr uint32_t tick_period = iters_per_sec/10; // broadcast game state every 100 ms
-constexpr uint32_t send_tick_period = iters_per_sec; // sync client's tick with server's tick
+constexpr uint32_t send_tick_period = iters_per_sec/2; // sync client's tick with server's tick
 constexpr uint32_t server_lateness = iters_per_sec;
 // ensuring that we're not substructing bigger uint32_t from the smaller one
 constexpr uint32_t max_lateness = server_lateness+tick_period;
 
-constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec*2;
+constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec/2;
 
 class GameServer : public Game{
 private:
