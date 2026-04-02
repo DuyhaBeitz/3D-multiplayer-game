@@ -41,7 +41,7 @@ public:
         if (m_tick % broadcast_game_metadata_tick_period == 0 && m_tick >= max_lateness) {
             UpdateMetadata();
             BroadcastMetadata();
-            m_server->Broadcast(CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
+            m_server->Broadcast(CreatePacket<uint32_t>(NetMsg::GAME_TICK, m_tick));
         }
 
         if (m_tick % tick_period == 0 && m_tick >= max_lateness) {
@@ -53,7 +53,7 @@ public:
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;
 
-            ENetPacket* packet = CreatePacket<SerializedGameState>(MSG_GAME_STATE, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
+            ENetPacket* packet = CreatePacket<SerializedGameState>(NetMsg::GAME_STATE, data, ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT);
             m_server->Broadcast(packet); 
             DropEventHistory(current_tick-1);
         }
@@ -61,7 +61,7 @@ public:
 
         Scenes scene = m_scene_manager.GetScene()->CheckSceneChange(m_game_state);
         if (scene != Scenes::None) {
-            ENetPacket* packet = CreatePacket<Scenes>(MSG_SCENE_CHANGE, scene, ENET_PACKET_FLAG_RELIABLE);
+            ENetPacket* packet = CreatePacket<Scenes>(NetMsg::SCENE_CHANGE, scene, ENET_PACKET_FLAG_RELIABLE);
             m_server->Broadcast(packet); 
             m_scene_manager.ChangeScene(scene);
             InitGame();
@@ -71,32 +71,45 @@ public:
     }
 
     void OnConnect(ENetEvent event) {
-        GameEvent game_event;
-        game_event.event_id = EV_PLAYER_JOIN;
         uint32_t id = enet_peer_get_id(event.peer);
-        AddEvent(game_event, id, m_tick);
-        m_server->SendTo(id, CreatePacket<uint32_t>(MSG_GAME_TICK, m_tick));
-        m_server->SendTo(id, CreatePacket<uint32_t>(MSG_PLAYER_ID, id));
+        m_server->SendTo(id, CreatePacket<uint32_t>(NetMsg::GAME_TICK, m_tick));
+        m_server->SendTo(id, CreatePacket<uint32_t>(NetMsg::PLAYER_ID, id));
         AddAndSyncChatMessage(server_chat_name, TextFormat("Player joined"));
 
+        {
+        ENetPacket* packet = CreatePacket<uint32_t>(NetMsg::PLAYER_JOIN, id, ENET_PACKET_FLAG_RELIABLE);
+        m_server->Broadcast(packet);
+        }
+
+        {
         Scenes scene_id = m_scene_manager.GetSceneId();
-        ENetPacket* packet = CreatePacket<Scenes>(MSG_SCENE_INITIAL, scene_id, ENET_PACKET_FLAG_RELIABLE);
+        ENetPacket* packet = CreatePacket<Scenes>(NetMsg::SCENE_INITIAL, scene_id, ENET_PACKET_FLAG_RELIABLE);
         m_server->SendTo(id, packet);
+        }
+        AddPlayer(m_game_state, id);
+        m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", m_game_metadata.GetPlayers().size()));
+        UpdateMetadata();
+        BroadcastMetadata();
     }
 
     void OnDisconnect(ENetEvent event) {
-        GameEvent game_event;
-        game_event.event_id = EV_PLAYER_LEAVE;
         uint32_t id = enet_peer_get_id(event.peer);
-        AddEvent(game_event, id, m_tick);
         AddAndSyncChatMessage(server_chat_name, TextFormat("%s left", m_game_metadata.GetPlayerName(id)));
+
+        {
+        ENetPacket* packet = CreatePacket<uint32_t>(NetMsg::PLAYER_LEAVE, id, ENET_PACKET_FLAG_RELIABLE);
+        m_server->Broadcast(packet);
+        }
+        RemovePlayer(m_game_state, id);
+        UpdateMetadata();
+        BroadcastMetadata();
     }
 
     void OnReceive(ENetEvent event)
     {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
-        case MSG_PLAYER_INPUT:
+        case NetMsg::PLAYER_INPUT:
             {
                 PlayerInputPacketData received = ExtractData<PlayerInputPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
@@ -109,7 +122,7 @@ public:
             }
             break;
 
-        case MSG_CHAT_MESSAGE:
+        case NetMsg::CHAT_MESSAGE:
             {
                 /*
                 Server receives text,
@@ -121,7 +134,7 @@ public:
                 AddAndSyncChatMessage(m_game_metadata.GetPlayerName(id), received.text);
             }
             break;
-        case MSG_NAME_CHANGE:
+        case NetMsg::NAME_CHANGE:
             {
                 const TextPacketData& received = ExtractData<TextPacketData>(event.packet);
                 uint32_t id = enet_peer_get_id(event.peer);
@@ -148,7 +161,7 @@ public:
 
     void BroadcastMetadata() {
         SerializedGameMetadata serialized = m_game_metadata.Serialize();
-        ENetPacket* packet = CreatePacket(MSG_GAME_METADATA, serialized);
+        ENetPacket* packet = CreatePacket(NetMsg::GAME_METADATA, serialized);
         m_server->Broadcast(packet);
     }
 
@@ -159,7 +172,7 @@ public:
 
         m_chat.AddMessage(message);
 
-        ENetPacket* packet = CreatePacket(MSG_CHAT_MESSAGE, message);
+        ENetPacket* packet = CreatePacket(NetMsg::CHAT_MESSAGE, message);
         m_server->Broadcast(packet);
     }
 

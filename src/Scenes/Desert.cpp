@@ -106,9 +106,10 @@ void Desert::Draw(const GameDrawingData &drawing_data) const {
     }
 
     // draw door
-    for (float i = 0; i < 10; i+=0.5) {
+    for (float i = 10; i < 13; i++) {
         Rendering::Get().RenderPrimitiveCube(m_door_position, {i, i, i});
-    }    
+    }
+
 
     if (WindowGlobal::Get().IsDebugRenderEnabled()) {
         int NUM_CELLS = m_partitioner.GetGrid().NUM_CELLS;

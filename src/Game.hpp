@@ -16,14 +16,10 @@
 #include "SceneManager.hpp"
 
 enum EventId {
-    EV_PLAYER_JOIN = 0,
-    EV_PLAYER_LEAVE,
-    EV_PLAYER_INPUT,
+    EV_PLAYER_INPUT = 0,
 };
 
 // Event data
-struct PlayerJoin {};
-struct PlayerLeave {};
 struct PlayerInput {
     float mouse_x = 0.f;
     float mouse_y = 0.f;
@@ -115,7 +111,7 @@ struct GameInput {
 
 struct GameEvent {
     EventId event_id{}; // for sending over the net
-    std::variant<std::monostate, PlayerJoin, PlayerLeave, PlayerInput> data{};
+    std::variant<std::monostate, PlayerInput> data{};
 };
 
 struct GameState {
@@ -201,6 +197,9 @@ public:
 
     virtual void InitGame() = 0;
     void InitGameState(GameState& state);
+
+    void AddPlayer(GameState& state, uint32_t id);
+    void RemovePlayer(GameState& state, uint32_t id);
 };
 
 Camera GetCameraFromPos(Vector3 pos, Vector3 target);

@@ -25,8 +25,7 @@ public:
         InitGame();
         
         GameEvent game_event;
-        game_event.event_id = EV_PLAYER_JOIN;
-        AddEvent(game_event, player_id, m_tick+19);
+        AddPlayer(m_game_state, player_id);
     }
 
     void Update(GameInput input) {

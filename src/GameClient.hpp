@@ -55,7 +55,7 @@ private:
         auto apply_button = std::make_shared<UIFuncButton>("Apply name");
         apply_button->BindOnReleased([this](){
             TextPacketData data(m_name_buffer.c_str());
-            m_client->SendPacket(CreatePacket<TextPacketData>(MSG_NAME_CHANGE, data));
+            m_client->SendPacket(CreatePacket<TextPacketData>(NetMsg::NAME_CHANGE, data));
             SetWindowTitle(m_name_buffer.c_str());
         });
 
@@ -74,6 +74,8 @@ private:
             m_scene_manager.SetScene(m_initial_scene);
             m_scene_manager.GetScene()->Load();
             InitGame();
+            AddPlayer(m_others_game_state, m_id);
+            AddPlayer(m_self_game_state, m_id);
         }
     }
 
@@ -128,7 +130,7 @@ public:
             if (m_chat_entering) {
                 if (m_new_chat_text.size() > 0) {
                     TextPacketData data(m_new_chat_text.c_str());
-                    m_client->SendPacket(CreatePacket<TextPacketData>(MSG_CHAT_MESSAGE, data));
+                    m_client->SendPacket(CreatePacket<TextPacketData>(NetMsg::CHAT_MESSAGE, data));
                     m_text_input_box->Clear();
                 }
             }
@@ -152,7 +154,7 @@ public:
             PlayerInputPacketData data;
             data.input = input.player_input;
             data.tick = m_tick;
-            m_client->SendPacket(CreatePacket<PlayerInputPacketData>(MSG_PLAYER_INPUT, data));
+            m_client->SendPacket(CreatePacket<PlayerInputPacketData>(NetMsg::PLAYER_INPUT, data));
         }
 
         m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
@@ -208,15 +210,32 @@ public:
     void OnReceive(ENetEvent event) {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
-        case MSG_GAME_TICK:
+        case NetMsg::GAME_TICK:
             m_tick = CalculateTickWinthPing(ExtractData<uint32_t>(event.packet));
             break;
 
-        case MSG_PLAYER_ID:
+        case NetMsg::PLAYER_ID:
             m_id = ExtractData<uint32_t>(event.packet);
             break;
             
-        case MSG_GAME_STATE:
+        case NetMsg::PLAYER_JOIN:
+            {
+            uint32_t id = ExtractData<uint32_t>(event.packet);
+            AddPlayer(m_others_game_state, id);
+            AddPlayer(m_self_game_state, id);
+            m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", m_self_game_state.players.size()));
+            }
+            break;
+
+        case NetMsg::PLAYER_LEAVE:
+            {
+            uint32_t id = ExtractData<uint32_t>(event.packet);
+            RemovePlayer(m_others_game_state, id);
+            RemovePlayer(m_self_game_state, id);
+            }
+            break;
+
+        case NetMsg::GAME_STATE:
             {
             m_ticks_since_last_received_game = 0;
             m_prev_last_received_game = m_last_received_game;
@@ -232,7 +251,7 @@ public:
             }
             break;
 
-        case MSG_CHAT_MESSAGE:
+        case NetMsg::CHAT_MESSAGE:
             {
                 /*
                 Server receives text,
@@ -243,18 +262,18 @@ public:
             }
             break;
             
-        case MSG_GAME_METADATA:
+        case NetMsg::GAME_METADATA:
             {
                 SerializedGameMetadata received = ExtractData<SerializedGameMetadata>(event.packet);
                 m_game_metadata.Deserialize(received);
             }
             break;
-        case MSG_SCENE_INITIAL:
+        case NetMsg::SCENE_INITIAL:
             m_initial_scene = ExtractData<Scenes>(event.packet);
             m_received_initial_scene = true;
             TryToInit();
             break;
-        case MSG_SCENE_CHANGE:
+        case NetMsg::SCENE_CHANGE:
             {
                 Scenes scene_id = ExtractData<Scenes>(event.packet);
                 m_scene_manager.ChangeScene(scene_id);

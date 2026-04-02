@@ -27,23 +27,26 @@ void GameState::Draw(const GameDrawingData &drawing_data) const {
 }
 #endif
 
+void Game::AddPlayer(GameState &state, uint32_t id) {
+    if (state.players.find(id) == state.players.end()) {
+        m_scene_manager.GetScene()->InitNewPlayer(state, id);
+    }    
+}
+
+void Game::RemovePlayer(GameState &state, uint32_t id) {
+    state.world_data.RemoveActor(state.players.at(id).actor_key);
+    state.players.erase(id);
+}
+
 void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
     switch (event.event_id) {
-    case EV_PLAYER_JOIN:
-        m_scene_manager.GetScene()->InitNewPlayer(state, id);
-        m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", state.players.size()));
-        break;
-
-    case EV_PLAYER_LEAVE:
-        state.world_data.RemoveActor(state.players.at(id).actor_key);
-        state.players.erase(id);
-        break;
-
     case EV_PLAYER_INPUT:
-        if (std::holds_alternative<PlayerInput>(event.data)) {
-            const PlayerInput& input = std::get<PlayerInput>(event.data);
-            if (state.world_data.ActorExists(state.players[id].actor_key)) {
-                state.ApplyInput(input, id);
+        if (state.PlayerExists(id)) {
+            if (std::holds_alternative<PlayerInput>(event.data)) {
+                const PlayerInput& input = std::get<PlayerInput>(event.data);
+                if (state.world_data.ActorExists(state.players[id].actor_key)) {
+                    state.ApplyInput(input, id);
+                }
             }
         }
         break;
