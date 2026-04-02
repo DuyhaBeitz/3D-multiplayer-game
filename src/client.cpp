@@ -47,7 +47,7 @@ int main() {
                 int new_w = w/key;
                 SetWindowSize(new_w, h*2/3);
                 Vector2 p = GetWindowPosition();
-                SetWindowPosition(((int(p.x+new_w/2)/new_w)%key)*new_w, 0);
+                SetWindowPosition(((int(p.x+GetScreenWidth()/2)/new_w)%key)*new_w, 0);
             }
 
             connect_screen->Update(nullptr);
