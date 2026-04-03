@@ -24,8 +24,7 @@ private:
     GameState m_prev_last_received_game{};
     uint32_t m_prev_last_received_game_tick = 0;    
     
-    GameState m_others_game_state{};
-    GameState m_self_game_state{};
+    GameState m_game_state{};
 
     uint32_t CalculateTickWinthPing(uint32_t tick) {
         float delta_sec = m_client->GetPeer()->roundTripTime / 2.0 / 1000.0;
@@ -74,8 +73,7 @@ private:
             m_scene_manager.SetScene(m_initial_scene);
             m_scene_manager.GetScene()->Load();
             InitGame();
-            AddPlayer(m_others_game_state, m_id);
-            AddPlayer(m_self_game_state, m_id);
+            AddPlayer(m_game_state, m_id);
         }
     }
 
@@ -86,8 +84,7 @@ public:
 
     virtual void InitGame() {
         m_scene_manager.GetScene()->Setup();
-        InitGameState(m_self_game_state);
-        InitGameState(m_others_game_state);
+        //InitGameState(m_game_state);
     };
 
     std::shared_ptr<EasyNetClient> GetNetClient() { return m_client; }
@@ -157,11 +154,7 @@ public:
             m_client->SendPacket(CreatePacket<PlayerInputPacketData>(NetMsg::PLAYER_INPUT, data));
         }
 
-        m_self_game_state = ApplyEvents(m_self_game_state, m_tick, m_tick+1);
-        float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
-        
-        std::set<ActorKey> except_keys = {};
-        m_others_game_state = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &except_keys);
+        m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1);
 
         m_tick++;
         m_ticks_since_last_received_game++;
@@ -170,11 +163,11 @@ public:
     }
 
     void DrawGame() {            
-        if (m_self_game_state.PlayerExists(m_id)) {
-            const PlayerData& player_data = m_self_game_state.GetPlayer(m_id);
-            if (m_self_game_state.world_data.ActorExists(player_data.actor_key)) {
+        if (m_game_state.PlayerExists(m_id)) {
+            const PlayerData& player_data = m_game_state.GetPlayer(m_id);
+            if (m_game_state.world_data.ActorExists(player_data.actor_key)) {
                 Rendering::Get().SetCamera(
-                    GetCameraFromActor(m_self_game_state.GetActor(m_id))
+                    GetCameraFromActor(m_game_state.GetActor(m_id))
                 );
                 GameDrawingData drawing_data{
                     {player_data.actor_key},
@@ -183,12 +176,15 @@ public:
                 
                 Rendering::Get().BeginRendering();
                     std::set<ActorKey> except_keys = {};
-                    for (auto& [id, player] : m_others_game_state.players) {
+                    float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
+                    GameState smooth = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &except_keys);
+
+                    for (auto& [id, player] : m_game_state.players) {
                         if (id != m_id) except_keys.insert(player.actor_key);
                     }
-
+                    smooth = Lerp(smooth, m_game_state, 1.0, &except_keys);
+                   
                     // everything is client-predicted, except other players - they are lerped
-                    GameState smooth = Lerp(m_others_game_state, m_self_game_state, 1.f, &except_keys);
                     Draw(smooth, drawing_data);
                 Rendering::Get().EndRendering();
             }     
@@ -221,17 +217,15 @@ public:
         case NetMsg::PLAYER_JOIN:
             {
             uint32_t id = ExtractData<uint32_t>(event.packet);
-            AddPlayer(m_others_game_state, id);
-            AddPlayer(m_self_game_state, id);
-            m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", m_self_game_state.players.size()));
+            AddPlayer(m_game_state, id);
+            m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", m_game_state.players.size()));
             }
             break;
 
         case NetMsg::PLAYER_LEAVE:
             {
             uint32_t id = ExtractData<uint32_t>(event.packet);
-            RemovePlayer(m_others_game_state, id);
-            RemovePlayer(m_self_game_state, id);
+            RemovePlayer(m_game_state, id);
             }
             break;
 
@@ -243,7 +237,7 @@ public:
 
             SerializedGameState data = ExtractData<SerializedGameState>(event.packet);
             auto rec_state = Deserialize(data);
-            m_self_game_state = ApplyEvents(rec_state, data.tick, m_tick-1);
+            m_game_state = ApplyEvents(rec_state, data.tick, m_tick-1);
             DropEventHistory(data.tick-history_size);
                         
             m_last_received_game = rec_state;
