@@ -18,6 +18,7 @@ private:
     GameState m_game_state{};
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat{};
+    uint32_t connect_count = 0; // only goes up
 
 public:
     virtual void InitGame() {
@@ -71,6 +72,8 @@ public:
     }
 
     void OnConnect(ENetEvent event) {
+        connect_count++;
+
         uint32_t id = enet_peer_get_id(event.peer);
         m_server->SendTo(id, CreatePacket<uint32_t>(NetMsg::GAME_TICK, m_tick));
         m_server->SendTo(id, CreatePacket<uint32_t>(NetMsg::PLAYER_ID, id));
@@ -87,8 +90,7 @@ public:
         m_server->SendTo(id, packet);
         }
         AddPlayer(m_game_state, id);
-        m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", m_game_metadata.GetPlayers().size()));
-        UpdateMetadata();
+        m_game_metadata.SetPlayerName(id, TextFormat("Player_%d", connect_count));
         BroadcastMetadata();
     }
 
@@ -105,8 +107,7 @@ public:
         BroadcastMetadata();
     }
 
-    void OnReceive(ENetEvent event)
-    {
+    void OnReceive(ENetEvent event) {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
         case NetMsg::PLAYER_INPUT:

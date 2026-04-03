@@ -155,6 +155,10 @@ void Init() {
 
     menus_screen = std::make_unique<MenusScreen>();
     menus_screen->BindOnResume([](){ current_screen = PLAYING; DisableCursor(); });
+
+    auto disconnect_button = std::make_shared<UIFuncButton>("Disconnect");
+    disconnect_button->BindOnReleased([](){game_client->Disconnect();});
+    menus_screen->AddChildToPauseBar(disconnect_button);
 }
 
 void UpdateGame(float& accumulator) {

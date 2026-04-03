@@ -75,6 +75,17 @@ private:
         }
     }
 
+    void Reset() {
+        m_received_initial_scene = false;
+
+        m_ticks_since_last_received_game = 0;
+        m_prev_last_received_game = {};
+        m_last_received_game = {};
+
+        m_game_state = {};        
+        m_scene_manager.GetScene()->Unload();
+    }
+
 public:
     bool InitialSyncComplete() {
         return m_received_initial_scene;
@@ -278,4 +289,9 @@ public:
     }
 
     bool IsConnected() {return m_connected;}
+
+    void Disconnect() {
+        enet_peer_disconnect(m_client->GetPeer(), 0);
+        Reset();
+    }
 };

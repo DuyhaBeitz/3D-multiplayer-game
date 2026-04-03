@@ -5,12 +5,10 @@
 void MenusScreen::SetupPauseScreen() {
     m_pause_screen = std::make_shared<UIScreen>();
     m_pause_bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
-    int elems = 6;
-    Rectangle rect = SizeRect(1, 1.0f/elems);
 
-    auto title = std::make_shared<UIText>("Pause", rect);    
-    auto resume_button = std::make_shared<UIFuncButton>("Resume", rect);
-    auto settings_button = std::make_shared<UIFuncButton>("Settings", rect);
+    auto title = std::make_shared<UIText>("Pause");
+    auto resume_button = std::make_shared<UIFuncButton>("Resume");
+    auto settings_button = std::make_shared<UIFuncButton>("Settings");
 
     resume_button->BindOnReleased(
         [this](){if (m_on_resume) m_on_resume(); }
@@ -20,15 +18,15 @@ void MenusScreen::SetupPauseScreen() {
         [this](){m_current_menu = MENU_SETTINGS;}
     );
     
-    auto close_button = std::make_shared<UIFuncButton>("Close game", rect);
+    auto close_button = std::make_shared<UIFuncButton>("Close game");
     close_button->BindOnReleased(
         [](){ WindowGlobal::Get().SetRunning(false); }
     );
 
     //m_pause_bar->AddChild(title);
-    m_pause_bar->AddChild(resume_button);
-    m_pause_bar->AddChild(settings_button);
-    m_pause_bar->AddChild(close_button);
+    AddChildToPauseBar(resume_button);
+    AddChildToPauseBar(settings_button);
+    AddChildToPauseBar(close_button);
 
     m_pause_screen->AddChild(m_pause_bar);
 }

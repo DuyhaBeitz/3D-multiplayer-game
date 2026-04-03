@@ -34,4 +34,10 @@ public:
     void Draw();
 
     void BindOnResume(std::function<void()> func) {m_on_resume = func;}
+    void AddChildToPauseBar(std::shared_ptr<UIElement> child) {
+        int elems = 6;
+        Rectangle rect = SizeRect(1, 1.0f/elems);
+        child->SetRelRect(rect);
+        m_pause_bar->AddChild(child);
+    }
 };
