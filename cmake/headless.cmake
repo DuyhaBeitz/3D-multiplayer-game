@@ -20,6 +20,7 @@ add_executable(server
     src/GameMetadata.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/ResourceData.cpp
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp

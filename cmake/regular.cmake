@@ -23,6 +23,7 @@ add_executable(server
     src/GameMetadata.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/ResourceData.cpp
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
@@ -48,6 +49,7 @@ add_executable(client
     src/GameMetadata.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/ResourceData.cpp
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
@@ -66,6 +68,7 @@ add_executable(standalone
     src/GameMetadata.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/ResourceData.cpp
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
@@ -82,6 +85,7 @@ add_executable(test
     src/GameMetadata.cpp
     src/SpacePartition.cpp
     src/SpaceActorPartitioner.cpp
+    src/ResourceData.cpp
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp

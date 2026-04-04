@@ -14,8 +14,6 @@
 std::vector<int> CodepointsFromStr(const char* chars);
 Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
 R3D_Model LoadR3DModelFromMesh(R3D_Mesh mesh);
-Image LoadImageFromPerlinNoise(uint32_t seed, int w, int h, Vector2 uv = {1.0f, 1.0f}, int octaves = 4);
-Image LoadImageORM(const char *aoPath, const char *roughnessPath, const char *metallicPath);
 Texture LoadTextureORM(const char *aoPath, const char *roughnessPath, const char *metallicPath);
 
 /*
