@@ -32,8 +32,17 @@ void Desert::PostSetup() {
     m_door_position = Vector3{x, m_heightmap.GetHeightAt(x, z) + 15, z};
 }
 
-Desert::Desert() : SceneRegular(P_HIEGHTMAP_IMAGE_PATH, 0, heightmap_scale, trees_count, grass_count)
-{
+void Desert::SetupHeightmap() {
+    Image image = LoadImage(P_HIEGHTMAP_IMAGE_PATH);
+    m_heightmap.Load(
+        image,
+        {0, 0, 0},
+        m_heightmap_scale
+    );
+    UnloadImage(image);
+}
+
+Desert::Desert() : SceneRegular(0, heightmap_scale, trees_count, grass_count, 10.f, 5.0f) {
 }
 
 #if WITH_RENDER
@@ -226,7 +235,7 @@ Scenes Desert::CheckSceneChange(const GameState &state) {
             break;
         }
     }
-    if (players_ready) return Scenes::Green;
+    if (players_ready) return Scenes::Forest;
     return Scenes::None;
 }
 

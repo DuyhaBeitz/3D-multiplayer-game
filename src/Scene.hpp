@@ -14,9 +14,10 @@ struct BodyData;
 enum class Scenes : uint8_t {
     None = 0,
     Desert,
-    Green
+    Green,
+    Forest
 };
-constexpr Scenes default_scene = Scenes::Desert;
+constexpr Scenes default_scene = Scenes::Forest;
 
 class SceneBase {
 private:

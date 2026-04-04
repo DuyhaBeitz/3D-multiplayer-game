@@ -23,6 +23,7 @@ add_executable(server
     src/Scenes/SceneRegular.cpp
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
+    src/Scenes/Forest.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet

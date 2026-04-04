@@ -5,6 +5,7 @@
 
 #include "Scenes/Desert.hpp"
 #include "Scenes/Green.hpp"
+#include "Scenes/Forest.hpp"
 
 class SceneManager {
 private:
@@ -26,8 +27,11 @@ public:
             break;
 
         case Scenes::Green:
-        default:
             m_scene = std::make_unique<Green>();
+            break;
+        case Scenes::Forest:
+        default:
+            m_scene = std::make_unique<Forest>();
             break;
         }
         m_scene_id = scene_id;

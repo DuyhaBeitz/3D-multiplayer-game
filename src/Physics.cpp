@@ -137,25 +137,33 @@ void SolveCollisionOneWay(const BodyData &bA, BodyData &bB, const CollisionResul
     bB.ApplyImpulse(impulse_friction * -1.f);
 }
 
-void HeightmapData::Load(Image heightmap_image, Vector3 center, Vector3 scale) {
+void HeightmapData::Load(float *heights, int N, Vector3 center, Vector3 scale) {
     m_position = center-scale/2;
     m_position.y = center.y;
 
     m_scale = scale;
 
-    m_samples = std::min(heightmap_image.width, heightmap_image.height);
+    m_samples = N;
     m_heights.resize(m_samples * m_samples);
 
-    Color* pixels = LoadImageColors(heightmap_image);
-
-    int imgW = heightmap_image.width;
-
-    for (int z = 0; z < m_samples; z++) {
-        for (int x = 0; x < m_samples; x++) {
-            int imgIndex = z * imgW + x;
-            m_heights[z * m_samples + x] = pixels[imgIndex].r / 255.f;
-        }
+    for (int i = 0; i < N*N; i++) {
+        m_heights[i] = heights[i];
     }
+}
+
+void HeightmapData::Load(Image heightmap_image, Vector3 center, Vector3 scale) {
+    int N = std::min(heightmap_image.width, heightmap_image.height);
+    Color* pixels = LoadImageColors(heightmap_image);
+    int imgW = heightmap_image.width;
+    if (heightmap_image.width != heightmap_image.height) {
+        std::cout << "Loading heightmap data from image: width != height" << std::endl;
+    }
+
+    float heights[N*N];
+    for (int i = 0; i < N*N; i++) {
+        heights[i] = pixels[i].r / 255.f;
+    }
+    Load(heights, N, center, scale);
 
     UnloadImageColors(pixels);
 }

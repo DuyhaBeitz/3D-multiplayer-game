@@ -15,8 +15,8 @@ enum Models : ModelKey {
     Count
 };
 
-SceneRegular::SceneRegular(std::string heightmap_image_path, uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count)
- : m_partitioner(&m_static_actors), m_heightmap_image_path(heightmap_image_path), m_seed(seed), m_heightmap_scale(heightmap_scale), m_trees_count(trees_count), m_grass_count(grass_count)
+SceneRegular::SceneRegular(uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count, float tree_scale, float grass_scale)
+ : m_partitioner(&m_static_actors), m_seed(seed), m_heightmap_scale(heightmap_scale), m_trees_count(trees_count), m_grass_count(grass_count), m_tree_scale(tree_scale), m_grass_scale(grass_scale)
   {
     m_partitioner.GetGrid().SetHandlePairFunc(
         [](PartitionUnit* un1, PartitionUnit* un2){
@@ -31,14 +31,7 @@ SceneRegular::SceneRegular(std::string heightmap_image_path, uint32_t seed, Vect
 void SceneRegular::Setup() {
     std::cout << "Setting up scene" << std::endl;
 
-    Image image = LoadImage(m_heightmap_image_path.c_str());
-    m_heightmap.Load(
-        image,
-        {0, 0, 0},
-        m_heightmap_scale
-    );
-    UnloadImage(image);
-
+    SetupHeightmap();
 
     int grid_cells = m_heightmap.GetSamplesPerSide();
     Vector3 corner = m_heightmap.GetPosition();
@@ -61,7 +54,7 @@ void SceneRegular::Setup() {
             float z = dist_xz(engine) / 1000.0f * scale.z + corner.z;
 
             float s = dist_scale(engine) / 100.0f;
-            s *= 10.0f;
+            s *= m_tree_scale;
             scales.push_back(Vector3{s, s, s});
 
             positions.push_back(
@@ -114,7 +107,7 @@ void SceneRegular::Setup() {
             }
         );
         float s = dist_scale(engine) / 100.0f;
-        s *= 5.0f;
+        s *= m_grass_scale;
         scales.push_back(Vector3{s, s, s});
     }
 

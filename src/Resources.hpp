@@ -14,6 +14,9 @@
 std::vector<int> CodepointsFromStr(const char* chars);
 Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
 R3D_Model LoadR3DModelFromMesh(R3D_Mesh mesh);
+Image LoadImageFromPerlinNoise(uint32_t seed, int w, int h, Vector2 uv = {1.0f, 1.0f}, int octaves = 4);
+Image LoadImageORM(const char *aoPath, const char *roughnessPath, const char *metallicPath);
+Texture LoadTextureORM(const char *aoPath, const char *roughnessPath, const char *metallicPath);
 
 /*
 Unlike other resources, Images can be loaded without window being initialized,
@@ -282,7 +285,7 @@ public:
     R3D_Model GetModel() { return m_model; }
 };
 
-inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f, Color albedo_tint = WHITE) {
+inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float normal_scale = 1.0f, float uv_scale = 1.0f, Color albedo_tint = WHITE, float o = 0.0f, float r = 1.0f, float m = 0.0f) {
     R3D_Material mat = R3D_GetDefaultMaterial();
     
     mat.albedo.texture = albedo;
@@ -291,9 +294,28 @@ inline R3D_Material CreateMaterial(Texture2D albedo, Texture2D normal, float nor
     mat.normal.texture = normal;
     mat.normal.scale = normal_scale;
     
-    mat.orm.metalness = 0;
-    mat.orm.roughness = 1.0;
-    mat.orm.occlusion = 0;
+    mat.orm.occlusion = o;
+    mat.orm.roughness = r;
+    mat.orm.metalness = m;    
+
+    mat.uvScale = Vector2{uv_scale, uv_scale};
+
+    return mat;
+}
+
+inline R3D_Material CreateMaterialORM(Texture2D albedo, Texture2D normal, Texture2D orm, float normal_scale = 1.0f, float uv_scale = 1.0f, float o = 1.0f, Color albedo_tint = WHITE, float r = 1.0f, float m = 1.0f) {
+    R3D_Material mat = R3D_GetDefaultMaterial();
+    
+    mat.albedo.texture = albedo;
+    mat.albedo.color = albedo_tint;
+
+    mat.normal.texture = normal;
+    mat.normal.scale = normal_scale;
+
+    mat.orm.occlusion = o;
+    mat.orm.roughness = r;
+    mat.orm.metalness = m;
+    mat.orm.texture = orm;
 
     mat.uvScale = Vector2{uv_scale, uv_scale};
 
@@ -357,13 +379,16 @@ public:
         return m_models.at(model_key);
     }
 
-    ModelAliased& SetHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+    ModelAliased& SetHeightmapModel(ModelKey model_key, Image image, Vector3 scale) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
-
-        Image img = LoadImage(filename.c_str());
-        R3D_Mesh mesh = R3D_GenMeshHeightmap(img, scale);
-
+        R3D_Mesh mesh = R3D_GenMeshHeightmap(image, scale);
         m_models[model_key].FromMeshNonAnimated(mesh);
+        return m_models.at(model_key);
+    }
+
+    ModelAliased& SetHeightmapModel(ModelKey model_key, std::string filename, Vector3 scale) {
+        Image img = LoadImage(filename.c_str());
+        SetHeightmapModel(model_key, img, scale);
         UnloadImage(img);
         return m_models.at(model_key);
     }

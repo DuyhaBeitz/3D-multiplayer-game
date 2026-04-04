@@ -276,6 +276,8 @@ private:
 public:
     HeightmapData() = default;
     
+    // heights is NxN array
+    void Load(float* heights, int N, Vector3 center, Vector3 scale);
     void Load(Image heightmap_image, Vector3 center, Vector3 scale);
 
     float GetHeightAtGrid(float ix, float iz) const;

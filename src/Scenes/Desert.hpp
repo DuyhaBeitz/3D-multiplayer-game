@@ -26,6 +26,7 @@ private:
     Vector3 m_door_position{};
 
     virtual void PostSetup() override; 
+    virtual void SetupHeightmap();
 
 public:
     Desert();
