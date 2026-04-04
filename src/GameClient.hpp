@@ -14,6 +14,7 @@ private:
     uint32_t m_id = 0;
     std::shared_ptr<EasyNetClient> m_client;
 
+    bool m_received_game_state = false;
     uint32_t m_ticks_since_last_received_game = 0;
 
     GameState m_last_received_game{};
@@ -77,6 +78,7 @@ private:
 
     void Reset() {
         m_received_initial_scene = false;
+        m_received_game_state = false;
 
         m_ticks_since_last_received_game = 0;
         m_prev_last_received_game = {};
@@ -248,9 +250,14 @@ public:
             auto rec_state = Deserialize(data);
             m_game_state = ApplyEvents(rec_state, data.tick, m_tick);
             DropEventHistory(data.tick-1);
-                        
+            
             m_last_received_game = rec_state;
-            m_last_received_game_tick = data.tick;       
+            m_last_received_game_tick = data.tick;
+            if (!m_received_game_state) {
+                m_prev_last_received_game = rec_state;
+                m_received_game_state = true;
+            }
+
             }
             break;
 
