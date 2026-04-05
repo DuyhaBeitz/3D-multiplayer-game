@@ -276,7 +276,7 @@ void Forest::UpdateActorVisuals(GameState &state, ActorKey actor_key, uint32_t t
             if (m_lights.find(actor_key) == m_lights.end()) {
                 m_lights[actor_key] = CreateLight();
             }
-            R3D_SetLightPosition(m_lights.at(actor_key), actor_data.body.position+actor_data.VForward()*10);
+            R3D_SetLightPosition(m_lights.at(actor_key), actor_data.body.position+Vector3{0, 13.0f/2.0f, 0}+actor_data.VForward()*10);
             R3D_SetLightDirection(m_lights.at(actor_key), actor_data.VForward());
         }
     }
