@@ -154,7 +154,7 @@ void SceneRegular::Setup() {
     std::cout << "Successfully set up scene" << std::endl;
 }
 
-void SceneRegular::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const {
+void SceneRegular::UpdateActorPhysics(GameState &state, ActorKey actor_key, uint32_t tick) {
     BodyData& body = state.world_data.actors.at(actor_key).body;
     CollisionResult res = m_heightmap.CollideWith(body);
     if (res.penetration > 0) {

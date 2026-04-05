@@ -33,6 +33,6 @@ public:
     SceneRegular(uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count, float tree_scale = 1.0f, float grass_scale = 1.0f);
 
     virtual void Setup();
-    virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const;
+    virtual void UpdateActorPhysics(GameState &state, ActorKey actor_key, uint32_t tick);
     //virtual void Update(WorldData& world);
 };

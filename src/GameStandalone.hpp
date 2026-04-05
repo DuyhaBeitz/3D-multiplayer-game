@@ -39,7 +39,11 @@ public:
             AddEvent(event, player_id, m_tick);
         }
         
-        m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1); 
+        UpdateUserData update_data;
+        update_data.has_main_player = true;
+        update_data.main_player_id = player_id;
+        void* user_data = reinterpret_cast<void*>(&update_data);
+        m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1, user_data); 
         m_tick++;
 
         Scenes scene = m_scene_manager.GetScene()->CheckSceneChange(m_game_state);

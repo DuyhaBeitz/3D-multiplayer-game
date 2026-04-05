@@ -122,6 +122,15 @@ struct GameState {
     void Draw(const GameDrawingData &drawing_data) const;
 #endif
 
+    std::pair<bool, uint32_t> IsPlayer(ActorKey actor_key) {
+        for (auto& [id, player_data] : players) {
+            if (actor_key == player_data.actor_key) {
+                return {true, id};
+            }
+        }
+        return {false, 0};
+    }
+
     bool PlayerExists(uint32_t id) const {
         return players.find(id) != players.end();
     }
@@ -176,17 +185,23 @@ struct SerializedGameState {
 
 class GameDrawingData;
 
+struct UpdateUserData {
+    uint32_t main_player_id;
+    bool has_main_player = false;
+    uint32_t palyer_id;
+};
+
 class Game : public GameBase<GameState, GameEvent, SerializedGameState> {
 protected:
     GameMetadata m_game_metadata{};
     SceneManager m_scene_manager{};
 
 public:
-    virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id);
+    virtual void ApplyEvent(GameState& state, const GameEvent& event, uint32_t id, void* user_data);
 
     virtual void Draw(const GameState& state, const GameDrawingData& data);
 
-    virtual void UpdateGameLogic(GameState& state, uint32_t tick) {
+    virtual void UpdateGameLogic(GameState& state, uint32_t tick, void* user_data) {
         constexpr int phys_iters = 4;
         float sub_dt = dt / phys_iters;
         
@@ -198,11 +213,12 @@ public:
             w.m_partitioner.GetGrid().iterate_cells(grid_user_data);
             for (auto& [actor_key, actor_data] : w.actors) {
                 if (m_scene_manager.GetScene()) {
-                    m_scene_manager.GetScene()->UpdateActor(state, actor_key, tick);
+                    m_scene_manager.GetScene()->UpdateActorPhysics(state, actor_key, tick);
                 }                
             }
             for (auto& [key, actor_data] : w.actors) {
                 actor_data.Update(sub_dt);
+                m_scene_manager.GetScene()->UpdateActor(state, key, tick, user_data);
             }
             w.m_partitioner.UpdateView();
         }

@@ -18,7 +18,7 @@ enum class Scenes : uint8_t {
     Green,
     Forest
 };
-constexpr Scenes default_scene = Scenes::Desert;
+constexpr Scenes default_scene = Scenes::Forest;
 
 class SceneBase {
 private:
@@ -34,7 +34,8 @@ public:
     virtual GameState PopulateState(const GameState &old_state) = 0;
 
     virtual void InitNewPlayer(GameState &state, uint32_t id) = 0; 
-    virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const = 0;
+    virtual void UpdateActorPhysics(GameState &state, ActorKey actor_key, uint32_t tick) = 0;
+    virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick, void* user_data) {};
 
     virtual Scenes CheckSceneChange(const GameState &state) = 0;
     //virtual void Update(WorldData& world) = 0;

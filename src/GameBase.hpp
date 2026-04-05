@@ -17,17 +17,17 @@ public:
         m_event_history[tick].push_back({id, event});
     }
 
-    GameStateType ApplyEvents(const GameStateType& start_state, uint32_t start_tick, uint32_t end_tick) {        
+    GameStateType ApplyEvents(const GameStateType& start_state, uint32_t start_tick, uint32_t end_tick, void* user_data) {        
         GameStateType result_state = start_state;
         uint32_t currentTick = start_tick;
 
         while (currentTick < end_tick) {
             if (m_event_history.find(currentTick) != m_event_history.end()) {
                 for (auto& [id, event] : m_event_history[currentTick]) {
-                    ApplyEvent(result_state, event, id);
+                    ApplyEvent(result_state, event, id, user_data);
                 }
             }
-            UpdateGameLogic(result_state, currentTick);
+            UpdateGameLogic(result_state, currentTick, user_data);
             currentTick++;
         }
 
@@ -44,8 +44,8 @@ public:
         }
     }
 
-    virtual void ApplyEvent(GameStateType& state, const GameEventType& event, uint32_t id) = 0;
-    virtual void UpdateGameLogic(GameStateType& state, uint32_t tick) = 0;
+    virtual void ApplyEvent(GameStateType& state, const GameEventType& event, uint32_t id, void* user_data) = 0;
+    virtual void UpdateGameLogic(GameStateType& state, uint32_t tick, void* user_data) = 0;
 
     virtual SerializedGameStateType Serialize(const GameStateType& state) = 0;
     virtual GameStateType Deserialize(SerializedGameStateType data) = 0;

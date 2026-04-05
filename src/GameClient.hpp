@@ -164,7 +164,11 @@ public:
             m_client->SendPacket(CreatePacket<PlayerInputPacketData>(NetMsg::PLAYER_INPUT, data));
         }
 
-        m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1);
+        UpdateUserData update_data;
+        update_data.has_main_player = true;
+        update_data.main_player_id = m_id;
+        void* user_data = reinterpret_cast<void*>(&update_data);
+        m_game_state = ApplyEvents(m_game_state, m_tick, m_tick+1, user_data);
 
         m_tick++;
         m_ticks_since_last_received_game++;
@@ -249,7 +253,13 @@ public:
 
             SerializedGameState data = ExtractData<SerializedGameState>(event.packet);
             auto rec_state = Deserialize(data);
-            m_game_state = ApplyEvents(rec_state, data.tick, m_tick);
+            
+            UpdateUserData update_data;
+            update_data.has_main_player = true;
+            update_data.main_player_id = m_id;
+            void* user_data = reinterpret_cast<void*>(&update_data);
+            m_game_state = ApplyEvents(rec_state, data.tick, m_tick, user_data);
+
             DropEventHistory(data.tick-1);
             
             m_last_received_game = rec_state;

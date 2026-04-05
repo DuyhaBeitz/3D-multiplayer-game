@@ -48,7 +48,10 @@ public:
             uint32_t current_tick = m_tick-server_lateness;
             uint32_t prev_tick = current_tick-tick_period;
 
-            m_game_state = ApplyEvents(m_game_state, prev_tick, current_tick);
+            UpdateUserData update_data;
+            update_data.has_main_player = false;
+            void* user_data = reinterpret_cast<void*>(&update_data);
+            m_game_state = ApplyEvents(m_game_state, prev_tick, current_tick, user_data);
 
             SerializedGameState data = Serialize(m_game_state);
             data.tick = current_tick;

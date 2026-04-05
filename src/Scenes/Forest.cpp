@@ -149,17 +149,7 @@ void Forest::Draw(const GameDrawingData &drawing_data) const {
 void Forest::Load() {
     #if WITH_RENDER
 
-    //Create directional light with shadows
-    m_light = R3D_CreateLight(R3D_LIGHT_DIR);
-    R3D_SetLightDirection(m_light, (Vector3){ -1, -0.5, -1 });
-    R3D_SetShadowUpdateMode(m_light, R3D_SHADOW_UPDATE_INTERVAL);
-    R3D_SetLightActive(m_light, true);
-    R3D_SetLightRange(m_light, 500.0f);
-    R3D_SetShadowSoftness(m_light, 3.2f);
-    R3D_SetShadowDepthBias(m_light, 0.001f);
-    R3D_EnableShadow(m_light);
-
-    m_cubemap = R3D_LoadCubemap("assets/skybox_1.png", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
+    m_cubemap = R3D_LoadCubemap("assets/night.jpg", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
     R3D_ENVIRONMENT_SET(background.skyBlur, 0.0f);
     R3D_ENVIRONMENT_SET(background.energy, 0.7f);
     R3D_ENVIRONMENT_SET(background.sky, m_cubemap);
@@ -171,10 +161,10 @@ void Forest::Load() {
 
     // FOG
     R3D_ENVIRONMENT_SET(fog.mode, R3D_FOG_EXP2);
-    R3D_ENVIRONMENT_SET(fog.color, BEIGE);
+    R3D_ENVIRONMENT_SET(fog.color, ColorLerp(PURPLE, BLACK, 0.9));
     R3D_ENVIRONMENT_SET(fog.start, 3.0f);
     R3D_ENVIRONMENT_SET(fog.end, 50.0f);
-    R3D_ENVIRONMENT_SET(fog.density, 0.0018f);
+    R3D_ENVIRONMENT_SET(fog.density, 0.0028f);
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     LoadResources();
@@ -184,7 +174,11 @@ void Forest::Load() {
 void Forest::Unload() {
     #if WITH_RENDER
     UnloadResources();
-    R3D_DestroyLight(m_light);
+    for (auto& [key, light] : m_lights) {
+        R3D_DestroyLight(light);
+    }
+    m_lights.clear();
+    
     R3D_UnloadAmbientMap(m_ambient_map);
     R3D_UnloadCubemap(m_cubemap);
     #endif
@@ -270,4 +264,25 @@ void Forest::InitNewPlayer(GameState &state, uint32_t id) {
     
 
     state.players[id] = player_data;
+}
+
+void Forest::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick, void *user_data) {
+    UpdateUserData* update_data = reinterpret_cast<UpdateUserData*>(user_data);
+
+    #if WITH_RENDER
+
+    
+    //auto [is_player, id] = state.IsPlayer(actor_key);
+    if (state.world_data.ActorExists(actor_key)) {
+        ActorData actor_data = state.world_data.GetActor(actor_key);
+        if (actor_data.render_data.model_key == Models::Player) {
+            if (m_lights.find(actor_key) == m_lights.end()) {
+                m_lights[actor_key] = CreateLight();
+            }
+            R3D_SetLightPosition(m_lights.at(actor_key), actor_data.body.position+actor_data.VForward()*10);
+            R3D_SetLightDirection(m_lights.at(actor_key), actor_data.VForward());
+        }
+    }
+
+    #endif
 }

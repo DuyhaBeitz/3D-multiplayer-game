@@ -38,7 +38,7 @@ void Game::RemovePlayer(GameState &state, uint32_t id) {
     state.players.erase(id);
 }
 
-void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id) {
+void Game::ApplyEvent(GameState &state, const GameEvent &event, uint32_t id, void* user_data) {
     switch (event.event_id) {
     case EV_PLAYER_INPUT:
         if (state.PlayerExists(id)) {
