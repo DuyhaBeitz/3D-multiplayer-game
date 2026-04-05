@@ -289,7 +289,8 @@ public:
 
     void Draw() const;
 
-    void SolveCollisionWith(BodyData& other) const;
+    CollisionResult CollideWith(BodyData& other) const;
+    void SolveCollisionWith(BodyData& other, const CollisionResult &collision_result) const;
 
     int GetSamplesPerSide() {
         return m_samples;

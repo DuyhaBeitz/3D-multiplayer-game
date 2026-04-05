@@ -47,6 +47,8 @@ public:
             m_scene_manager.ChangeScene(scene);
             InitGame();
         }
+
+        Audio::Get().Update(m_tick);
     }
 
     void DrawGame() {

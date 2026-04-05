@@ -276,21 +276,26 @@ void HeightmapData::Draw() const {
     }
 }
 
-void HeightmapData::SolveCollisionWith(BodyData &other) const{
-    if (other.inverse_mass > 0) {
-        float height = GetHeightAt(other.position.x, other.position.z);
-        float min = other.Min().y;
+CollisionResult HeightmapData::CollideWith(BodyData &other) const {
+    CollisionResult res;
+
+    float height = GetHeightAt(other.position.x, other.position.z);
+    float min = other.Min().y;
         
-        float penetration = height-min;
-        if (penetration > 0) {
-            const Vector3 normal = GetNormalAt(other.position.x, other.position.z);//Vector3{0, 1, 0};
+    res.penetration = height-min;
+    res.normal = GetNormalAt(other.position.x, other.position.z);
+    res.hit_pos = Vector3{other.position.x, height, other.position.z};
+    return res;
+}
 
+void HeightmapData::SolveCollisionWith(BodyData &other, const CollisionResult &collision_result) const {
+    if (other.inverse_mass > 0) {
+        if (collision_result.penetration > 0) {
             const float m2 = other.inverse_mass;
-
-            other.position += normal*penetration;
+            other.position += collision_result.normal*collision_result.penetration;
 
             Vector3 relative_velocity = other.velocity;
-            float dot = Vector3DotProduct(relative_velocity, normal);
+            float dot = Vector3DotProduct(relative_velocity, collision_result.normal);
             if (dot > 0.f) return;
 
             float e = other.restitution;
@@ -298,12 +303,12 @@ void HeightmapData::SolveCollisionWith(BodyData &other) const{
             float j = -(1.f + e) * dot;
             j /= m2;
             
-            Vector3 impulse = normal*j;
+            Vector3 impulse = collision_result.normal*j;
         
             other.ApplyImpulse(impulse);  
 
             float friction_coefficient = 0.15f;
-            Vector3 impulse_friction = GetFrictionImpulse(impulse, normal, relative_velocity, 0, m2, friction_coefficient);
+            Vector3 impulse_friction = GetFrictionImpulse(impulse, collision_result.normal, relative_velocity, 0, m2, friction_coefficient);
             other.ApplyImpulse(impulse_friction);
         }
     }

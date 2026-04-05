@@ -15,6 +15,7 @@ int main(){
     #if WITH_RENDER
     InitWindow(1000, 1000, "Server");
     SetWindowState(FLAG_WINDOW_TOPMOST);
+    InitAudioDevice();
     SetTargetFPS(iters_per_sec);
     Rendering::Init();
     game_server = std::make_unique<GameServer>();

@@ -20,6 +20,8 @@ struct StaticGridUserData {
     GameState& state;
 };
 
+ActorKey fake_key_for_heightmap = 63613;
+
 SceneRegular::SceneRegular(uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count, float tree_scale, float grass_scale)
  : m_partitioner(&m_static_actors), m_seed(seed), m_heightmap_scale(heightmap_scale), m_trees_count(trees_count), m_grass_count(grass_count), m_tree_scale(tree_scale), m_grass_scale(grass_scale)
   {
@@ -154,8 +156,20 @@ void SceneRegular::Setup() {
 
 void SceneRegular::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const {
     BodyData& body = state.world_data.actors.at(actor_key).body;
-    m_heightmap.SolveCollisionWith(body);
-
+    CollisionResult res = m_heightmap.CollideWith(body);
+    
+    if (res.penetration >= 0) {
+        m_heightmap.SolveCollisionWith(body, res);
+        #if WITH_RENDER                        
+        Audio::Get().EmitSoundEvent(
+            SoundEvent(FLAG_SOUND_CONTINUOUS, actor_key, fake_key_for_heightmap, tick,
+                res.hit_pos+Vector3{0, 13, 0}, body.velocity,
+                R_SOUND_WALK
+            )
+        );
+        #endif
+    }
+    
     PartitionUnit unit(nullptr, body.position.x, body.position.z);
     unit.user_data = reinterpret_cast<void*>(actor_key);
 

@@ -43,10 +43,6 @@ struct WorldData {
                     SolveCollision(*body1, *body2, res);
                     #if WITH_RENDER
                     uint32_t tick = (uint32_t)reinterpret_cast<uint64_t>(user_data);
-                    
-                    static int c = 0;
-                    c++;
-                    std::cout << c << std::endl;
                     Audio::Get().EmitSoundEvent(
                         SoundEvent(FLAG_SOUND_PHYISCS_DD, key1, key2, tick,
                             res.hit_pos, body1->velocity-body2->velocity,

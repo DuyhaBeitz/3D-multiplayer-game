@@ -170,6 +170,8 @@ public:
         m_ticks_since_last_received_game++;
 
         m_ui_screen->Update(nullptr);
+        
+        Audio::Get().Update(m_tick);
     }
 
     void DrawGame() {            

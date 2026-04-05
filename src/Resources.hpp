@@ -355,9 +355,17 @@ private:
         );
         SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);      
 
+        {
         auto s = SoundPro();
         s.Load("assets/hit.wav");
         SetSound(R_SOUND_DEFAULT, s);
+        }
+        
+        {
+        auto s = SoundPro();
+        s.Load("assets/walking.mp3");
+        SetSound(R_SOUND_WALK, s);
+       }
 
         std::cout << "Successfully loaded resources" << std::endl;
     }

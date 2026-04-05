@@ -14,8 +14,9 @@
 constexpr int max_audio_history_tick = iters_per_sec*5;
 
 enum SoundFlags : uint16_t {
-    FLAG_SOUND_PHYISCS_DD = 0, // dynamic-dynamic collision
-    FLAG_SOUND_PHYISCS_SD,
+    FLAG_SOUND_PHYISCS_DD = 1 << 0, // dynamic-dynamic collision
+    FLAG_SOUND_PHYISCS_SD = 1 << 1,
+    FLAG_SOUND_CONTINUOUS = 1 << 2,
 };
 
 struct SoundEventHash {
@@ -67,20 +68,50 @@ struct SoundEvent {
     Vector3 hit_pos;
     Vector3 rel_vel;
     SoundKey sound_key;
+
+    bool operator==(const SoundEvent& other) const {
+        return  hash.flag == other.hash.flag &&
+                hash.actor_key1 == other.hash.actor_key1 &&
+                hash.actor_key2 == other.hash.actor_key2;
+    }
+};
+
+struct SoundEventHashWithoutTick {
+    size_t operator()(const SoundEvent& s) const noexcept {
+        size_t h1 = std::hash<uint16_t>{}(s.hash.flag);
+        size_t h2 = std::hash<uint16_t>{}(s.hash.actor_key1);
+        size_t h3 = std::hash<uint16_t>{}(s.hash.actor_key2);
+        // tick omitted
+        return h1 ^ (h2 << 1) ^ (h3 << 2);
+    }
 };
 
 class Audio {
 private:
 
     std::unordered_set<SoundEventHash> m_played{};
+    std::unordered_set<SoundEvent, SoundEventHashWithoutTick> m_continuous{};
+    std::unordered_set<SoundEvent, SoundEventHashWithoutTick> m_new_sounds{};
 
     Audio() {};
     ~Audio() {};
 
     void PlaySoundAtEvent(const SoundEvent& e) {
+        m_new_sounds.emplace(e);
         Resources& r = Resources::Get();
         Rendering& rr = Rendering::Get();
-        r.SoundFromKey(e.sound_key).Play3D(rr.GetCamera(), e.hit_pos, 100);
+        if (e.hash.flag & FLAG_SOUND_CONTINUOUS) {
+            size_t h = SoundEventHashWithoutTick{}(e);
+            int index = h % ALIASES_PER_SOUND;
+            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, 20);
+            m_continuous.emplace(e);
+        }
+        else {
+            size_t h = SoundEventHashWithoutTick{}(e);
+            int index = h % ALIASES_PER_SOUND;
+            // the difference is that this one doesn't get stopped
+            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, 20);
+        }
     }
 
 public:
@@ -91,6 +122,24 @@ public:
     static Audio& Get() {
         static Audio instance;
         return instance;
+    }
+
+    void Update(uint32_t tick) {
+        Resources& r = Resources::Get();
+        std::vector<SoundEvent> for_deletion;
+        
+        for (auto& e : m_continuous) {
+            if (m_new_sounds.find(e) == m_new_sounds.end()) {
+                size_t h = SoundEventHashWithoutTick{}(e);
+                int index = h % ALIASES_PER_SOUND;
+                r.SoundFromKey(e.sound_key).StopContinuous(index);
+            }         
+        }
+        for (auto& e : for_deletion) {
+            m_continuous.erase(e);
+        }
+        
+        if (tick % (iters_per_sec/5) == 0) m_new_sounds.clear();
     }
 
     void EmitSoundEvent(SoundEvent e) {

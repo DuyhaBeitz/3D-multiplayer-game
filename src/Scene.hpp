@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <raylib.h>
+#include "Constants.hpp"
 
 #if WITH_RENDER
 #include "GameDrawingData.hpp"

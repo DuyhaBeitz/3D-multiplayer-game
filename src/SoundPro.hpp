@@ -66,4 +66,17 @@ struct SoundPro {
             }
         }
     }
+
+    void PlayContinuous3D(int alias_index, const Camera& listener, const Vector3& position, float maxDist) {
+        if (alias_index < 0 || alias_index >= ALIASES_PER_SOUND) return;
+        if (!IsSoundPlaying(aliases[alias_index])) {
+            SetSoundPosition(listener, aliases[alias_index], position, maxDist);
+            PlaySound(aliases[alias_index]);
+        }
+    }
+
+    void StopContinuous(int alias_index) {
+        if (alias_index < 0 || alias_index >= ALIASES_PER_SOUND) return;
+        StopSound(aliases[alias_index]);
+    }
 };
