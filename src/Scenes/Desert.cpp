@@ -191,6 +191,11 @@ void Desert::Unload() {
 
 GameState Desert::PopulateState(const GameState &old_state) {
     GameState state;
+
+    for (const auto& [id, player_data] : old_state.players) {
+        InitNewPlayer(state, id);
+    }    
+
     {
     BoxData box_data;
     float a = 10;
@@ -204,7 +209,7 @@ GameState Desert::PopulateState(const GameState &old_state) {
     state.world_data.GetActor(actor_key).render_data.model_key = Models::CubeExclamation;
     }
 
-    for (int i = 1; i < 10; i++) {
+    for (int i = 1; i < 3; i++) {
         SphereData sphere_data;
         sphere_data.SetRadius(10.0f);
 
@@ -217,10 +222,6 @@ GameState Desert::PopulateState(const GameState &old_state) {
         state.world_data.GetActor(actor_key).render_data.model_key = Models::Football;
     }
 
-    for (const auto& [id, player_data] : old_state.players) {
-        InitNewPlayer(state, id);
-    }
-    
     return state;
 }
 

@@ -157,16 +157,23 @@ void SceneRegular::Setup() {
 void SceneRegular::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const {
     BodyData& body = state.world_data.actors.at(actor_key).body;
     CollisionResult res = m_heightmap.CollideWith(body);
-    
-    if (res.penetration >= 0) {
+    if (res.penetration > 0) {
         m_heightmap.SolveCollisionWith(body, res);
-        #if WITH_RENDER                        
-        Audio::Get().EmitSoundEvent(
-            SoundEvent(FLAG_SOUND_CONTINUOUS, actor_key, fake_key_for_heightmap, tick,
-                res.hit_pos+Vector3{0, 13, 0}, body.velocity,
-                R_SOUND_WALK
-            )
-        );
+        #if WITH_RENDER
+        float speed = Vector3Length(body.velocity);
+        constexpr float treshold = hor_speed/6;
+        if (speed > treshold)
+        {
+            Audio::Get().EmitSoundEvent(
+                SoundEvent(
+                    FLAG_SOUND_CONTINUOUS,
+                    actor_key, fake_key_for_heightmap, tick,
+                    res.hit_pos, body.velocity,
+                    R_SOUND_WALK,
+                    0.1
+                )
+            );
+        }
         #endif
     }
     

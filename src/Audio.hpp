@@ -11,7 +11,7 @@
 #include <Resources.hpp>
 #include <Rendering.hpp>
 
-constexpr int max_audio_history_tick = iters_per_sec*5;
+constexpr int max_audio_history_tick = iters_per_sec*3;
 
 enum SoundFlags : uint16_t {
     FLAG_SOUND_PHYISCS_DD = 1 << 0, // dynamic-dynamic collision
@@ -59,15 +59,18 @@ struct SoundEvent {
         uint32_t _tick,
         Vector3 _hit_pos,
         Vector3 _rel_vel,
-        SoundKey _sound_key
+        SoundKey _sound_key,
+        float _duration_treshold = 1.0f
     ) 
-    : hash(_flag, _actor_key1, _actor_key2, _tick), hit_pos(_hit_pos), rel_vel(_rel_vel), sound_key(_sound_key) {
+    : hash(_flag, _actor_key1, _actor_key2, _tick), hit_pos(_hit_pos), rel_vel(_rel_vel), sound_key(_sound_key), duration_treshold(_duration_treshold) {
     }
 
     SoundEventHash hash;
     Vector3 hit_pos;
     Vector3 rel_vel;
     SoundKey sound_key;
+    // for continuous, in seconds
+    float duration_treshold = 1.0f;
 
     bool operator==(const SoundEvent& other) const {
         return  hash.flag == other.hash.flag &&
@@ -139,7 +142,13 @@ public:
             m_continuous.erase(e);
         }
         
-        if (tick % (iters_per_sec/5) == 0) m_new_sounds.clear();
+        for (auto it = m_new_sounds.begin(); it != m_new_sounds.end(); ) {
+            if ((tick - (*it).hash.tick) > (*it).duration_treshold*iters_per_sec) {
+                it = m_new_sounds.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 
     void EmitSoundEvent(SoundEvent e) {

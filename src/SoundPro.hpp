@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
-static void SetSoundPosition(const Camera& listener, Sound sound, const Vector3& position, float maxDist) {
+static void SetSoundPosition(const Camera& listener, Sound sound, const Vector3& position, float maxDist, float volume_multiplier = 1.0f) {
     // Calculate direction vector and distance between listener and sound source
     Vector3 direction = Vector3Subtract(position, listener.position);
     float distance = Vector3Length(direction);
@@ -23,17 +23,18 @@ static void SetSoundPosition(const Camera& listener, Sound sound, const Vector3&
     }
     
     // Set stereo panning based on sound position relative to listener
-    float pan = 0.5f + 0.5f * Vector3DotProduct(normalizedDirection, right);
+    float pan = 0.5f - 0.5f * Vector3DotProduct(normalizedDirection, right);
     
     // Apply final sound properties
-    SetSoundVolume(sound, attenuation);
+    SetSoundVolume(sound, attenuation*volume_multiplier);
     SetSoundPan(sound, pan);
 }
 
-#define ALIASES_PER_SOUND 10
+#define ALIASES_PER_SOUND 32
 
 struct SoundPro {
     Sound aliases[ALIASES_PER_SOUND];
+    float volume_multiplier = 1.0f;
 
     void Load(const char* filename) {
         aliases[0] = LoadSound(filename);
@@ -51,6 +52,7 @@ struct SoundPro {
     void Play() {
         for (int i = 0; i < ALIASES_PER_SOUND; i++){
             if (!IsSoundPlaying(aliases[i])) {
+                SetSoundVolume(aliases[i], volume_multiplier);
                 PlaySound(aliases[i]);
                 break;
             }
@@ -60,7 +62,7 @@ struct SoundPro {
     void Play3D(const Camera& listener, const Vector3& position, float maxDist) {
         for (int i = 0; i < ALIASES_PER_SOUND; i++){
             if (!IsSoundPlaying(aliases[i])) {
-                SetSoundPosition(listener, aliases[i], position, maxDist);
+                SetSoundPosition(listener, aliases[i], position, maxDist, volume_multiplier);
                 PlaySound(aliases[i]);
                 break;
             }
@@ -70,7 +72,7 @@ struct SoundPro {
     void PlayContinuous3D(int alias_index, const Camera& listener, const Vector3& position, float maxDist) {
         if (alias_index < 0 || alias_index >= ALIASES_PER_SOUND) return;
         if (!IsSoundPlaying(aliases[alias_index])) {
-            SetSoundPosition(listener, aliases[alias_index], position, maxDist);
+            SetSoundPosition(listener, aliases[alias_index], position, maxDist, volume_multiplier);
             PlaySound(aliases[alias_index]);
         }
     }

@@ -47,6 +47,7 @@ public:
 
     float GetRadius() const {return m_radius;}
     Vector3 GetCenter() const {return m_center;}
+    Vector3 GetOffset() const {return m_offset;}
 
     void UpdateCenter(Vector3 parent_pos) { m_center = parent_pos + m_offset; }
 
@@ -79,6 +80,7 @@ public:
 
     Vector3 GetHalfExtends() const {return m_half_extents;}
     Vector3 GetCenter() const {return m_center;}
+    Vector3 GetOffset() const {return m_offset;}
 
     template <class Archive>
     void serialize(Archive& ar) {

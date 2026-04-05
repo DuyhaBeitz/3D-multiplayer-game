@@ -29,7 +29,7 @@ private:
     virtual void SetupHeightmap();
 
     Image LoadHeightmapImage() {
-        return LoadImageFromPerlinNoise(89323, 128, 128, {0.015, 0.015}, 10);
+        return LoadImageFromPerlinNoise(89323, 128, 128, Vector2{0.015, 0.015}, 10);
     }
 
 public:

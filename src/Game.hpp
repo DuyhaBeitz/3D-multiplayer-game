@@ -187,7 +187,7 @@ public:
     virtual void Draw(const GameState& state, const GameDrawingData& data);
 
     virtual void UpdateGameLogic(GameState& state, uint32_t tick) {
-        constexpr int phys_iters = 10;
+        constexpr int phys_iters = 4;
         float sub_dt = dt / phys_iters;
         
         WorldData& w = state.world_data;

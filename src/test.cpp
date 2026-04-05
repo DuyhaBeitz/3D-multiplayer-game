@@ -1,48 +1,69 @@
 #include <iostream>
-
-const int NUM_CELLS = 10;
-const int CELL_SIZE = 100;
-const int min = -NUM_CELLS/2;
-const int max = NUM_CELLS/2 - 1;
-
-int CoordIntoCell_(float coord) {
-    int cell = (int)(coord / CELL_SIZE);
-    if (cell < min) cell = min;
-    if (cell > max) cell = max;
-    cell += NUM_CELLS/2;
-    return cell;
-}
-int CoordIntoCellCapped_(float coord) {
-    int cell = CoordIntoCell_(coord);
-    cell %= NUM_CELLS;
-    return cell;
-}
-float CellIntoCoord_(int cell) {
-    return CELL_SIZE * (cell - NUM_CELLS/2);
-}
+#include <raylib.h>
+#include <Audio.hpp>
+#include <Physics.hpp>
 
 int main() {
-    for (int ix = 0; ix < NUM_CELLS; ix++) {
-        std::cout << "ix=" << ix;
-        float x = CellIntoCoord_(ix);
-        float recon = CoordIntoCell_(x);
-        if (ix != recon) {
-            std::cout << " failed: " << " rec=" << recon;
-            return 0;
-        }
-        std::cout << std::endl;
-    }
+    InitWindow(500, 500, "Test");
+    InitAudioDevice();
 
-    for (float x = min*CELL_SIZE; x < max*CELL_SIZE; x+=0.1) {
-        std::cout << "x=" << x;
-        int ix = CoordIntoCell_(x);
-        float xx = CellIntoCoord_(ix);
-        int recon = CoordIntoCell_(xx);
-        if (ix != recon) {
-            std::cout << " failed: " << " rec=" << recon;
-            return 0;
+    Camera3D camera = {
+        .position = {0, 0, 0.0f},
+        .target = {1.0f, 0.0f, 0.0f},
+        .up = {0, 1, 0},
+        .fovy = 90
+    };
+
+    SoundPro sound;
+    sound.Load("assets/hit.wav");
+    sound.volume_multiplier = 0.05;
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(WHITE);
+        BeginMode3D(camera);
+        DrawGrid(100, 10);
+
+
+        float t = GetTime();
+
+        camera.position = Vector3{6+12*sin(t), 0, cos(t)*12};
+        camera.target = camera.position + Vector3{cos(t), 0, sin(t)};
+
+        float r = 1.0f;
+        SphereData s(r);
+
+        BodyData b1;
+        b1.shapes.push_back(CollisionShape(s));
+        b1.position = Vector3{6, 0, sin(t*10)*2};
+
+        BodyData b2;
+        b2.shapes.push_back(CollisionShape(s));
+        b2.position = Vector3{6, 0, -sin(t*10)*2};
+
+        b1.UpdateShapePositions();
+        b2.UpdateShapePositions();
+
+        CollisionResult res = b2.CollideWith(b1);
+        std::cout << res.penetration << std::endl;
+
+        DrawSphereWires(b1.position, r, 10, 10, GREEN);
+        DrawSphereWires(b2.position, r, 10, 10, GREEN);
+        
+        if (res.penetration >= 0) {
+            sound.PlayContinuous3D(0, camera, res.hit_pos, 100);
+            DrawSphereWires(res.hit_pos, 0.5, 10, 10, RED);
         }
-        std::cout << std::endl;
+        
+    
+
+        // float t = GetTime();
+        // Vector3 pos = Vector3{sin(t)*20, 0, cos(t)*20};
+        // DrawSphere(pos, 3, GREEN);
+        // sound.PlayContinuous3D(0, camera, pos, 100);
+
+        EndMode3D();
+        EndDrawing();
     }
 };
 

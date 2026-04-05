@@ -8,7 +8,7 @@ CollisionResult CollideSphereSphere(const SphereData &a, const SphereData &b) {
 
     CollisionResult res;
     res.penetration = rsum - dist;
-    res.hit_pos = a.GetCenter() - diff * (a.GetRadius() - res.penetration);
+    res.hit_pos = (a.GetCenter()+b.GetCenter()) * 0.5f;
     res.normal = Vector3Normalize(diff);
 
     return res;

@@ -192,6 +192,11 @@ void Forest::Unload() {
 
 GameState Forest::PopulateState(const GameState &old_state) {
     GameState state;
+
+    for (const auto& [id, player_data] : old_state.players) {
+        InitNewPlayer(state, id);
+    }
+
     // {
     // BoxData box_data;
     // float a = 10;
@@ -216,10 +221,6 @@ GameState Forest::PopulateState(const GameState &old_state) {
 
         ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
         state.world_data.GetActor(actor_key).render_data.model_key = Models::Football;
-    }
-
-    for (const auto& [id, player_data] : old_state.players) {
-        InitNewPlayer(state, id);
     }
     
     return state;

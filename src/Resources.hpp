@@ -358,12 +358,14 @@ private:
         {
         auto s = SoundPro();
         s.Load("assets/hit.wav");
+        s.volume_multiplier = 0.05;
         SetSound(R_SOUND_DEFAULT, s);
         }
         
         {
         auto s = SoundPro();
         s.Load("assets/walking.mp3");
+        s.volume_multiplier = 0.05;
         SetSound(R_SOUND_WALK, s);
        }
 
