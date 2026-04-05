@@ -66,6 +66,10 @@ public:
                 m_game_metadata
             };
 
+            for (auto& [actor_key, actor_data] : m_game_state.world_data.actors) {
+                m_scene_manager.GetScene()->UpdateActorVisuals(m_game_state, actor_key, m_tick, nullptr);
+            }
+
             Rendering::Get().BeginRendering();
                 ClearBackground(DARKGRAY);
                 Draw(m_game_state, drawing_data);

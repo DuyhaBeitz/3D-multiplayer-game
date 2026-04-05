@@ -1,5 +1,5 @@
 #include "Settings.hpp"
-
+#include "Audio.hpp"
 #include "Rendering.hpp"
 
 Settings::Settings() {
@@ -7,8 +7,9 @@ Settings::Settings() {
 }
 
 void Settings::Update() {
+    Audio::Get().SetSFXVolume(m_sfx_volume);
+
     R3D_SetResolution(GetScreenWidth() * m_resolution_scale, GetScreenHeight() * m_resolution_scale);
-    
     if (m_dof_enabled) {
         R3D_ENVIRONMENT_SET(dof.mode, R3D_DOF_ENABLED);
         R3D_ENVIRONMENT_SET(background.color, BLACK);        

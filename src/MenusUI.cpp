@@ -72,6 +72,7 @@ void MenusScreen::SetupSettingsScreen() {
 
     auto title = std::make_shared<UIText>("Settings", rect);    
     
+    ADD_SETTING_SLIDER(SFX_Volume, Settings::Get().GetSFXVolumePtr())
     ADD_SETTING_SLIDER(Resolution_scale, Settings::Get().GetResolutionScalePtr())
     ADD_SETTING_BOOL(Dof_enabled, Settings::Get().GetDofEnabledPtr())
     ADD_SETTING_SLIDER(Dof_focus_point, Settings::Get().GetDofFocusPointPtr())

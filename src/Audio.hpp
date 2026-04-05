@@ -92,6 +92,8 @@ struct SoundEventHashWithoutTick {
 class Audio {
 private:
 
+    float m_sfx_volume = 1.0f;
+
     std::unordered_set<SoundEventHash> m_played{};
     std::unordered_set<SoundEvent, SoundEventHashWithoutTick> m_continuous{};
     std::unordered_set<SoundEvent, SoundEventHashWithoutTick> m_new_sounds{};
@@ -165,4 +167,7 @@ public:
             }
         }
     }
+
+    float GetSFXVolume() { return m_sfx_volume; }
+    void SetSFXVolume(float sfx_volume) { m_sfx_volume = sfx_volume; }
 };
