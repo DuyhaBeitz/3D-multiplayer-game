@@ -3,6 +3,8 @@
 #include "SpacePartition.hpp"
 #include <unordered_map>
 
+struct GameState;
+
 class ActorPartitioner {
 private:
     std::map<ActorKey, ActorData>* m_actors = nullptr;
@@ -25,6 +27,7 @@ private:
 
 public:
     void UpdateView();
+    ActorData& GetActor(ActorKey actor_key) { return (*m_actors).at(actor_key); }
     
     ActorPartitioner(std::map<ActorKey, ActorData>* actors) 
     : m_actors(actors)

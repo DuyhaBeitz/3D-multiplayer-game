@@ -15,19 +15,43 @@ enum Models : ModelKey {
     Count
 };
 
+struct StaticGridUserData {
+    uint32_t tick;
+    GameState& state;
+};
+
 SceneRegular::SceneRegular(uint32_t seed, Vector3 heightmap_scale, int trees_count, int grass_count, float tree_scale, float grass_scale)
  : m_partitioner(&m_static_actors), m_seed(seed), m_heightmap_scale(heightmap_scale), m_trees_count(trees_count), m_grass_count(grass_count), m_tree_scale(tree_scale), m_grass_scale(grass_scale)
   {
     m_partitioner.GetGrid().SetHandlePairFunc(
-        [](PartitionUnit* un1, PartitionUnit* un2){
-            if (un1 && un2) {
-                BodyData* dynamic_body = reinterpret_cast<BodyData*>(un1->user_data);
-                BodyData* static_body = reinterpret_cast<BodyData*>(un2->user_data);
-                SolveCollisionOneWay(*static_body, *dynamic_body, static_body->CollideWith(*dynamic_body));
+        [this](PartitionUnit* un1, PartitionUnit* un2, void* user_data){
+            if (un1 && un2 && un1 != un2) {
+                StaticGridUserData* data = reinterpret_cast<StaticGridUserData*>(user_data);
+                ActorKey key1 = (ActorKey)reinterpret_cast<uint64_t>(un1->user_data);
+                ActorKey key2 = (ActorKey)reinterpret_cast<uint64_t>(un2->user_data);
+                if (user_data) {
+                    BodyData* dynamic_body = &data->state.world_data.GetActor(key1).body;
+                    BodyData* static_body = &m_partitioner.GetActor(key2).body;
+                    if (dynamic_body && static_body) {
+                        CollisionResult res = static_body->CollideWith(*dynamic_body);
+                        if (res.penetration >= 0) {
+                            SolveCollisionOneWay(*static_body, *dynamic_body, res);
+                            #if WITH_RENDER                        
+                            Audio::Get().EmitSoundEvent(
+                                SoundEvent(FLAG_SOUND_PHYISCS_SD, key1, key2, data->tick,
+                                    res.hit_pos, dynamic_body->velocity,
+                                    R_SOUND_DEFAULT
+                                )
+                            );
+                            #endif
+                        }
+                    }
+                }
             }
         }
     );
 }
+
 void SceneRegular::Setup() {
     std::cout << "Setting up scene" << std::endl;
 
@@ -128,10 +152,14 @@ void SceneRegular::Setup() {
     std::cout << "Successfully set up scene" << std::endl;
 }
 
-void SceneRegular::SolveCollisionWith(BodyData &other) const {
-    m_heightmap.SolveCollisionWith(other);
+void SceneRegular::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const {
+    BodyData& body = state.world_data.actors.at(actor_key).body;
+    m_heightmap.SolveCollisionWith(body);
 
-    PartitionUnit unit(nullptr, other.position.x, other.position.z);
-    unit.user_data = reinterpret_cast<void*>(&other);
-    m_partitioner.GetGrid().unit_with_grid(&unit, other.position.x, other.position.z);
+    PartitionUnit unit(nullptr, body.position.x, body.position.z);
+    unit.user_data = reinterpret_cast<void*>(actor_key);
+
+    StaticGridUserData user_data{tick, state};
+    void* grid_user_data = reinterpret_cast<void*>(&user_data);
+    m_partitioner.GetGrid().unit_with_grid(&unit, body.position.x, body.position.z, grid_user_data);
 }

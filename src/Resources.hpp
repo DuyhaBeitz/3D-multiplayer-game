@@ -9,6 +9,8 @@
 #include <r3d/r3d.h>
 #include "Constants.hpp"
 
+#include "SoundPro.hpp"
+
 #include "ResourceData.hpp"
 
 std::vector<int> CodepointsFromStr(const char* chars);
@@ -324,6 +326,7 @@ class Resources {
 private:
     std::unordered_map<ModelKey, ModelAliased> m_models;
     std::unordered_map<FontKey, Font> m_fonts;
+    std::unordered_map<SoundKey, SoundPro> m_sounds;
 
     int max_font_size = 128; // any begger than that will be upscaled
 
@@ -351,6 +354,10 @@ private:
             LoadFontForCharacters("assets/NotoSans-Black.ttf", max_font_size, supported_font_chars)
         );
         SetTextureFilter(FontFromKey(R_FONT_DEFAULT).texture, TEXTURE_FILTER_ANISOTROPIC_16X);      
+
+        auto s = SoundPro();
+        s.Load("assets/hit.wav");
+        SetSound(R_SOUND_DEFAULT, s);
 
         std::cout << "Successfully loaded resources" << std::endl;
     }
@@ -397,6 +404,12 @@ public:
         return m_fonts.at(font_key);
     }
 
+    SoundPro& SetSound(SoundKey sound_key, SoundPro sound) {
+        TryUnloadSound(sound_key);
+        m_sounds[sound_key] = sound;
+        return m_sounds.at(sound_key);
+    }
+
     void TryUnloadModel(ModelKey model_key) {
         m_models.erase(model_key);
     }
@@ -408,6 +421,13 @@ public:
         }
     }
 
+    void TryUnloadSound(SoundKey sound_key) {
+        if (m_sounds.find(sound_key) != m_sounds.end()) {
+            m_sounds[sound_key].Unload();
+            m_sounds.erase(sound_key);
+        }
+    }
+
     void Unload() {
         m_models.clear();
 
@@ -415,6 +435,11 @@ public:
             UnloadFont(font);
         }
         m_fonts.clear();
+
+        for (auto&& [key, sound] : m_sounds) {
+            sound.Unload();
+        }
+        m_sounds.clear();
     }
 
     Resources(const Resources&) = delete;
@@ -440,6 +465,13 @@ public:
         if (m_fonts.find(key) != m_fonts.end()) return m_fonts.at(key); 
         else {
             throw std::range_error(TextFormat("font key is not found: %d", key));
+        }
+    }
+
+    SoundPro& SoundFromKey(SoundKey key) {
+        if (m_sounds.find(key) != m_sounds.end()) return m_sounds.at(key); 
+        else {
+            throw std::range_error(TextFormat("sound key is not found: %d", key));
         }
     }
 

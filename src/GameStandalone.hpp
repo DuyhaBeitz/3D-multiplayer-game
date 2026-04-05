@@ -10,7 +10,6 @@ constexpr int player_id = 0;
 class GameStandalone : public Game {
     
 private:
-    uint32_t m_tick = 0;
     GameState m_game_state{};
     
 public:

@@ -8,6 +8,7 @@ CollisionResult CollideSphereSphere(const SphereData &a, const SphereData &b) {
 
     CollisionResult res;
     res.penetration = rsum - dist;
+    res.hit_pos = a.GetCenter() - diff * (a.GetRadius() - res.penetration);
     res.normal = Vector3Normalize(diff);
 
     return res;
@@ -25,6 +26,7 @@ CollisionResult CollideSphereBox(const SphereData &s, const BoxData &b) {
 
     CollisionResult res;
     res.penetration = s.GetRadius() - dist;
+    res.hit_pos = closest;
     res.normal = Vector3Normalize(diff);
 
     return res;
@@ -32,11 +34,20 @@ CollisionResult CollideSphereBox(const SphereData &s, const BoxData &b) {
 
 CollisionResult CollideBoxBox(const BoxData &a, const BoxData &b) {
     CollisionResult res;
-    Vector3 overlap = {
-        fminf(a.Max().x, b.Max().x) - fmaxf(a.Min().x, b.Min().x),
-        fminf(a.Max().y, b.Max().y) - fmaxf(a.Min().y, b.Min().y),
-        fminf(a.Max().z, b.Max().z) - fmaxf(a.Min().z, b.Min().z)
+
+    Vector3 contact_min = {
+        fmaxf(a.Min().x, b.Min().x),
+        fmaxf(a.Min().y, b.Min().y),
+        fmaxf(a.Min().z, b.Min().z)
     };
+
+    Vector3 contact_max = {
+        fminf(a.Max().x, b.Max().x),
+        fminf(a.Max().y, b.Max().y),
+        fminf(a.Max().z, b.Max().z)
+    };
+
+    Vector3 overlap = contact_max - contact_min;
     if (overlap.x > 0 && overlap.y > 0 && overlap.z > 0) {
         // Pick smallest axis
         if (overlap.x < overlap.y && overlap.x < overlap.z) {
@@ -52,6 +63,7 @@ CollisionResult CollideBoxBox(const BoxData &a, const BoxData &b) {
             res.penetration = overlap.z;
         }            
     }
+    res.hit_pos = (contact_max + contact_min) * 0.5f;
     return res;
 }
 
@@ -265,7 +277,6 @@ void HeightmapData::Draw() const {
 }
 
 void HeightmapData::SolveCollisionWith(BodyData &other) const{
-
     if (other.inverse_mass > 0) {
         float height = GetHeightAt(other.position.x, other.position.z);
         float min = other.Min().y;

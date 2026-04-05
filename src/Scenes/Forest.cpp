@@ -192,20 +192,20 @@ void Forest::Unload() {
 
 GameState Forest::PopulateState(const GameState &old_state) {
     GameState state;
-    {
-    BoxData box_data;
-    float a = 10;
-    box_data.SetHalfExtends(Vector3{a, a, a});
+    // {
+    // BoxData box_data;
+    // float a = 10;
+    // box_data.SetHalfExtends(Vector3{a, a, a});
 
-    BodyData body_data;
-    body_data.position = Vector3{0, 20, 40};
-    body_data.shapes.push_back(CollisionShape(box_data));
+    // BodyData body_data;
+    // body_data.position = Vector3{0, 20, 40};
+    // body_data.shapes.push_back(CollisionShape(box_data));
 
-    ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
-    state.world_data.GetActor(actor_key).render_data.model_key = Models::CubeExclamation;
-    }
+    // ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    // state.world_data.GetActor(actor_key).render_data.model_key = Models::CubeExclamation;
+    // }
 
-    for (int i = 1; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
         SphereData sphere_data;
         sphere_data.SetRadius(10.0f);
 

@@ -22,18 +22,18 @@ public:
     void add(PartitionUnit* unit);
     void remove(PartitionUnit* unit);    
 
-    void unit_with_grid(PartitionUnit* unit, float x, float y) const;
+    void unit_with_grid(PartitionUnit* unit, float x, float y, void* user_data) const;
 
-    void iterate_cells() const;
-    void handle_cell(int x, int y) const;
+    void iterate_cells(void* user_data) const;
+    void handle_cell(int x, int y, void* user_data) const;
     void move(PartitionUnit* unit, double x, double y);
 
-    void handle_partition_unit(PartitionUnit* unit, PartitionUnit* other) const;
+    void handle_partition_unit(PartitionUnit* unit, PartitionUnit* other, void* user_data) const;
 
     static const int NUM_CELLS = 10;
     static const int CELL_SIZE = 100;
 
-    void SetHandlePairFunc(std::function<void(PartitionUnit*, PartitionUnit*)> handle_pair) { m_handle_pair = handle_pair; }
+    void SetHandlePairFunc(std::function<void(PartitionUnit*, PartitionUnit*, void*)> handle_pair) { m_handle_pair = handle_pair; }
 
     int CoordIntoCell(float coord) const {
         int cell = (int)((coord+NUM_CELLS/2*PartitionGrid::CELL_SIZE) / PartitionGrid::CELL_SIZE);
@@ -56,7 +56,7 @@ public:
 
 private:
     PartitionUnit* m_cells[NUM_CELLS][NUM_CELLS];
-    std::function<void(PartitionUnit*, PartitionUnit*)> m_handle_pair = nullptr;
+    std::function<void(PartitionUnit*, PartitionUnit*, void*)> m_handle_pair = nullptr;
 };
 
 struct PartitionUnit {

@@ -14,7 +14,6 @@ constexpr uint32_t broadcast_game_metadata_tick_period = iters_per_sec;
 
 class GameServer : public Game{
 private:
-    uint32_t m_tick = 0;
     GameState m_game_state{};
     std::shared_ptr<EasyNetServer> m_server;
     Chat m_chat{};

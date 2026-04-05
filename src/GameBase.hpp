@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <map>
 #include <vector>
-#include <iostream>
 
 template<typename GameStateType, typename GameEventType, typename SerializedGameStateType>
 class GameBase {
@@ -11,23 +10,11 @@ protected:
     // usage: m_event_history[tick][event_index].second() = event
     std::map<uint32_t, std::vector<std::pair<uint32_t, GameEventType>>> m_event_history{};
     std::map<uint32_t, GameStateType> m_state_history{};
+    uint32_t m_tick;
 
 public:
     void AddEvent(GameEventType event, uint32_t id, uint32_t tick) {
         m_event_history[tick].push_back({id, event});
-    }
-
-    GameStateType ApplyEventsAsOneTick(const GameStateType& start_state) {
-        GameStateType result_state = start_state;
-        for (auto& [tick, events] : m_event_history) {
-            for (auto& [id, event] : events) {
-                ApplyEvent(result_state, event, id);
-            }
-        }
-        UpdateGameLogic(result_state);
-        m_event_history.clear();
-        
-        return result_state;
     }
 
     GameStateType ApplyEvents(const GameStateType& start_state, uint32_t start_tick, uint32_t end_tick) {        
@@ -40,7 +27,7 @@ public:
                     ApplyEvent(result_state, event, id);
                 }
             }
-            UpdateGameLogic(result_state);
+            UpdateGameLogic(result_state, currentTick);
             currentTick++;
         }
 
@@ -58,7 +45,7 @@ public:
     }
 
     virtual void ApplyEvent(GameStateType& state, const GameEventType& event, uint32_t id) = 0;
-    virtual void UpdateGameLogic(GameStateType& state) = 0;
+    virtual void UpdateGameLogic(GameStateType& state, uint32_t tick) = 0;
 
     virtual SerializedGameStateType Serialize(const GameStateType& state) = 0;
     virtual GameStateType Deserialize(SerializedGameStateType data) = 0;

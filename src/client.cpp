@@ -100,6 +100,8 @@ void Init() {
     SetWindowState(FLAG_WINDOW_TOPMOST);
     SetTargetFPS(iters_per_sec);
     SetExitKey(KEY_NULL);
+
+    InitAudioDevice();
     
     Rendering::Init();
 

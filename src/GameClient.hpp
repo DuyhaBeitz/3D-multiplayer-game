@@ -10,7 +10,6 @@
 
 class GameClient : public Game {
 private:
-    uint32_t m_tick = 0;
     uint32_t m_id = 0;
     std::shared_ptr<EasyNetClient> m_client;
 

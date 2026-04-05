@@ -4,7 +4,7 @@
 ActorData &ActorPartitioner::AddActor(ActorKey actor_key) {
     ActorData& actor = (*m_actors).at(actor_key);
     PartitionUnit unit(&m_grid, actor.body.position.x, actor.body.position.z);
-    unit.user_data = reinterpret_cast<void*>(&actor.body);
+    unit.user_data = reinterpret_cast<void*>(actor_key);
     
     if (m_units.find(actor_key) != m_units.end()) {
         RemoveActor(actor_key);
@@ -37,7 +37,8 @@ void ActorPartitioner::UpdateView() {
 
     // update moved actors
     for (auto unit_ptr : m_marked_units) {
-        BodyData* body = reinterpret_cast<BodyData*>(unit_ptr->user_data);
+        ActorKey key = (ActorKey)reinterpret_cast<uint64_t>(unit_ptr->user_data);
+        BodyData* body = &(*m_actors).at(key).body;
         unit_ptr->move(body->position.x, body->position.z);
     }
     m_marked_units.clear();

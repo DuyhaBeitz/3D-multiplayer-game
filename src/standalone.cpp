@@ -65,6 +65,8 @@ void Init() {
     SetTargetFPS(iters_per_sec);
     SetExitKey(KEY_NULL);
 
+    InitAudioDevice();
+
     Rendering::Init();
 
     game = std::make_unique<GameStandalone>(); 

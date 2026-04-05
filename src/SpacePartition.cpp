@@ -31,40 +31,40 @@ void PartitionGrid::remove(PartitionUnit *unit) {
     }
 }
 
-void PartitionGrid::unit_with_grid(PartitionUnit *unit, float x, float y) const {
+void PartitionGrid::unit_with_grid(PartitionUnit *unit, float x, float y, void* user_data) const {
     int cellX = CoordIntoCellCapped(x);
     int cellY = CoordIntoCellCapped(y);
     PartitionUnit* other = m_cells[cellX][cellY];
-    handle_partition_unit(unit, other);
+    handle_partition_unit(unit, other, user_data);
 
     // Also try the neighboring cells.
     int max = NUM_CELLS -1;
-    if (cellX > 0 && cellY > 0) handle_partition_unit(unit, m_cells[cellX - 1][cellY - 1]);
-    if (cellX < max && cellY < max) handle_partition_unit(unit, m_cells[cellX + 1][cellY + 1]);
+    if (cellX > 0 && cellY > 0) handle_partition_unit(unit, m_cells[cellX - 1][cellY - 1], user_data);
+    if (cellX < max && cellY < max) handle_partition_unit(unit, m_cells[cellX + 1][cellY + 1], user_data);
 
-    if (cellX > 0) handle_partition_unit(unit, m_cells[cellX - 1][cellY]);
-    if (cellX < max) handle_partition_unit(unit, m_cells[cellX + 1][cellY]);
+    if (cellX > 0) handle_partition_unit(unit, m_cells[cellX - 1][cellY], user_data);
+    if (cellX < max) handle_partition_unit(unit, m_cells[cellX + 1][cellY], user_data);
 
-    if (cellY > 0) handle_partition_unit(unit, m_cells[cellX][cellY - 1]);
-    if (cellY < max) handle_partition_unit(unit, m_cells[cellX][cellY + 1]);
+    if (cellY > 0) handle_partition_unit(unit, m_cells[cellX][cellY - 1], user_data);
+    if (cellY < max) handle_partition_unit(unit, m_cells[cellX][cellY + 1], user_data);
 
-    if (cellX > 0 && cellY < max) handle_partition_unit(unit, m_cells[cellX - 1][cellY + 1]);
-    if (cellX < max && cellY > 0) handle_partition_unit(unit, m_cells[cellX + 1][cellY - 1]);
+    if (cellX > 0 && cellY < max) handle_partition_unit(unit, m_cells[cellX - 1][cellY + 1], user_data);
+    if (cellX < max && cellY > 0) handle_partition_unit(unit, m_cells[cellX + 1][cellY - 1], user_data);
 }
 
-void PartitionGrid::iterate_cells() const {
+void PartitionGrid::iterate_cells(void* user_data) const {
     for (int x = 0; x < NUM_CELLS; x++) {
         for (int y = 0; y < NUM_CELLS; y++) {
-            handle_cell(x, y);
+            handle_cell(x, y, user_data);
         }
     }
 }
 
-void PartitionGrid::handle_cell(int x, int y) const {
+void PartitionGrid::handle_cell(int x, int y, void* user_data) const {
     PartitionUnit* unit = m_cells[x][y];
     while (unit) {
         // Handle other units in this cell.
-        handle_partition_unit(unit, unit->next);
+        handle_partition_unit(unit, unit->next, user_data);
 
         // Also try the neighboring cells.
         /*
@@ -72,21 +72,21 @@ void PartitionGrid::handle_cell(int x, int y) const {
         for the same reason that the inner loop starts after the current unit 
         — to avoid comparing each pair of units twice.
         */
-        if (x > 0 && y > 0) handle_partition_unit(unit, m_cells[x - 1][y - 1]);
-        if (x > 0) handle_partition_unit(unit, m_cells[x - 1][y]);
-        if (y > 0) handle_partition_unit(unit, m_cells[x][y - 1]);
+        if (x > 0 && y > 0) handle_partition_unit(unit, m_cells[x - 1][y - 1], user_data);
+        if (x > 0) handle_partition_unit(unit, m_cells[x - 1][y], user_data);
+        if (y > 0) handle_partition_unit(unit, m_cells[x][y - 1], user_data);
         if (x > 0 && y < NUM_CELLS - 1)
         {
-        handle_partition_unit(unit, m_cells[x - 1][y + 1]);
+        handle_partition_unit(unit, m_cells[x - 1][y + 1], user_data);
         }
 
         unit = unit->next;
     }
 }
 
-void PartitionGrid::handle_partition_unit(PartitionUnit *unit, PartitionUnit *other) const {
+void PartitionGrid::handle_partition_unit(PartitionUnit *unit, PartitionUnit *other, void* user_data) const {
     while (other) {
-        if (m_handle_pair) m_handle_pair(unit, other);
+        if (m_handle_pair) m_handle_pair(unit, other, user_data);
         other = other->next;
     }
 }

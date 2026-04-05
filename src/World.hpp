@@ -4,9 +4,12 @@
 #include <raymath.h>
 
 #include "ResourceData.hpp"
+
 #if WITH_RENDER
 #include "Resources.hpp"
+#include "Audio.hpp"
 #endif
+
 #include <map>
 
 #include "Actor.hpp"
@@ -28,6 +31,34 @@ struct WorldData {
     std::map<ActorKey, ActorData> actors{};
     ActorPartitioner m_partitioner;
 
+    void HandlePhysicsPair(PartitionUnit* un1, PartitionUnit* un2, void* user_data) {
+        if (un1 && un2 && un1 != un2) {
+            ActorKey key1 = (ActorKey)reinterpret_cast<uint64_t>(un1->user_data);
+            ActorKey key2 = (ActorKey)reinterpret_cast<uint64_t>(un2->user_data);
+            BodyData* body1 = &actors[key1].body;
+            BodyData* body2 = &actors[key2].body;
+            if (body1 && body2) {
+                CollisionResult res = body1->CollideWith(*body2);
+                if (res.penetration >= 0) {
+                    SolveCollision(*body1, *body2, res);
+                    #if WITH_RENDER
+                    uint32_t tick = (uint32_t)reinterpret_cast<uint64_t>(user_data);
+                    
+                    static int c = 0;
+                    c++;
+                    std::cout << c << std::endl;
+                    Audio::Get().EmitSoundEvent(
+                        SoundEvent(FLAG_SOUND_PHYISCS_DD, key1, key2, tick,
+                            res.hit_pos, body1->velocity-body2->velocity,
+                            R_SOUND_DEFAULT
+                        )
+                    );
+                    #endif
+                }
+            }
+        }
+    }
+
     WorldData() : m_partitioner(&actors) {
         /*
         The world data is constantly copied for reconciliation
@@ -35,15 +66,9 @@ struct WorldData {
         So do not add actors here or do anything stupid, because then mismatch will happen
         */        
 
-        m_partitioner.GetGrid().SetHandlePairFunc(
-            [](PartitionUnit* un1, PartitionUnit* un2){
-                if (un1 && un2) {
-                    BodyData* body1 = reinterpret_cast<BodyData*>(un1->user_data);
-                    BodyData* body2 = reinterpret_cast<BodyData*>(un2->user_data);
-                    if (body1 && body2) SolveCollision(*body1, *body2, body1->CollideWith(*body2));
-                }
-            }
-        );
+        m_partitioner.GetGrid().SetHandlePairFunc([this](PartitionUnit* un1, PartitionUnit* un2, void* user_data){
+            HandlePhysicsPair(un1, un2, user_data);
+        });
     }
 
     WorldData(const WorldData& other)
@@ -51,15 +76,9 @@ struct WorldData {
         , actors(other.actors)
         , m_partitioner(&actors)
     {
-        m_partitioner.GetGrid().SetHandlePairFunc(
-            [](PartitionUnit* un1, PartitionUnit* un2){
-                if (un1 && un2) {
-                    BodyData* body1 = reinterpret_cast<BodyData*>(un1->user_data);
-                    BodyData* body2 = reinterpret_cast<BodyData*>(un2->user_data);
-                    if (body1 && body2) SolveCollision(*body1, *body2, body1->CollideWith(*body2));
-                }
-            }
-        );
+        m_partitioner.GetGrid().SetHandlePairFunc([this](PartitionUnit* un1, PartitionUnit* un2, void* user_data){
+            HandlePhysicsPair(un1, un2, user_data);
+        });
     }
 
     WorldData& operator=(const WorldData& other) {
@@ -67,15 +86,10 @@ struct WorldData {
             new_actor_key = other.new_actor_key;
             actors = other.actors;
             m_partitioner = ActorPartitioner(&actors);
-            m_partitioner.GetGrid().SetHandlePairFunc(
-                [](PartitionUnit* un1, PartitionUnit* un2){
-                if (un1 && un2) {
-                    BodyData* body1 = reinterpret_cast<BodyData*>(un1->user_data);
-                    BodyData* body2 = reinterpret_cast<BodyData*>(un2->user_data);
-                    if (body1 && body2) SolveCollision(*body1, *body2, body1->CollideWith(*body2));
-                }
-            }
-            );
+
+            m_partitioner.GetGrid().SetHandlePairFunc([this](PartitionUnit* un1, PartitionUnit* un2, void* user_data){
+                HandlePhysicsPair(un1, un2, user_data);
+            });
         }
         return *this;
     }
@@ -83,8 +97,6 @@ struct WorldData {
 #if WITH_RENDER
     void Draw(const GameDrawingData &drawing_data) const;
 #endif
-
-    void Update(float delta_time, const GameMetadata& game_metadata, const SceneBase* scene);
 
     bool ActorExists(ActorKey key) const {return actors.find(key) != actors.end();}
     

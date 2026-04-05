@@ -118,6 +118,7 @@ struct CollisionShape {
 
 struct CollisionResult {
     Vector3 normal{}; // from B to A (inwards)
+    Vector3 hit_pos{};
     float penetration = -1;
 
     // for solving BA case when AB is implemented

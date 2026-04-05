@@ -186,8 +186,26 @@ public:
 
     virtual void Draw(const GameState& state, const GameDrawingData& data);
 
-    virtual void UpdateGameLogic(GameState& state) {
-        state.world_data.Update(dt, m_game_metadata, m_scene_manager.GetScene());
+    virtual void UpdateGameLogic(GameState& state, uint32_t tick) {
+        constexpr int phys_iters = 10;
+        float sub_dt = dt / phys_iters;
+        
+        WorldData& w = state.world_data;
+
+        w.m_partitioner.UpdateView();
+        for (int i = 0; i < phys_iters; i++) {
+            void* grid_user_data = reinterpret_cast<void*>(tick);
+            w.m_partitioner.GetGrid().iterate_cells(grid_user_data);
+            for (auto& [actor_key, actor_data] : w.actors) {
+                if (m_scene_manager.GetScene()) {
+                    m_scene_manager.GetScene()->UpdateActor(state, actor_key, tick);
+                }                
+            }
+            for (auto& [key, actor_data] : w.actors) {
+                actor_data.Update(sub_dt);
+            }
+            w.m_partitioner.UpdateView();
+        }
     }
 
     virtual GameState Lerp(const GameState& state1, const GameState& state2, float alpha, const void* data);

@@ -33,7 +33,7 @@ public:
     virtual GameState PopulateState(const GameState &old_state) = 0;
 
     virtual void InitNewPlayer(GameState &state, uint32_t id) = 0; 
-    virtual void SolveCollisionWith(BodyData &other) const = 0;
+    virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick) const = 0;
 
     virtual Scenes CheckSceneChange(const GameState &state) = 0;
     //virtual void Update(WorldData& world) = 0;
