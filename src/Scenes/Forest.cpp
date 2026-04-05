@@ -266,12 +266,9 @@ void Forest::InitNewPlayer(GameState &state, uint32_t id) {
     state.players[id] = player_data;
 }
 
-void Forest::UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick, void *user_data) {
-    UpdateUserData* update_data = reinterpret_cast<UpdateUserData*>(user_data);
-
+void Forest::UpdateActorVisuals(GameState &state, ActorKey actor_key, uint32_t tick, void *user_data) {
     #if WITH_RENDER
 
-    
     //auto [is_player, id] = state.IsPlayer(actor_key);
     if (state.world_data.ActorExists(actor_key)) {
         ActorData actor_data = state.world_data.GetActor(actor_key);

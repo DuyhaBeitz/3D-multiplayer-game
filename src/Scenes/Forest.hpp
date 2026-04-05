@@ -59,7 +59,7 @@ public:
     virtual Scenes CheckSceneChange(const GameState &state);
     virtual void InitNewPlayer(GameState &state, uint32_t id); 
 
-    virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick, void* user_data);
+    virtual void UpdateActorVisuals(GameState &state, ActorKey actor_key, uint32_t tick, void* user_data) override;
 
     //virtual void Update(WorldData& world);
 };

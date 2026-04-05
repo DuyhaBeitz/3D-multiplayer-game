@@ -36,6 +36,7 @@ public:
     virtual void InitNewPlayer(GameState &state, uint32_t id) = 0; 
     virtual void UpdateActorPhysics(GameState &state, ActorKey actor_key, uint32_t tick) = 0;
     virtual void UpdateActor(GameState &state, ActorKey actor_key, uint32_t tick, void* user_data) {};
+    virtual void UpdateActorVisuals(GameState &state, ActorKey actor_key, uint32_t tick, void* user_data) {};
 
     virtual Scenes CheckSceneChange(const GameState &state) = 0;
     //virtual void Update(WorldData& world) = 0;

@@ -4,7 +4,7 @@
 #include "Chat.hpp"
 #include "shared.hpp"
 
-constexpr uint32_t tick_period = iters_per_sec/5; // broadcast game state every 100 ms
+constexpr uint32_t tick_period = iters_per_sec/10; // broadcast game state every 100 ms
 constexpr uint32_t send_tick_period = iters_per_sec; // sync client's tick with server's tick
 constexpr uint32_t server_lateness = iters_per_sec/2;
 // ensuring that we're not substructing bigger uint32_t from the smaller one

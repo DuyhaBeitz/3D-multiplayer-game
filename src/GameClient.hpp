@@ -178,7 +178,7 @@ public:
         Audio::Get().Update(m_tick);
     }
 
-    void DrawGame() {            
+    void DrawGame() {
         if (m_game_state.PlayerExists(m_id)) {
             const PlayerData& player_data = m_game_state.GetPlayer(m_id);
             if (m_game_state.world_data.ActorExists(player_data.actor_key)) {
@@ -200,6 +200,10 @@ public:
                     }
                     smooth = Lerp(smooth, m_game_state, 1.0, &except_keys);
                    
+                    for (auto& [actor_key, actor_data] : smooth.world_data.actors) {
+                        m_scene_manager.GetScene()->UpdateActorVisuals(smooth, actor_key, m_tick, nullptr);
+                    }
+                    
                     // everything is client-predicted, except other players - they are lerped
                     Draw(smooth, drawing_data);
                 Rendering::Get().EndRendering();
