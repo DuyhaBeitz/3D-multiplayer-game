@@ -8,6 +8,7 @@ Settings::Settings() {
 
 void Settings::Update() {
     Audio::Get().SetSFXVolume(m_sfx_volume);
+    Resources::Get().SetMusicVol(m_music_volume);
 
     R3D_SetResolution(GetScreenWidth() * m_resolution_scale, GetScreenHeight() * m_resolution_scale);
     if (m_dof_enabled) {

@@ -8,6 +8,7 @@ private:
     }
 
     float m_sfx_volume = 1.0f;
+    float m_music_volume = 1.0f;
 
     float m_resolution_scale = 0.3f;
 
@@ -34,6 +35,8 @@ public:
     void Update();
 
     float* GetSFXVolumePtr() { return &m_sfx_volume; }
+    float* GetMusicVolumePtr() { return &m_music_volume; }
+
     float* GetResolutionScalePtr() { return &m_resolution_scale; }
     
     bool* GetDofEnabledPtr() { return &m_dof_enabled; }

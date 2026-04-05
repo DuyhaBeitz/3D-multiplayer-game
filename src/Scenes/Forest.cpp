@@ -49,6 +49,8 @@ void Forest::LoadResources() {
     std::cout << "Loading scene resources..." << std::endl;
 
     Resources& r = Resources::Get();
+    r.LoadSoundtrack("assets/2021_HSV1_Tomb_of_the_Forgotten.wav", 0.1);
+
     //ModelAliased& p = SetModelNonAnimated(R_MODEL_DEFAULT, "assets/model.glb");
     ModelAliased& player = r.SetModelAnimated(Models::Player, "assets/Solus_the_knight.gltf", 10);
     player.SetScale(1.5f);
@@ -168,6 +170,7 @@ void Forest::Load() {
     R3D_ENVIRONMENT_SET(fog.skyAffect, 0.5f);
 
     LoadResources();
+    Resources::Get().PlayMusic();
     #endif
 }
 
@@ -181,6 +184,9 @@ void Forest::Unload() {
     
     R3D_UnloadAmbientMap(m_ambient_map);
     R3D_UnloadCubemap(m_cubemap);
+
+    Resources::Get().StopMusic();
+    Resources::Get().TryUnloadSoundtrack();
     #endif
 };
 

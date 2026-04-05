@@ -19,7 +19,7 @@ private:
     void UnloadResources();
 
     std::unordered_map<ActorKey, R3D_Light> m_lights;
-
+    
     R3D_Light CreateLight() {
         R3D_Light light = R3D_CreateLight(R3D_LIGHT_SPOT);
         R3D_SetShadowUpdateMode(light, R3D_SHADOW_UPDATE_INTERVAL);

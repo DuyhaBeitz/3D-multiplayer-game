@@ -176,6 +176,7 @@ public:
         m_ui_screen->Update(nullptr);
         
         Audio::Get().Update(m_tick);
+        Resources::Get().MusicUpdate();
     }
 
     void DrawGame() {

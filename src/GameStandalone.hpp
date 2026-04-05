@@ -53,6 +53,7 @@ public:
         }
 
         Audio::Get().Update(m_tick);
+        Resources::Get().MusicUpdate();
     }
 
     void DrawGame() {

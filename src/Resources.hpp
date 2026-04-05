@@ -328,6 +328,11 @@ private:
     std::unordered_map<FontKey, Font> m_fonts;
     std::unordered_map<SoundKey, SoundPro> m_sounds;
 
+    bool m_soundtraack_loaded = false;
+    float m_music_volume = 1.0f;
+    float m_current_soundtrack_volume = 1.0f;
+    Music m_soundtrack;
+
     int max_font_size = 128; // any begger than that will be upscaled
 
     Resources() {
@@ -451,6 +456,36 @@ public:
         }
         m_sounds.clear();
     }
+
+    void LoadSoundtrack(std::string filename, float volume = 1.0f) {
+        m_soundtraack_loaded = true;
+        m_soundtrack = LoadMusicStream(filename.c_str());
+        m_current_soundtrack_volume = volume;
+    }
+
+    void TryUnloadSoundtrack() {
+        if (m_soundtraack_loaded) {
+            UnloadMusicStream(m_soundtrack);
+            m_soundtraack_loaded = false;
+        }
+    }
+
+    void MusicUpdate() {
+        if (m_soundtraack_loaded) {
+            SetMusicVolume(m_soundtrack, m_current_soundtrack_volume * m_music_volume);
+            UpdateMusicStream(m_soundtrack);
+        }
+    }
+
+    void PlayMusic() {
+        if (m_soundtraack_loaded) PlayMusicStream(m_soundtrack);
+    }
+
+    void StopMusic() {
+        if (m_soundtraack_loaded) StopMusicStream(m_soundtrack);
+    }
+
+    void SetMusicVol(float music_volume) { m_music_volume = music_volume; }
 
     Resources(const Resources&) = delete;
     Resources& operator=(const Resources&) = delete;
