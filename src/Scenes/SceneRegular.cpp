@@ -170,7 +170,7 @@ void SceneRegular::UpdateActorPhysics(GameState &state, ActorKey actor_key, uint
                     actor_key, fake_key_for_heightmap, tick,
                     res.hit_pos, body.velocity,
                     R_SOUND_WALK,
-                    0.1
+                    0.2
                 )
             );
         }

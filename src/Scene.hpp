@@ -18,7 +18,7 @@ enum class Scenes : uint8_t {
     Green,
     Forest
 };
-constexpr Scenes default_scene = Scenes::Forest;
+constexpr Scenes default_scene = Scenes::Desert;
 
 class SceneBase {
 private:

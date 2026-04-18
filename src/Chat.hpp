@@ -70,7 +70,7 @@ public:
 
         Font font = Resources::Get().FontFromKey(R_FONT_DEFAULT);
 
-        const float max_width = GetScreenWidth() * 0.35f;
+        const float max_width = GetScreenWidth() * 0.15f;
 
         float total_height = 0.0f;
         std::vector<std::vector<std::string>> wrapped_texts;
