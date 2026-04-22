@@ -46,17 +46,6 @@ Rendering::Rendering() {
     // R3D_ENVIRONMENT_SET(bloom.threshold, 0.0f);
     // R3D_ENVIRONMENT_SET(bloom.softThreshold, 0.5f);
     // R3D_ENVIRONMENT_SET(bloom.filterRadius, 1.0f);
-
-    {
-    // For some reason need with the newer version of r3d
-    // update: this thing doesn't break EVERYTIHNG anymore
-    // but when deleted, some models disappear
-    BeginDrawing();
-    Camera3D cam {};
-    R3D_Begin(cam);
-    R3D_End();
-    EndDrawing();
-    } 
 }
 
 void Rendering::RenderModel(ModelKey model_key, Vector3 position, Vector3 rotationAxis, float rotationAngle, Vector3 scale) {
