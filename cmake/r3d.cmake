@@ -2,7 +2,7 @@
 # Allow users to override git tags to pin versions when desired
 set(RAYLIB_GIT_TAG 5.5 CACHE STRING "Git tag/branch for raylib")
 set(ASSIMP_GIT_TAG v6.0.4 CACHE STRING "Git tag/branch for assimp")
-set(R3D_GIT_TAG v0.9.1 CACHE STRING "Git tag/branch for r3d")
+set(R3D_GIT_TAG v0.10.0 CACHE STRING "Git tag/branch for r3d")
 
 # Configure raylib similar to r3d's vendored setup to avoid symbol clashes
 set(CUSTOMIZE_BUILD ON CACHE BOOL "" FORCE)

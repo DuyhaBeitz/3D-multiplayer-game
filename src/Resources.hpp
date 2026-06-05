@@ -13,6 +13,8 @@
 
 #include "ResourceData.hpp"
 
+#define INSTANCES_DISCARD false
+
 std::vector<int> CodepointsFromStr(const char* chars);
 Font LoadFontForCharacters(const char *fileName, int fontSize, const char* chars);
 R3D_Model LoadR3DModelFromMesh(R3D_Mesh mesh);
@@ -40,10 +42,10 @@ public:
     InstancesData() = default;
     InstancesData(int instance_count) : m_instance_count(instance_count) {
         m_instances = R3D_LoadInstanceBuffer(m_instance_count, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
-        m_positions = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION));
-        m_rotations = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION));
-        m_scales = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE));
-        m_colors = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR));
+        m_positions = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION, INSTANCES_DISCARD));
+        m_rotations = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION, INSTANCES_DISCARD));
+        m_scales = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE, INSTANCES_DISCARD));
+        m_colors = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR, INSTANCES_DISCARD));
 
         for (int i = 0; i < instance_count; i++)
         {
@@ -74,39 +76,39 @@ public:
     Color* GetColors() { return m_colors; }
 
     void SetPositions(std::vector<Vector3> positions) {
-        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION));
+        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_POSITION, INSTANCES_DISCARD));
         if (positions.size() != m_instance_count) throw std::logic_error("SetPositions for instanced model received wrong number of positions");
         for (int i = 0; i < m_instance_count; i++) {
             mapped[i] = positions[i];
         }
-        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION);
     }
 
     void SetRotations(std::vector<Quaternion> rotations) {
-        Quaternion* mapped = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION));
+        Quaternion* mapped = reinterpret_cast<Quaternion*>(R3D_MapInstances(m_instances, R3D_INSTANCE_ROTATION, INSTANCES_DISCARD));
         if (rotations.size() != m_instance_count) throw std::logic_error("SetRotations for instanced model received wrong number of rotations");
         for (int i = 0; i < m_instance_count; i++) {
             mapped[i] = rotations[i];
         }
-        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_ROTATION);
     }
 
     void SetScales(std::vector<Vector3> scales) {
-        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE));
+        Vector3* mapped = reinterpret_cast<Vector3*>(R3D_MapInstances(m_instances, R3D_INSTANCE_SCALE, INSTANCES_DISCARD));
         if (scales.size() != m_instance_count) throw std::logic_error("SetScales for instanced model received wrong number of scales");
         for (int i = 0; i < m_instance_count; i++) {
             mapped[i] = scales[i];
         }
-        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_SCALE);
     }
 
     void SetColors(std::vector<Color> colors) {
-        Color* mapped = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR));
+        Color* mapped = reinterpret_cast<Color*>(R3D_MapInstances(m_instances, R3D_INSTANCE_COLOR, INSTANCES_DISCARD));
         if (colors.size() != m_instance_count) throw std::logic_error("SetColors for instanced model received wrong number of colors");
         for (int i = 0; i < m_instance_count; i++) {
             mapped[i] = colors[i];
         }
-        R3D_UnmapInstances(m_instances, R3D_INSTANCE_POSITION | R3D_INSTANCE_ROTATION | R3D_INSTANCE_SCALE | R3D_INSTANCE_COLOR);
+        R3D_UnmapInstances(m_instances, R3D_INSTANCE_COLOR);
     }
 };
 
