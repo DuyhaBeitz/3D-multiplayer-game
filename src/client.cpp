@@ -11,6 +11,7 @@
 std::shared_ptr<UIScreen> connect_screen = nullptr;
 std::shared_ptr<UIBar> connect_bar = nullptr;
 std::shared_ptr<UIFuncButton> connect_button = nullptr;
+std::shared_ptr<UIFuncButton> close_button = nullptr;
 
 std::unique_ptr<MenusScreen> menus_screen = nullptr;
 
@@ -21,7 +22,7 @@ std::string server_ip = "127.0.0.1"; // buffer for ui ip input
 
 std::vector<std::string> servers{};
 
-void Init();
+void Init(int width, int height, int posX, int posY);
 void UpdateGame(float& accumulator);
 
 enum GameScreens {
@@ -31,8 +32,29 @@ enum GameScreens {
 
 GameScreens current_screen = PLAYING;
 
-int main() {
-    Init();
+int main(int argc, char* argv[]) {
+    int width  = 1920;
+    int height = 1080;
+    int posX   = 0;
+    int posY   = 0;
+
+    // Usage:
+    // ./app
+    // ./app width height
+    // ./app width height x y
+
+    if (argc >= 3)
+    {
+        width  = std::atoi(argv[1]);
+        height = std::atoi(argv[2]);
+    }
+
+    if (argc >= 5)
+    {
+        posX = std::atoi(argv[3]);
+        posY = std::atoi(argv[4]);
+    }
+    Init(width, height, posX, posY);
 
     float accumulator = 0.0f;
 
@@ -90,14 +112,16 @@ int main() {
     return 0;
 }
 
-void Init() {
+void Init(int width, int height, int posX, int posY) {
     EasyNetInit();
     
     Settings::Init();
 
     SetTraceLogLevel(raylib_log_level);
-    InitWindow(1920/2, 1080, "Client");
+    InitWindow(width, height, "Client");
+    SetWindowPosition(posX, posY);
     SetWindowState(FLAG_WINDOW_TOPMOST);
+    //SetWindowState(FLAG_WINDOW_UNDECORATED);
     SetTargetFPS(iters_per_sec);
     SetExitKey(KEY_NULL);
 
@@ -120,7 +144,7 @@ void Init() {
 
     connect_screen = std::make_shared<UIScreen>();
     connect_bar = std::make_shared<UIBar>(CenteredRect(0.9, 0.5));
-    int elems = 3 + servers.size();
+    int elems = 4 + servers.size();
     Rectangle rect = SizeRect(1, 1.0f/elems);
 
     auto ip_text = std::make_shared<UIText>("IP  ");    
@@ -132,10 +156,12 @@ void Init() {
     auto split_port = std::make_shared<UISplit>(port_text, server_port_button, 0.3f, rect);
 
     connect_button = std::make_shared<UIFuncButton>("Connect", rect);
+    close_button = std::make_shared<UIFuncButton>("Close", rect);
 
     connect_bar->AddChild(split_ip);
     connect_bar->AddChild(split_port);
     connect_bar->AddChild(connect_button);
+    connect_bar->AddChild(close_button);
     
     // Will be removed
     for (int i = 0; i < servers.size(); i++) {
@@ -152,6 +178,11 @@ void Init() {
 
     connect_button->BindOnReleased([](){
             net_client->ConnectToServer(server_ip, server_port);
+        }
+    );
+
+    close_button->BindOnReleased([](){
+            WindowGlobal::Get().SetRunning(false);
         }
     );
 
