@@ -56,7 +56,12 @@ struct PlayerInput {
     int UpDown() { return up - down; }
 
     bool IsEmpty() {
-        return mouse_x == 0.f && mouse_y == 0.f && Normalized().x == 0 && Normalized().y == 0 && UpDown() == 0;
+        return 
+        FloatEquals(mouse_x, 0) &&
+        FloatEquals(mouse_y, 0) &&
+        FloatEquals(Normalized().x, 0) &&
+        FloatEquals(Normalized().y, 0) &&
+        UpDown() == 0;
     }
 
     void ClearNonContinuous() {

@@ -19,11 +19,9 @@ public:
     };
 
     GameStandalone() {
-        Rendering::Init();
         m_scene_manager.GetScene()->Load();
         InitGame();
         
-        GameEvent game_event;
         AddPlayer(m_game_state, player_id);
     }
 
@@ -38,7 +36,7 @@ public:
             event.data = input.player_input;
             AddEvent(event, player_id, m_tick);
         }
-        
+
         UpdateUserData update_data;
         update_data.has_main_player = true;
         update_data.main_player_id = player_id;

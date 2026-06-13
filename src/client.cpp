@@ -173,7 +173,7 @@ void UpdateGame(float& accumulator) {
         accumulator -= dt;
         i++;
     }
-    input.Divide(i);
+    if (i > 0) input.Divide(i);
 
     game_client->Update(input);
     input.ClearNonContinuous();
