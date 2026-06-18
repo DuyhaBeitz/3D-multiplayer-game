@@ -12,32 +12,32 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(RaylibRetainedGUI)
 
-add_executable(server
-    src/World.cpp
-    src/Game.cpp
-    src/server.cpp
-    src/Physics.cpp
-    src/Resources.cpp
-    src/Rendering.cpp
-    src/WindowGlobal.cpp
-    src/GameMetadata.cpp
-    src/SpacePartition.cpp
-    src/SpaceActorPartitioner.cpp
-    src/ResourceData.cpp
-    src/SoundPro.cpp
+# add_executable(server
+#     src/World.cpp
+#     src/Game.cpp
+#     src/server.cpp
+#     src/Physics.cpp
+#     src/Resources.cpp
+#     src/Rendering.cpp
+#     src/WindowGlobal.cpp
+#     src/GameMetadata.cpp
+#     src/SpacePartition.cpp
+#     src/SpaceActorPartitioner.cpp
+#     src/ResourceData.cpp
+#     src/SoundPro.cpp
 
-    src/Scenes/SceneRegular.cpp
-    src/Scenes/Desert.cpp
-    src/Scenes/Green.cpp
-    src/Scenes/Forest.cpp
-    src/Scenes/Playground.cpp
-)
-target_link_libraries(server PUBLIC
-    EasyNet
-    fmt::fmt
-    raylib
-    r3d
-)
+#     src/Scenes/SceneRegular.cpp
+#     src/Scenes/Desert.cpp
+#     src/Scenes/Green.cpp
+#     src/Scenes/Forest.cpp
+#     src/Scenes/Playground.cpp
+# )
+# target_link_libraries(server PUBLIC
+#     EasyNet
+#     fmt::fmt
+#     raylib
+#     r3d
+# )
 
 add_executable(client 
     src/World.cpp
@@ -114,12 +114,12 @@ if(NOT raylib_SOURCE_DIR)
     FetchContent_GetProperties(raylib)
 endif()
 
-target_include_directories(server
-    PRIVATE
-        src
-        ${r3d_SOURCE_DIR}/include
-        ${raylib_SOURCE_DIR}/include
-)
+# target_include_directories(server
+#     PRIVATE
+#         src
+#         ${r3d_SOURCE_DIR}/include
+#         ${raylib_SOURCE_DIR}/include
+# )
 
 target_include_directories(client
     PRIVATE

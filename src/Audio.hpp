@@ -12,6 +12,7 @@
 #include <Rendering.hpp>
 
 constexpr int max_audio_history_tick = iters_per_sec*3;
+constexpr int max_dist = 10;
 
 enum SoundFlags : uint16_t {
     FLAG_SOUND_PHYISCS_DD = 1 << 0, // dynamic-dynamic collision
@@ -70,7 +71,7 @@ struct SoundEvent {
     Vector3 rel_vel;
     SoundKey sound_key;
     // for continuous, in seconds
-    float duration_treshold = 1.0f;
+    float duration_treshold = 2.0f;
 
     bool operator==(const SoundEvent& other) const {
         return  hash.flag == other.hash.flag &&
@@ -108,16 +109,19 @@ private:
         if (e.hash.flag & FLAG_SOUND_CONTINUOUS) {
             size_t h = SoundEventHashWithoutTick{}(e);
             int index = h % ALIASES_PER_SOUND;
-            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, 20);
+            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, max_dist);
             m_continuous.emplace(e);
         }
         else {
             size_t h = SoundEventHashWithoutTick{}(e);
             int index = h % ALIASES_PER_SOUND;
             // the difference is that this one doesn't get stopped
-            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, 20);
+            r.SoundFromKey(e.sound_key).PlayContinuous3D(index, rr.GetCamera(), e.hit_pos, max_dist);
         }
     }
+
+    // sometimes we need multiple game states updating in parallel, but we only want one to trigger sounds
+    bool emit_enabled = false;
 
 public:
 
@@ -153,9 +157,37 @@ public:
         }
     }
 
+    // void EmitSoundEvent(SoundEvent e) {
+    //     if (emit_enabled) {
+    //         if (m_played.find(e.hash) != m_played.end()) {
+    //             // just update position
+    //             Resources& r = Resources::Get();
+    //             Rendering& rr = Rendering::Get();
+    //             size_t h = SoundEventHashWithoutTick{}(e);
+    //             int index = h % ALIASES_PER_SOUND;
+    //             SetSoundPosition(rr.GetCamera(), r.SoundFromKey(e.sound_key).aliases[index], e.hit_pos, max_dist);
+    //         }
+    //         else {
+    //             if (m_played.insert(e.hash).second) { 
+    //                 PlaySoundAtEvent(e);
+    //             }
+    //         }
+    //     }
+    // }
+
     void EmitSoundEvent(SoundEvent e) {
-        if (!m_played.insert(e.hash).second) return;
-        PlaySoundAtEvent(e);
+        if (emit_enabled) {
+            if (m_played.find(e.hash) != m_played.end()) {
+                // just update position
+                Resources& r = Resources::Get();
+                Rendering& rr = Rendering::Get();
+                size_t h = SoundEventHashWithoutTick{}(e);
+                int index = h % ALIASES_PER_SOUND;
+                SetSoundPosition(rr.GetCamera(), r.SoundFromKey(e.sound_key).aliases[index], e.hit_pos, max_dist, Audio::Get().GetSFXVolume());
+            }
+            if (!m_played.insert(e.hash).second) return;
+            PlaySoundAtEvent(e);
+        }        
     }
 
     void Trim(uint32_t tick) {
@@ -170,4 +202,6 @@ public:
 
     float GetSFXVolume() { return m_sfx_volume; }
     void SetSFXVolume(float sfx_volume) { m_sfx_volume = sfx_volume; }
+    void EnableEmit() { emit_enabled = true; }
+    void DisableEmit() { emit_enabled = false; }
 };

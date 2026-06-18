@@ -4,6 +4,11 @@ APP="./build/client"
 
 SCREEN_W=1920*2
 SCREEN_H=1080*2
+COLS=2
+ROWS=1
+
+if [ -n "$1" ]; then COLS=$1; fi
+if [ -n "$2" ]; then ROWS=$2; fi
 
 # When the script exits or is interrupted, kill all children
 cleanup() {
@@ -12,9 +17,6 @@ cleanup() {
 }
 
 trap cleanup EXIT INT TERM
-
-COLS=2
-ROWS=1
 
 WIN_W=$(( SCREEN_W / COLS ))
 WIN_H=$(( SCREEN_H / ROWS ))

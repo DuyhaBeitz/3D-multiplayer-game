@@ -8,6 +8,8 @@
 
 #include <RaylibRetainedGUI/RaylibRetainedGUI.hpp>
 
+uint32_t tick_history_size = iters_per_sec * 2;
+
 class GameClient : public Game {
 private:
     uint32_t m_id = 0;
@@ -186,27 +188,37 @@ public:
                 Rendering::Get().SetCamera(
                     GetCameraFromActor(m_game_state.GetActor(m_id))
                 );
-                GameDrawingData drawing_data{
-                    {player_data.actor_key},
-                    m_game_metadata
-                };
                 
                 Rendering::Get().BeginRendering();
-                    std::set<ActorKey> except_keys = {};
-                    float alpha = float(m_ticks_since_last_received_game) / float(m_last_received_game_tick-m_prev_last_received_game_tick);
-                    GameState smooth = Lerp(m_prev_last_received_game, m_last_received_game, alpha, &except_keys);
+                    { // only for other players
+                    UpdateUserData update_data;
+                    update_data.has_main_player = true;
+                    update_data.main_player_id = m_id;
+                    void* user_data = reinterpret_cast<void*>(&update_data);
+                    uint32_t start = m_tick-m_prev_last_received_game_tick;
+                    uint32_t end = start + m_ticks_since_last_received_game;
 
-                    for (auto& [id, player] : m_game_state.players) {
-                        if (id != m_id) except_keys.insert(player.actor_key);
+                    Audio::Get().DisableEmit(); // we don't want to trigger sound events there
+                    GameState smooth = ApplyEvents(m_prev_last_received_game, start, end, user_data);
+                    Audio::Get().EnableEmit();
+                    for (auto& [id, player_data] : smooth.players) {
+                        if (id == m_id) continue;
+                        if (m_game_state.PlayerExists(id)) {
+                            m_game_state.players[id] = player_data;
+                            m_game_state.GetActor(id) = smooth.GetActor(id);
+                        }
                     }
-                    smooth = Lerp(smooth, m_game_state, 1.0, &except_keys);
-                   
-                    for (auto& [actor_key, actor_data] : smooth.world_data.actors) {
-                        m_scene_manager.GetScene()->UpdateActorVisuals(smooth, actor_key, m_tick, nullptr);
+                    }
+
+                    GameDrawingData drawing_data{
+                        {player_data.actor_key},
+                        m_game_metadata
+                    };
+                    for (auto& [actor_key, actor_data] : m_game_state.world_data.actors) {
+                        m_scene_manager.GetScene()->UpdateActorVisuals(m_game_state, actor_key, m_tick, nullptr);
                     }
                     
-                    // everything is client-predicted, except other players - they are lerped
-                    Draw(smooth, drawing_data);
+                    Draw(m_game_state, drawing_data);
                 Rendering::Get().EndRendering();
             }     
         }
@@ -275,9 +287,11 @@ public:
             update_data.has_main_player = true;
             update_data.main_player_id = m_id;
             void* user_data = reinterpret_cast<void*>(&update_data);
+            Audio::Get().DisableEmit(); // we don't want to trigger sound events there
             m_game_state = ApplyEvents(rec_state, data.tick, m_tick, user_data);
+            Audio::Get().EnableEmit();
 
-            DropEventHistory(data.tick-1);
+            DropEventHistory(data.tick-tick_history_size);
             
             m_last_received_game = rec_state;
             m_last_received_game_tick = data.tick;

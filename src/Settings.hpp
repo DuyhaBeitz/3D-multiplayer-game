@@ -10,7 +10,7 @@ private:
     float m_sfx_volume = 1.0f;
     float m_music_volume = 1.0f;
 
-    float m_resolution_scale = 1.0f;
+    float m_resolution_scale = 0.5f;
 
     bool m_dof_enabled = false;
     float m_dof_focus_point = 2.0f;

@@ -7,7 +7,8 @@ void SetSoundPosition(const Camera& listener, Sound sound, const Vector3& positi
     float distance = Vector3Length(direction);
     
     // Apply logarithmic distance attenuation and clamp between 0-1
-    float attenuation = 1.0f / (1.0f + (distance / maxDist));
+    float dist = 1.0f + (distance / maxDist);
+    float attenuation = 1.0f / (dist * dist);
     attenuation = Clamp(attenuation, 0.0f, 1.0f);
     
     // Calculate normalized vectors for spatial positioning
