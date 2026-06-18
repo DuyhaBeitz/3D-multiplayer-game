@@ -389,6 +389,12 @@ public:
         return m_models.at(model_key);
     }
 
+    ModelAliased& SetModelFromMesh(ModelKey model_key, R3D_Mesh mesh) {
+        if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
+        m_models[model_key].FromMeshNonAnimated(mesh);
+        return m_models.at(model_key);
+    }
+
     ModelAliased& SetModelNonAnimated(ModelKey model_key, std::string filename) {
         if (m_models.find(model_key) != m_models.end()) m_models.erase(model_key);
         m_models[model_key].LoadNonAnimated(filename);

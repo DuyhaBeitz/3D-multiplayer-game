@@ -80,22 +80,23 @@ void Forest::LoadResources() {
         )
     );
 
-    /*
-    {
-    R3D_Mesh mesh = R3D_GenMeshCube(2.0f, 2.0f, 2.0f);
-    m_models[R_MODEL_TEST].FromMeshNonAnimated(mesh);
-    R3D_Material mat = R3D_GetDefaultMaterial();
-    Color clr = RED;
     
-    mat.albedo.color = clr;
-    mat.emission.color = clr;
-    mat.emission.energy = 0;
-    mat.orm.metalness = 0;
-    mat.orm.roughness = 1.0;
-    mat.orm.occlusion = 0;
-    m_models[R_MODEL_TEST].SetMaterial(mat);
-    }
-    */
+    // {
+    // R3D_Mesh mesh = R3D_GenMeshCube(2.0f, 2.0f, 2.0f);
+    // ModelAliased& test = r.SetModelFromMesh(Models::Test, mesh);
+
+    // R3D_Material mat = R3D_GetDefaultMaterial();
+    // Color clr = RED;
+    
+    // mat.albedo.color = clr;
+    // mat.emission.color = clr;
+    // mat.emission.energy = 1;
+    // mat.orm.metalness = 0;
+    // mat.orm.roughness = 1.0;
+    // mat.orm.occlusion = 0;
+    // test.SetMaterial(mat);
+    // }
+    
     std::cout << "Successfully loaded scene resources" << std::endl;
 }
 
@@ -223,6 +224,19 @@ GameState Forest::PopulateState(const GameState &old_state) {
         state.world_data.GetActor(actor_key).render_data.model_key = Models::Football;
     }
     
+    // {
+    //     SphereData sphere_data;
+    //     sphere_data.SetRadius(10.0f);
+
+    //     BodyData body_data;
+    //     body_data.restitution = 2;
+    //     body_data.position = Vector3{10, 10, 10};
+    //     body_data.shapes.push_back(CollisionShape(sphere_data));
+
+    //     ActorKey actor_key = state.world_data.AddActor(ActorData(body_data));
+    //     state.world_data.GetActor(actor_key).render_data.model_key = Models::Test;
+    // }
+
     return state;
 }
 
