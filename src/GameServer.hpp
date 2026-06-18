@@ -122,6 +122,10 @@ public:
                 game_event.data = received.input;
 
                 AddEvent(game_event, id, received.tick);
+                
+                ENetPacket* packet_with_id = CreatePacketWithID<PlayerInputPacketData>(PLAYER_INPUT_WITH_ID, id, received, event.packet->flags);
+                m_server->BroadcastExcept(id, packet_with_id);
+                enet_packet_destroy(packet_with_id);
             }
             break;
 

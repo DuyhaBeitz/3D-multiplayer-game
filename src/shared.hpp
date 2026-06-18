@@ -5,7 +5,8 @@
 
 int server_port = 7777;
 enum NetMsg : MessageType {
-    PLAYER_INPUT = 0,
+    PLAYER_INPUT = 0, // client to server
+    PLAYER_INPUT_WITH_ID, // then server to other clients
     PLAYER_JOIN,
     PLAYER_LEAVE,
     GAME_STATE,

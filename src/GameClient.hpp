@@ -227,6 +227,18 @@ public:
     void OnReceive(ENetEvent event) {
         MessageType msgType = ExtractMessageType(event.packet);
         switch (msgType) {
+        case NetMsg::PLAYER_INPUT_WITH_ID:
+            {
+                auto [received, id] = ExtractDataWithID<PlayerInputPacketData>(event.packet);
+
+                GameEvent game_event;
+                game_event.event_id = EV_PLAYER_INPUT;
+                game_event.data = received.input;
+
+                AddEvent(game_event, id, received.tick);
+            }
+            break;
+
         case NetMsg::GAME_TICK:
             m_tick = CalculateTickWinthPing(ExtractData<uint32_t>(event.packet));
             break;

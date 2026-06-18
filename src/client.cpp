@@ -121,7 +121,7 @@ void Init(int width, int height, int posX, int posY) {
     InitWindow(width, height, "Client");
     SetWindowPosition(posX, posY);
     SetWindowState(FLAG_WINDOW_TOPMOST);
-    //SetWindowState(FLAG_WINDOW_UNDECORATED);
+    SetWindowState(FLAG_WINDOW_UNDECORATED);
     SetTargetFPS(iters_per_sec);
     SetExitKey(KEY_NULL);
 
