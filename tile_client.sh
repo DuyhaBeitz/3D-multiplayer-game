@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 COLS=2
-ROWS=2
+ROWS=1
 
 WIN_W=$(( SCREEN_W / COLS ))
 WIN_H=$(( SCREEN_H / ROWS ))

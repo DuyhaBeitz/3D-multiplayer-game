@@ -6,6 +6,7 @@
 #include "Scenes/Desert.hpp"
 #include "Scenes/Green.hpp"
 #include "Scenes/Forest.hpp"
+#include "Scenes/Playground.hpp"
 
 class SceneManager {
 private:
@@ -30,6 +31,11 @@ public:
             m_scene = std::make_unique<Green>();
             break;
         case Scenes::Forest:
+            m_scene = std::make_unique<Forest>();
+            break;
+        case Scenes::Playground:
+            m_scene = std::make_unique<Playground>();
+            break;
         default:
             m_scene = std::make_unique<Forest>();
             break;

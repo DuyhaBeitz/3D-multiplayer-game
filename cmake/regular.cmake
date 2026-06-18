@@ -30,6 +30,7 @@ add_executable(server
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
     src/Scenes/Forest.cpp
+    src/Scenes/Playground.cpp
 )
 target_link_libraries(server PUBLIC
     EasyNet
@@ -58,6 +59,7 @@ add_executable(client
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
     src/Scenes/Forest.cpp
+    src/Scenes/Playground.cpp
 )
 add_executable(standalone 
     src/World.cpp
@@ -79,6 +81,7 @@ add_executable(standalone
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
     src/Scenes/Forest.cpp
+    src/Scenes/Playground.cpp
 )
 add_executable(test
     src/World.cpp
@@ -98,6 +101,7 @@ add_executable(test
     src/Scenes/Desert.cpp
     src/Scenes/Green.cpp
     src/Scenes/Forest.cpp
+    src/Scenes/Playground.cpp
 )
 
 # r3d doesn't currently expose its public headers via target properties,
